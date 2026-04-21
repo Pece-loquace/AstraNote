@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta content="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AstraNote</title>
+        <link rel="icon" href="../assets/img/Logo/favicon_io/favicon.ico">
+    </head>
+
+    <style>
+
+        .sfondo {
+            display: flex;
+        }
+
+        .lang {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flag {
+            width: 35px;
+            height: 25px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+.flag:hover {
+  transform: scale(1.1);
+}
+
+        .btn-container {
+            display: flex;
+            gap: 50px;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 14px 28px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            width: auto;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+
+    <script>
+        const translations = {
+            it: {
+                login: "Accedi",
+                Registrati: "Registrati"
+            },
+            en: {
+                login: "Login",
+                Registrati: "Subscribe"
+              }
+        };
+
+        function isLanguage() {
+
+        }
+
+        function setLanguage(lang) {
+            document.getElementById("login").textContent = translations[lang].login;
+            document.getElementById("Registrati").textContent = translations[lang].Registrati;
+
+            localStorage.setItem("language", lang);
+
+            document.getElementById(lang).setAttribute("hidden", "False");
+        }
+
+        const saved_lang = localStorage.getItem("language") || translations["it"];
+        setLanguage(saved_lang);
+    </script>
+
+    <body>
+        <header class="header">
+            <div class="bandiere">
+                <select class="lang">
+                    <option><img id="flag-it" class="flag" src="..\assets\img\Bandiere\it_curve.png" alt="Italiano" onclick="setLanguage('it')"></option>
+                    <option><img id="flag-en" class="flag" src="..\assets\img\Bandiere\en_curve.png" alt="English" onclick="setLanguage('en')"></option>
+                </select>
+            </div>
+        </header>
+
+        <img class="sfondo" src="..\assets\img\Logo\Logo_2.jpeg" alt="Logo" class="logo">
+
+        <div class="btn-container">
+            <button class="btn" id="login">Accedi</button>
+            <button class="btn" id="Registrati">Registrati</button>
+        </div>
+        
+    </body>
+</html>
