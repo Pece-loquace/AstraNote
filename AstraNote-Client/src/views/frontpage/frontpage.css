@@ -1,0 +1,163 @@
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+        }
+
+        #overlay {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0, 174, 255, 0.192) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 174, 255, 0.192) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridShift 20s linear infinite;
+        }
+
+        @keyframes gridShift {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: 40px 40px;
+            }
+        }
+
+        .hero {
+            height: 78vh;
+            width: 100%;
+            background-image: url("../assets/img/Logo/AstraNote_Banner_IT.png");
+            background-size: 60%;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .lang {
+            display: flex;
+            gap: 10px;
+            justify-content: left;
+        }
+
+        .tema_cnt {
+            z-index: 10;
+            display: flex;
+            justify-content: flex-end;
+
+            width: 100%;              /* occupa tutta la riga */
+            padding-right: 50px;      /* distanza dal bordo destro */
+            margin-top: 15px;
+        }
+
+        .navbar {
+            background: #007BFF;
+            padding: 10px 15px;
+            border-radius: 10px;
+
+            width: auto;              /* si adatta al contenuto */
+            height: auto;             /* non forzare altezza */
+        }
+
+        .menu {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin: 0;
+            padding: 0;               /* meglio senza padding qui */
+        } 
+
+        .menu li { 
+            position: relative; 
+        }
+
+        .menu a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;       /* padding coerente */
+            display: block;
+            font-size: 18px;          /* testo più grande */
+        }
+
+        .dropdown_tema {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #97950fb7;
+            list-style: none;
+            padding: 10px;           /*da 15px a 10 px*/
+            margin: 0;
+
+            width: 180px;             /* più largo */
+            border-radius: 6px;
+        }
+
+        .dropdown_tema li a {
+            padding: 10px;            /*da 5px a 10 px*/
+            font-size: 18px;
+        }
+
+        .dropdown_tema li a:hover {
+            background-color: #3b3a0198;
+            color: white;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.404);
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .dropdown:hover .dropdown_tema {
+            display: block;
+        }
+        
+        .flag {
+            width: 60px;
+            height: 50px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .flag:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 50px;
+            justify-content: center;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 14px 28px;
+            font-size: 24px;
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.404);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 200px;
+            height: 50px;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+
