@@ -104,7 +104,7 @@ app.put('/api/appunti/{id}', async(req,res) => {
     res.json(response.data)
 })
 
-app.delete('/api/appunti/{id}',async(req,res) => {
+app.delete('/api/appunti/:id',async(req,res) => {
     const idAppunto = req.params.id;
 
     const response = await supabase
@@ -324,6 +324,20 @@ app.get('/api/file_scaricati', async (req,res)=>{
     res.json(data)
 })
 
+/*Endpoint per restituire i corsi della facoltà nel momento del login */
+app.get('/api/facolta/:id/corsi', async(req,res)=>{
+    const idFacoltà = req.params.id;
+
+    const {data,error} = await supabase
+        .from('corsi')
+        .select('*')
+        .eq('facoltà',idFacolta)
+    
+    if(error){
+        return res.status(500).json({error:"Errore nella query al database"})
+    }
+    res.json(data)
+})
 
 
 //---------------------SESSIONI---------------------
@@ -362,7 +376,7 @@ app.use(express.json()); //consente agli handler di leggere il body (renza quest
 
 const bcrypt = require('bcrypt') 
 
-
+/*Accede ai dati utente quando vado nell'homepage */
 app.get('/api/me', (req, res) => {
 
     
@@ -412,16 +426,36 @@ app.post("/api/login", async (req,res) =>{
 
 
 
-app.post("/api/register", async (req, res) =>{
-    const {username, email, password,facoltà} = req.body; 
+app.post("/api/register", upload.single('file'), async (req, res) =>{
+    const {username, email, password,facolta} = req.body; 
 
-    //console.log("ricevuti: " + username +", "+ email +", " + password)
-
-    if (!username || !email || !password || !facoltà) {
+    if (!username || !email || !password || !facolta) {
         return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
     }
 
+    console.log("Tutti i campi sono stati riempiti")
+
+    //Upload dell'immagine
+    const response = await supabase.storage
+        .from('Appunti')
+        .upload(`${Date.now()}_${file.originalname}`,file.buffer,{
+            contentType: file.mimetype
+        });
     
+    if(response.error){
+        console.error(error);
+        return res.status(200).json({error:"Errore nell'upload del file"})
+    }
+    console.log("Immagine caricata con successo")
+
+     //Ottengo l'URL pubblico
+    const imageUrl = supabase.storage
+        .from('Immagini')
+        .getPublicUrl(filePath)
+        .data;
+    const publicUrl = urlData.publicUrl; 
+
+
     if (password.length < 8) {
         return res.status(400).json({ error: "La password deve avere almeno 8 caratteri" });
     }
@@ -440,7 +474,8 @@ app.post("/api/register", async (req, res) =>{
                     username: username, 
                     email: email, 
                     password_hash: hash,
-                    facoltà: facoltà
+                    facolta: facolta,
+                    image_url: imageUrl
                 }
             ])
             .select();
