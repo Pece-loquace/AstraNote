@@ -1,0 +1,153 @@
+.navbarCnt {
+    display: flex;
+    gap: 50px;
+    background-color: #5a212f;
+}
+
+.logoCnt {
+    display: flex;
+}
+
+.logo {
+    width: 60px;
+}
+
+.flagCnt {
+    display: flex;
+}
+
+.flag {
+    width: 60px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.flag:hover {
+    transform: scale(1.1);
+}
+
+.temaCnt {
+    display: flex;
+    color: aliceblue;
+}
+
+.tema {
+    width: 50px;
+    filter: invert(100%);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.tema:hover {
+    transform: scale(1.1);
+}
+
+.libraryCnt {
+    display: flex;
+    padding: 15px;
+    gap: 10px;
+    color: rgb(77, 19, 5);
+    border: 2px solid transparent;
+
+    &:hover {
+        border-color: rgba(141, 98, 6, 0.699);
+    }
+    &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+.libraryIcon {
+    width: 40px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.library {
+    padding: 12px;
+}
+
+.searchCnt {
+    display: flex;
+    padding: 25px;
+    gap: 10px;
+}
+
+.searchIcon {
+    width: 30px;
+    filter: invert(100%);
+}
+
+.search {
+    padding: 3px;
+    width: 300px;
+    height: 30px;
+    background-color: rgba(128, 124, 124, 0.363);
+    color: black;
+    font-size: larger;
+
+    &:hover {
+        border-color: rgba(141, 98, 6, 0.699);
+        transition: 0.2;
+    }
+}
+
+.profileCnt {
+    display: flex;
+    padding: 15px;
+    gap: 10px;
+    color: rgb(77, 19, 5);
+    border: 2px solid transparent;
+
+    &:hover {
+        border-color: rgba(141, 98, 6, 0.699);
+    }
+    &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+.profileIcon {
+    width: 40px;
+    filter: invert(100%);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.profile {
+    padding: 12px;
+}
+
+.settingsCnt {
+    display: flex;
+    padding: 15px;
+    gap: 10px;
+    color: rgb(77, 19, 5);
+    border: 2px solid transparent;
+
+    &:hover {
+        border-color: rgba(141, 98, 6, 0.699);
+    }
+    &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+.settingsIcon {
+    width: 40px;
+    filter: invert(100%);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.settings {
+    padding: 12px;
+}
