@@ -1,6 +1,7 @@
 export default function Footer(){
   return (
-    <footer className="container-fluid bg-body-tertiary">
+    /*Il div più esterno min-height:100vh  */
+    <footer className="container-fluid bg-primary d-flex flex-column">
       <hr className = "border-3"/>
       <div className = "container text-center">
         <div className="row align-items-start">

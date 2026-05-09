@@ -29,7 +29,6 @@ export default function App() {
           <Route path = "/homepage" element = {<Homepage/>}/>
           <Route path = "/appunto_specifico" element = {<AppuntoSpecifico/>}/>
         </Route>
-
       </Routes>
     </BrowserRouter>
   );
