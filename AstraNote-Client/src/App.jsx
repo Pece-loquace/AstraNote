@@ -5,46 +5,32 @@ import Register from "./views/register/Register"
 import Frontpage from "./views/frontpage/frontpage"
 import Homepage from "./views/homepage/Homepage"
 import Login from "./views/login/Login"
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+import DefaultLayout from "./views/layout/DefaultLayout"
+import AuthLayout  from './views/layout/AuthLayout'
 
-/*
-const Layout = ()=> {
+import AppuntoSpecifico from './components/AppuntoSpecifico'
+
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom';
+
+export default function App() {
   return (
-    <>
-    <Navbar/>
-    <Outlet/>
-    <Footer/>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path = "/Frontpage" element = {<Frontpage/>}/>
+
+        <Route element={<AuthLayout/>}>
+          <Route path = "/login" element = {<Login/>}/>
+          <Route path = "/register" element = {<Register/>}/>
+        </Route>
+
+        <Route element={<DefaultLayout/>}>
+          <Route path = "/" element = {<Frontpage/>}/>
+          <Route path = "/homepage" element = {<Homepage/>}/>
+          <Route path = "/appunto_specifico" element = {<AppuntoSpecifico/>}/>
+        </Route>
+
+      </Routes>
+    </BrowserRouter>
   );
-};
-
-*/
-const router = createBrowserRouter([
-  {
-    path:"/",
-    element:<Frontpage/>,
-  },
-  {
-    path:"/register",
-    element: <Register/>,
-  },
-  {
-    path:"/login",
-    element: <Login/>,
-  },
-  {
-    path:"/homepage",
-    element:<Homepage/>,
-  }
-]);
-
-
-function App() {
-  return (
-    <div>
-      <RouterProvider router = {router}/>
-    </div>
-  )
 }
-
-export default App
