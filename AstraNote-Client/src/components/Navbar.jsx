@@ -49,7 +49,7 @@ function Navbar({children}) {
             <div className="temaCnt">
                 <img src={themeIcon} alt="tema" className="tema"></img>
             </div>
-            <div className="searchCnt">
+            <div className="searchCnt flex-grow-1">
                 <img src={searchIcon} className="searchIcon" alt="searchIcon" />
                 <input className="search" placeholder={translations[lang].search}></input>
             </div>

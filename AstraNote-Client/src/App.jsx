@@ -1,4 +1,4 @@
-import './App.css'
+
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
 import Register from "./views/register/Register"
