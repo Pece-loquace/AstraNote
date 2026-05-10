@@ -5,7 +5,7 @@ import Register from "./views/register/Register"
 import Frontpage from "./views/frontpage/frontpage"
 import Homepage from "./views/homepage/Homepage"
 import Login from "./views/login/Login"
-import DefaultLayout from "./views/layout/DefaultLayout"
+import DefaultLayout from "./views/Layout/DefaultLayout"
 import AuthLayout  from './views/layout/AuthLayout'
 
 import AppuntoSpecifico from './components/AppuntoSpecifico'
@@ -17,7 +17,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path = "/Frontpage" element = {<Frontpage/>}/>
+        <Route path = "/" element = {<Frontpage/>}/>
 
         <Route element={<AuthLayout/>}>
           <Route path = "/login" element = {<Login/>}/>
@@ -25,7 +25,6 @@ export default function App() {
         </Route>
 
         <Route element={<DefaultLayout/>}>
-          <Route path = "/" element = {<Frontpage/>}/>
           <Route path = "/homepage" element = {<Homepage/>}/>
           <Route path = "/appunto_specifico" element = {<AppuntoSpecifico/>}/>
         </Route>

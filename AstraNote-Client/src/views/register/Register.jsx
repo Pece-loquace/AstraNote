@@ -1,5 +1,6 @@
 import { useState } from 'react'
-
+import {Link} from "react-router-dom"
+import '../../style/buttons.css'
 
 
 const Register = () =>{
@@ -20,10 +21,16 @@ const Register = () =>{
     }
     return (
         <div className = 'register'>
-            <form>
+            <form className="form">
                 <input type = "text" placeholder = 'Username'/>
                 <input type = "email" placeholder = 'Email'/>
                 <input type ="password" placeholder = 'password'/>
+                <Link to ="http://localhost:5173/homepage">
+                    <button className="btn-custom">Invia</button>
+                </Link>
+                <Link to ="http://localhost:5173">
+                    <button className="btn-custom">Indietro</button>
+                </Link>
             </form>            
         </div>
     )

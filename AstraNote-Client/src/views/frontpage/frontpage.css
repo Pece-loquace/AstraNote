@@ -129,35 +129,4 @@
             transform: scale(1.1);
         }
 
-        .btn-container {
-            display: flex;
-            gap: 50px;
-            justify-content: center;
-        }
-
-        .btn {
-            background-color: #007BFF;
-            color: white;
-            padding: 14px 28px;
-            font-size: 24px;
-            border-radius: 8px;
-            border: none;
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.404);
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            width: 200px;
-            height: 50px;
-            display: inline-block;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.25);
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
 

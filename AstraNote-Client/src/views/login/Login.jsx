@@ -1,4 +1,6 @@
 import React from 'react'
+import {Link} from "react-router-dom"
+import '../../style/buttons.css'
 
 const Login = () =>{
     function handleOnSubmit(){
@@ -6,14 +8,21 @@ const Login = () =>{
     }
 
     return (
+        <>
         <div className = 'auth'>
             <h1>Login</h1>
-            <form onSubmit = {handleOnSubmit}>
-                <input type="email" placeholder = 'email'/>
-                <input type="password" placeholder = 'password'/>
-                <button>Login</button>
-            </form>
+            <div>
+                <form onSubmit = {handleOnSubmit}>
+                    <input type="email" placeholder = 'email'/>
+                    <input type="password" placeholder = 'password'/>
+                    <button className="btn-custom">Login</button>
+                    <Link to ="http://localhost:5173">
+                        <button className="btn-custom">Indietro</button>
+                    </Link>
+                </form>
+            </div>
         </div>
+        </>
     )
 }
 

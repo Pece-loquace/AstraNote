@@ -7,7 +7,7 @@ export default function Footer(){
         <div className="row align-items-start">
           <div className="col">
             <h3>Chi Siamo</h3>
-            <p className="container text-">
+            <p className="container text- fs-7">
               AstraNote è il sito per gli appunti e le dispense della facoltà Sapienza.
               Uno strumento creato per incentivare la condivisione tra studenti 
               dello stesso corso di laurea.

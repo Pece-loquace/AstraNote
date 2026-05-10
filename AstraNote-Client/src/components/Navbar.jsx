@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import flagIT from "../assets/flag-italy.svg"
 import flagUK from "../assets/flag-uk.svg"
-import themeIcon from "../assets/dark-theme.svg"
+//import themeIcon from "../assets/dark-theme.svg"
 import searchIcon from "../assets/search.svg"
 import libraryIcon from "../assets/library-1.svg"
 import profileIcon from "../assets/profile.svg"
 import settingsIcon from "../assets/settings.svg"
-import reactLogo from "../assets/react.svg"
+import AstraLogo from "../../public/AstraNote_Logo.svg"
 import "./Navbar.css"
 
 const translations = {
@@ -37,18 +37,20 @@ function Navbar({children}) {
 
     const cambiaLingua = () => {setLang(lang === 'it' ? 'en' : 'it')};
 
+    /*<div className="temaCnt">
+                <img src={themeIcon} alt="tema" className="tema"></img>
+            </div>*/
+
     return (
         <>
           <nav className="navbarCnt">
             <div className="logoCnt">
-                <img src={reactLogo} className="logo" alt="React logo"></img>
+                <img src={AstraLogo} className="logo" alt="React logo"></img>
             </div>
             <div className="flagCnt">
                 <img src={lang == 'it' ? flagIT : flagUK} alt="change lang" className="flag" onClick={cambiaLingua}></img>
             </div>
-            <div className="temaCnt">
-                <img src={themeIcon} alt="tema" className="tema"></img>
-            </div>
+            
             <div className="searchCnt flex-grow-1">
                 <img src={searchIcon} className="searchIcon" alt="searchIcon" />
                 <input className="search" placeholder={translations[lang].search}></input>
