@@ -7,10 +7,10 @@
 .sfondo {
     position: fixed;
     inset: 0;
-    z-index: -2;
-    pointer-events: none;
+    z-index: 0;
+
     background-image:
-        radial-gradient(var(--sfondo), 30px, transparent 3px);
+        radial-gradient(var(--sfondo)2px, transparent 2px);
     background-size: 40px 40px;
     animation: gridShift 20s linear infinite;
     }
@@ -18,13 +18,18 @@
 #overlay {
     position: fixed;
     inset: 0;
-    z-index: -1;
-    pointer-events: none;
+    z-index: 1;
+ 
     background-image:
         linear-gradient(rgba(0, 174, 255, 0.192) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 174, 255, 0.192) 1px, transparent 1px);
     background-size: 40px 40px;
     animation: gridShift 20s linear infinite;
+}
+
+.container{
+    position: relative;
+    z-index: 2;
 }
 
 @keyframes gridShift {

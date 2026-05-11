@@ -3,12 +3,13 @@ import '../../style/sfondo.css'
 import '../../style/buttons.css'
 import logo from "../../../public/AstraNote_Banner_IT.png"
 
+
 const Frontpage = () =>{
     return (
         <>
         <div className="sfondo"></div>
         <div id="overlay"></div>
-        <div>
+        <div className="container">
             <img src={logo} alt="logo" className="w-1"
                     style={{ 
                         backgroundSize: '60%',
@@ -17,7 +18,6 @@ const Frontpage = () =>{
                         width: '70%',
                         height: '70%'
                         }}/>
-        </div>
         <div className="container mt-5">
             <div className="d-flex gap-5 justify-content-center">
                 <Link to="/login">
@@ -32,6 +32,7 @@ const Frontpage = () =>{
                     </button>
                 </Link>
             </div>
+        </div>
         </div>
         </>
     );
