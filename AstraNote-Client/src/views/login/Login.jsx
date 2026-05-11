@@ -16,7 +16,7 @@ const Login = () =>{
                     <input type="email" placeholder = 'email'/>
                     <input type="password" placeholder = 'password'/>
                     <button className="btn-custom">Login</button>
-                    <Link to ="http://localhost:5173">
+                    <Link to ="/">
                         <button className="btn-custom">Indietro</button>
                     </Link>
                 </form>

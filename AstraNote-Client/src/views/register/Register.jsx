@@ -25,10 +25,10 @@ const Register = () =>{
                 <input type = "text" placeholder = 'Username'/>
                 <input type = "email" placeholder = 'Email'/>
                 <input type ="password" placeholder = 'password'/>
-                <Link to ="http://localhost:5173/homepage">
+                <Link to ="/homepage">
                     <button className="btn-custom">Invia</button>
                 </Link>
-                <Link to ="http://localhost:5173">
+                <Link to ="/">
                     <button className="btn-custom">Indietro</button>
                 </Link>
             </form>            

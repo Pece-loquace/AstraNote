@@ -1,0 +1,37 @@
+:root {
+    --dark: rgb(0, 0, 0);
+    --light: rgba(255, 255, 255, 0.788);
+    --sfondo: var(--light);
+}
+
+.sfondo {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background-image:
+        radial-gradient(var(--sfondo), 30px, transparent 3px);
+    background-size: 40px 40px;
+    animation: gridShift 20s linear infinite;
+    }
+
+#overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(0, 174, 255, 0.192) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 174, 255, 0.192) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridShift 20s linear infinite;
+}
+
+@keyframes gridShift {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 40px 40px;
+    }
+}
