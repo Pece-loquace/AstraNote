@@ -64,7 +64,7 @@ function validaRegistrazione({ nome, cognome, matricola, email, facolta, passwor
 
     if (!facolta) {
         errori.push("Devi selezionare una facoltà."); campiInErrore.add("facolta");
-    } 
+    }
 
     if (!password) {
         errori.push("Il campo password è obbligatorio."); campiInErrore.add("password");
@@ -117,7 +117,7 @@ export default function RegistrazioneConFacolta() {
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] });
-    const[facolta,setFacolta] = useState([]);
+    const [facolta, setFacolta] = useState([]);
     const navigate = useNavigate();
 
 
@@ -136,16 +136,16 @@ export default function RegistrazioneConFacolta() {
         setFeedback((prev) => (prev.show ? { ...prev, show: false } : prev));
     };
 
-    useEffect(()=>{
+    useEffect(() => {
         caricaFacolta()
-    },[])
+    }, [])
 
-    
+
     const caricaFacolta = async () => {
         try {
             const response = await fetch(API_BASE_URL);
-            if(!response.ok) throw new Error('Errore nel caricamento dei corsi')
-            
+            if (!response.ok) throw new Error('Errore nel caricamento dei corsi')
+
             const facolta = await response.json()
             console.log(facolta)
 
@@ -155,7 +155,7 @@ export default function RegistrazioneConFacolta() {
         }
     }
 
-    const handleSubmit = async(e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const { ok, errori, campiInErrore: nuoviErrori } = validaRegistrazione({ ...formData, conferma: formData.confermaPassword });
 
@@ -164,12 +164,12 @@ export default function RegistrazioneConFacolta() {
             setTuttiValidi(true);
             setCampiInErrore(new Set());
 
-            const response = await fetch('/api/register',{
-                method:'POST',
+            const response = await fetch('/api/register', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    nome:formData.nome,
-                    cognome:formData.cognome,
+                    nome: formData.nome,
+                    cognome: formData.cognome,
                     matricola: formData.matricola,
                     email: formData.email,
                     facolta: formData.facolta,
@@ -177,9 +177,9 @@ export default function RegistrazioneConFacolta() {
                 })
             });
 
-            if(response.ok){
+            if (response.ok) {
                 navigate("/login");
-            }else{
+            } else {
                 throw new Error("Impossibile completare l'ordine")
             }
 
@@ -246,12 +246,12 @@ export default function RegistrazioneConFacolta() {
                             <label htmlFor="facolta" className="form-label custom-label">Facoltà</label>
                             <select id="facolta" name="facolta" required value={formData.facolta} onChange={handleChange} className={`form-select ${classFor("facolta")}`}>
                                 <option value="" disabled>- Seleziona la tua facoltà -</option>
-                                
-                                {facolta.map(f=> (
-                                    <option key = {f.id} value = {f.id}>{f.nome}</option>
+
+                                {facolta.map(f => (
+                                    <option key={f.id} value={f.id}>{f.nome}</option>
                                 ))}
 
-                                
+
                             </select>
                         </div>
 
@@ -277,7 +277,7 @@ export default function RegistrazioneConFacolta() {
                         </div>
 
                         <div className="d-grid gap-2">
-                            <button type="submit" className="btn btn-bordeaux btn-lg custom-btn">Crea account</button>
+                            <button type="submit" className="btn-custom">Crea account</button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
                         </div>
 
