@@ -426,7 +426,6 @@ app.post("/api/login", async (req,res) =>{
     if (!user || error) {
         return res.status(401).json({ error: "Utente non trovato" });
     }
-
     
     const isPasswordCorrect = await bcrypt.compare(password, user.password_hash);
 
@@ -435,7 +434,7 @@ app.post("/api/login", async (req,res) =>{
         
         req.session.user = { 
             id: user.id, 
-            username: user.username, 
+            cognome: user.cognome, 
             email: user.email 
         };
 

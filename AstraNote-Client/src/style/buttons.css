@@ -3,6 +3,7 @@
     border-radius: 8px;
     padding: 8px 28px; 
     border: none; 
+    color: white;
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.404);
     transition: transform 0.3s, box-shadow 0.3s;
 }

@@ -11,7 +11,8 @@ import AuthLayout  from './views/layout/AuthLayout'
 import AppuntoSpecifico from './components/AppuntoSpecifico'
 
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Link, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Outlet, useNavigate } from 'react-router-dom';
+
 
 export default function App() {
   return (
