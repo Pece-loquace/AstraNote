@@ -3,8 +3,13 @@ import {Link} from "react-router-dom"
 import '../../style/buttons.css'
 
 const Login = () =>{
-    function handleOnSubmit(){
-        alert("Loggato");
+   
+
+    const handleSubmit = async() => {
+        const response = await fetch ("/api/login", {
+            method: POST,
+                
+        })
     }
 
     return (

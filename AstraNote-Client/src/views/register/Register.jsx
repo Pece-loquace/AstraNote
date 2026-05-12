@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"
 import "./Register.css";
 import "../../style/bootstrap.css"
 import "../../style/buttons.css"
@@ -76,9 +76,9 @@ function validaRegistrazione({ nome, cognome, matricola, email, facolta, passwor
 
     if (!facolta) {
         errori.push("Devi selezionare una facoltà."); campiInErrore.add("facolta");
-    } else if (!VERIFICA_FACOLTA.has(facolta)) {
+    } /*else if (!VERIFICA_FACOLTA.has(facolta)) {
         errori.push("La facoltà selezionata non è valida."); campiInErrore.add("facolta");
-    }
+    }*/
 
     if (!password) {
         errori.push("Il campo password è obbligatorio."); campiInErrore.add("password");
@@ -131,6 +131,10 @@ export default function RegistrazioneConFacolta() {
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] });
+    const[facolta,setFacolta] = useState([]);
+    const navigate = useNavigate();
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -146,7 +150,27 @@ export default function RegistrazioneConFacolta() {
         setFeedback((prev) => (prev.show ? { ...prev, show: false } : prev));
     };
 
-    const handleSubmit = (e) => {
+    useEffect(()=>{
+        caricaFacolta()
+    },[])
+
+    
+    const caricaFacolta = async () => {
+        try {
+            const response = await fetch("/api/facolta");
+            if(!response.ok) throw new Error('Errore nel caricamento dei corsi')
+            
+            const facolta = await response.json()
+            console.log(facolta)
+
+            setFacolta(facolta)
+        } catch (error) {
+            console.error(error)
+        }
+
+    }
+
+    const handleSubmit = async(e) => {
         e.preventDefault();
         const { ok, errori, campiInErrore: nuoviErrori } = validaRegistrazione({ ...formData, conferma: formData.confermaPassword });
 
@@ -154,6 +178,26 @@ export default function RegistrazioneConFacolta() {
             setFeedback({ show: true, type: "ok", errori: [] });
             setTuttiValidi(true);
             setCampiInErrore(new Set());
+
+            const response = await fetch('/api/register',{
+                method:'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nome:formData.nome,
+                    cognome:formData.cognome,
+                    matricola: formData.matricola,
+                    email: formData.email,
+                    facolta: formData.facolta,
+                    password: formData.password,
+                })
+            });
+
+            if(response.ok){
+                navigate("/login");
+            }else{
+                throw new Error("Impossibile completare l'ordine")
+            }
+
         } else {
             setFeedback({ show: true, type: "error", errori });
             setCampiInErrore(nuoviErrori);
@@ -217,18 +261,12 @@ export default function RegistrazioneConFacolta() {
                             <label htmlFor="facolta" className="form-label custom-label">Facoltà</label>
                             <select id="facolta" name="facolta" required value={formData.facolta} onChange={handleChange} className={`form-select ${classFor("facolta")}`}>
                                 <option value="" disabled>- Seleziona la tua facoltà -</option>
-                                <option value="architettura">Architettura</option>
-                                <option value="economia">Economia</option>
-                                <option value="farmacia-medicina">Farmacia e Medicina</option>
-                                <option value="giurisprudenza">Giurisprudenza</option>
-                                <option value="ingegneria-civile-industriale">Ingegneria civile e industriale</option>
-                                <option value="ingegneria-informazione">Ingegneria dell'informazione, informatica e statistica</option>
-                                <option value="lettere-filosofia">Lettere e Filosofia</option>
-                                <option value="medicina-odontoiatria">Medicina e Odontoiatria</option>
-                                <option value="medicina-psicologia">Medicina e Psicologia</option>
-                                <option value="scienze-mfn">Scienze matematiche, fisiche e naturali</option>
-                                <option value="scienze-politiche">Scienze politiche, sociologia, comunicazione</option>
-                                <option value="ingegneria-aerospaziale">Scuola di Ingegneria aerospaziale</option>
+                                
+                                {facolta.map(f=> (
+                                    <option key = {f.id} value = {f.id}>{f.nome}</option>
+                                ))}
+
+                                
                             </select>
                         </div>
 

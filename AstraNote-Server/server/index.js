@@ -1,24 +1,27 @@
 
+//Importiamo express
 const express = require('express')
 const app = express() 
 
-
+//Impostiamo la porta, (ecco perche mi ero collegato a localhost:3000)
 const PORT = 3000
 const HOST = '0.0.0.0' 
 
 
 //IMPOSTIAMO LE ROTTE
 const path = require("path") 
-const ROOT = path.join(__dirname,'..','public') 
+//Carica le variabili dal file .env
+require("dotenv").config({ path: path.resolve(__dirname, "..", ".env") });
+const ROOT = path.join(__dirname,'..','dist') 
 
 app.use(express.static(ROOT));  
 
 
-const {createClient} = require("@supabase/supabase-js")
-const supabaseApi = 'https://iblnubgcuixwisofranz.supabase.co' 
-const supabaseApiKey = 'sb_publishable_KsiaMEm63i8xkGs-r829yA_YYII_mKb' 
-const supabase = createClient(supabaseApi, supabaseApiKey)
 
+//IMPOSTIAMO LE ROTTE
+//QUERY SU DATABASE
+const {createClient} = require("@supabase/supabase-js")
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_URL)
 
 //Uso multer
 const multer = require ('multer')
@@ -87,7 +90,7 @@ app.get('/api/appunti', async(req,res) => {
     res.json(data)
 })
 
-app.put('/api/appunti/{id}', async(req,res) => {
+app.put('/api/appunti/:id', async(req,res) => {
     const idAppunto = req.params.id;
     const newData = req.body; 
 
@@ -135,7 +138,7 @@ app.post("/api/segnalazioni", async(req,res) => {
         .select()
 
     if(error){
-        return res.status(500),json({error: "Errore nella creazione della segnalazione"})
+        return res.status(500).json({error: "Errore nella creazione della segnalazione"})
     }
     
     res.status(201).json({
@@ -282,7 +285,7 @@ app.put('/api/recensioni/:id',async(req,res)=>{
 })
 
 
-app.delete('api/recensioni/:id' ,async(req,res)=>{
+app.delete('/api/recensioni/:id' ,async(req,res)=>{
     const recensioneId = req.params.id;
 
     const {error} = await supabase
@@ -339,25 +342,48 @@ app.get('/api/facolta/:id/corsi', async(req,res)=>{
     res.json(data)
 })
 
+/*Carica le faocltà nel momento della registrazione*/
+app.get('/api/facolta', async(req,res)=>{
+
+    const {data,error} = await supabase
+        .from('facolta')
+    .select('id, nome')
+    .limit(10)
+    
+        console.log(data)
+        console.log(error)
+    if(error){
+        return res.status(500).json({error:"Errore nella query al database"})
+    }
+    res.json(data)
+})
+
+
 
 //---------------------SESSIONI---------------------
-require('dotenv').config({ path: '../.env' }) 
+
 const session = require('express-session'); 
 const pgSession = require('connect-pg-simple')(session); 
 const { Pool } = require('pg'); 
 
 
 const pgPool = new Pool({
-  connectionString: process.env.DATABASE_URL
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // NECESSARIO per connettersi a Supabase da locale
 });
+// AGGIUNGI QUESTO LOG:
+console.log("Tentativo di connessione al DB con stringa:", process.env.DATABASE_URL ? "Caricata correttamente" : "NON TROVATA!");
+
+app.use(express.json());
 
 //setup della gestione delle sessioni
 app.use(session({
   store: new pgSession({
     pool: pgPool,
-    tableName: 'session'  //qui è importante specificare il nome giusto
+    tableName: 'session',
+    createTableIfMissing: false   //qui è importante specificare il nome giusto
   }),
-  secret: 'una_stringa_segreta_molto_lunga', 
+  secret:'una_stringa_segreta_molto_lunga', 
   resave: false,
   saveUninitialized: false,
   cookie: { 
@@ -365,10 +391,6 @@ app.use(session({
     httpOnly: true //per non far leggere il cookie nel client (sicurezza)
   }
 }));
-
-
-//AUTENTICAZIONE
-app.use(express.json()); //consente agli handler di leggere il body (renza questa riga la funzione req.body da errore)
 
 
 
@@ -426,15 +448,67 @@ app.post("/api/login", async (req,res) =>{
 
 
 
-app.post("/api/register", upload.single('file'), async (req, res) =>{
-    const {username, email, password,facolta} = req.body; 
+/*Carica i dati quando clicca sul profilo-navbar */
+app.get("/api/carica_utente", async(req,res)=>{
+    try{
+        const user = req.session.user;
 
-    if (!username || !email || !password || !facolta) {
+    }catch(err){
+       return res.status(500).json({error: err.message})
+    }
+
+    const user = req.session.user;
+
+    //---Carica l'immagine--
+    const {image,error} = await supabase.storage
+        .from('ProfileImages')
+        .getPublicUrl(utente.image_url)
+
+    if(error){
+        return res.status(500).json({error:"Errore nel recupero dell'immagine"})
+    }
+
+    const imageUrl = image.publicUrl
+
+    //--Carica il nome della facoltà--
+    const {nomeFacolta} = await supabase
+        .from('Facoltà')
+        .select(`nome`)
+        .eq('nome', user.facolta)
+        
+    if(error){
+        return res.status(500).json({error:"Errore nel recupero della facoltà"})
+    }
+    
+    //--Carica la valutazione media  dell'utente--
+    const {media} = await supabase
+        .from('user_ratings')
+        .select("*")
+        .eq('id', user.id)
+        
+    if(error){
+        return res.status(500).json({error:"Errore nel recupero della facoltà"})
+    }
+
+    user.valutazione = media;
+
+    res.status().json({
+        utente: user,
+        image_url:imageUrl,
+        facoltà:nomeFacolta
+    })
+})
+
+
+app.post("/api/register", upload.single('file'), async (req, res) =>{
+    const {nome,cognome,matricola,email, password,facolta} = req.body; 
+
+    if (!nome || !cognome || !matricola || !email || !password || !facolta) {
         return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
     }
 
     console.log("Tutti i campi sono stati riempiti")
-
+    /*
     //Upload dell'immagine
     const response = await supabase.storage
         .from('Appunti')
@@ -454,28 +528,27 @@ app.post("/api/register", upload.single('file'), async (req, res) =>{
         .getPublicUrl(filePath)
         .data;
     const publicUrl = urlData.publicUrl; 
-
+    */
 
     if (password.length < 8) {
         return res.status(400).json({ error: "La password deve avere almeno 8 caratteri" });
     }
 
-    try {
-        
-         
+    try {         
         const saltRounds = 10;
         const hash = await bcrypt.hash(password, saltRounds);
 
-        
+        console
         const { data, error } = await supabase
-            .from('utenti')
+            .from('Utente')
             .insert([
                 { 
-                    username: username, 
+                    nome: nome,
+                    cognome: cognome,
+                    matricola: matricola,
                     email: email, 
                     password_hash: hash,
                     facolta: facolta,
-                    image_url: imageUrl
                 }
             ])
             .select();
@@ -489,11 +562,11 @@ app.post("/api/register", upload.single('file'), async (req, res) =>{
             throw error;
         }
 
-        //Faccio partira una nuova sessione e riempio il campo 
+        //Faccio partire una nuova sessione e riempio il campo 
         //"sess" con i dati utente di base
         req.session.user = { 
             id: data[0].id, 
-            username: data[0].username, 
+            nome: data[0].nome, 
             email: data[0].email 
         };
 
@@ -551,6 +624,10 @@ app.get("/accedi/registrazione", redirectIfLoggedIn, (req, res)=>{
 })
 
 
+/*Middleware */
+app.use((req,res) => {
+ res.sendFile(path.join(ROOT,'index.html'));
+});
 
 //AVVIO 
 app.listen(PORT, HOST, ()=>{
