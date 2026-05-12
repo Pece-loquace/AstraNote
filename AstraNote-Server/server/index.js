@@ -21,7 +21,7 @@ app.use(express.static(ROOT));
 //IMPOSTIAMO LE ROTTE
 //QUERY SU DATABASE
 const {createClient} = require("@supabase/supabase-js")
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_URL)
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
 
 //Uso multer
 const multer = require ('multer')
