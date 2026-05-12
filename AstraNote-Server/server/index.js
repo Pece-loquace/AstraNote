@@ -538,7 +538,6 @@ app.post("/api/register", upload.single('file'), async (req, res) =>{
         const saltRounds = 10;
         const hash = await bcrypt.hash(password, saltRounds);
 
-        console
         const { data, error } = await supabase
             .from('Utente')
             .insert([

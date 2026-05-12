@@ -14,21 +14,9 @@ const MINUSCOLA_REGEX = /[a-z]/;
 const MAIUSCOLA_REGEX = /[A-Z]/;
 const SIMBOLO_REGEX = /[^A-Za-z0-9]/;
 const NUMBER_REGEX = /[0-9]/;
+const API_BASE_URL = "http://localhost:3000/api/facolta"
 
-const VERIFICA_FACOLTA = new Set([
-    "architettura",
-    "economia",
-    "farmacia-medicina",
-    "giurisprudenza",
-    "ingegneria-civile-industriale",
-    "ingegneria-informazione",
-    "lettere-filosofia",
-    "medicina-odontoiatria",
-    "medicina-psicologia",
-    "scienze-mfn",
-    "scienze-politiche",
-    "ingegneria-aerospaziale"
-]);
+
 
 function normalizzaCognome(cognome) {
     return cognome
@@ -76,9 +64,7 @@ function validaRegistrazione({ nome, cognome, matricola, email, facolta, passwor
 
     if (!facolta) {
         errori.push("Devi selezionare una facoltà."); campiInErrore.add("facolta");
-    } /*else if (!VERIFICA_FACOLTA.has(facolta)) {
-        errori.push("La facoltà selezionata non è valida."); campiInErrore.add("facolta");
-    }*/
+    } 
 
     if (!password) {
         errori.push("Il campo password è obbligatorio."); campiInErrore.add("password");
@@ -157,7 +143,7 @@ export default function RegistrazioneConFacolta() {
     
     const caricaFacolta = async () => {
         try {
-            const response = await fetch("/api/facolta");
+            const response = await fetch(API_BASE_URL);
             if(!response.ok) throw new Error('Errore nel caricamento dei corsi')
             
             const facolta = await response.json()
@@ -167,7 +153,6 @@ export default function RegistrazioneConFacolta() {
         } catch (error) {
             console.error(error)
         }
-
     }
 
     const handleSubmit = async(e) => {
@@ -305,7 +290,7 @@ export default function RegistrazioneConFacolta() {
                                         <strong className="d-block mb-2">Impossibile creare l'account:</strong>
                                         <ul className="mb-0">
                                             {feedback.errori.map((err, i) => (
-                                                <li key={i}>{err}</li>
+                                                <li className="text-start" key={i}>{err}</li>
                                             ))}
                                         </ul>
                                     </>
