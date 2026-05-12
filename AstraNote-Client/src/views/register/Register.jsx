@@ -207,7 +207,7 @@ export default function RegistrazioneConFacolta() {
 
     return (
         <main className="container min-vh-100 d-flex align-items-center justify-content-center py-5">
-            <div className="card shadow-lg custom-card w-100" style={{ maxWidth: "520px" }}>
+            <div className="card shadow-lg w-100" style={{ maxWidth: "520px" }}>
                 <div className="card-body p-4 p-md-5 position-relative">
                     <div className="custom-border"></div>
 

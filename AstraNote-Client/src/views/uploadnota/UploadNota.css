@@ -50,3 +50,9 @@ body {
     border-color: var(--bordeaux);
     box-shadow: 0 0 0 0.25rem rgba(120, 47, 64, 0.25);
 }
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+    max-height: 400px;
+}
