@@ -6,7 +6,7 @@ import searchIcon from "../assets/search.svg"
 import libraryIcon from "../assets/library-1.svg"
 import profileIcon from "../assets/profile.svg"
 import settingsIcon from "../assets/settings.svg"
-import AstraLogo from "../../public/AstraNote_Logo.svg"
+import AstraLogo from "../assets/AstraNote_Logo.svg"
 import "../style/Navbar.css"
 
 const translations = {

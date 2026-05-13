@@ -4,7 +4,7 @@ import Login from '../login/Login'
 import '../../style/sfondo.css'
 import '../../style/buttons.css'
 import './frontpage.css'
-import logo from "../../../public/AstraNote_Banner_IT_720.png"
+import logo from "../../assets/AstraNote_Banner_IT_720.png"
 
 
 const Frontpage = () =>{
