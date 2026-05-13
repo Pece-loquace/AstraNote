@@ -31,6 +31,12 @@ const Frontpage = () =>{
                         Registrati
                     </button>
                 </Link>
+
+                <Link to="/upload">
+                    <button className="btn-custom" style={{width: '260px', height: '70px', fontSize: '32px'}}>
+                        Upload
+                    </button>
+                </Link>
             </div>
         </div>
         </div>

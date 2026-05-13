@@ -14,9 +14,9 @@ const DESCRIZIONE_MAX = 500;
 const API_FACOLTA_URL = "http://localhost:3000/api/facolta";
 const API_CORSO_URL = "http://localhost:3000/api/corso";
 const API_MATERIA_URL = "http://localhost:3000/api/materia";
-const API_UPLOAD_URL = "http://localhost:3000/api/note";
+const API_UPLOAD_URL = "http://localhost:3000/api/appunti";
 
-function validaCaricamento({ file, titolo, facolta, corso, materia, descrizione }) {
+function validaCaricamento({ file, titolo, facolta, corso, descrizione }) {
     const errori = [];
     const campiInErrore = new Set();
 
@@ -55,10 +55,12 @@ function validaCaricamento({ file, titolo, facolta, corso, materia, descrizione 
         campiInErrore.add("corso");
     }
 
+    /*
     if (!materia) {
         errori.push("Devi selezionare una materia.");
         campiInErrore.add("materia");
     }
+    */
 
     if (descrizione && descrizione.length > DESCRIZIONE_MAX) {
         errori.push("La descrizione non può superare i " + DESCRIZIONE_MAX + " caratteri.");
@@ -69,7 +71,7 @@ function validaCaricamento({ file, titolo, facolta, corso, materia, descrizione 
 }
 
 const initialFormState = {
-    upload: null, nome: "", facolta: "", corso: "", materia: "", descrizione: "",
+    upload: null, nome: "", facolta: "", corso: "", descrizione: "",
 };
 
 export default function UploadNota() {
@@ -87,21 +89,14 @@ export default function UploadNota() {
 
     const handleChange = (e) => {
         const { name, value, type, files } = e.target;
-        let nextValue = value;
-        if (type === "file") {
-            nextValue = (files && files.length > 0) ? files : null;
-        }
+        const nextValue = type === "file" ? (files[0]??null) :  value;
 
         setFormData((prev) => ({ ...prev, [name]: nextValue }));
         setCampiInErrore((prev) => {
+            if(!prev.has(name))return prev;
             const next = new Set(prev);
 
-            if (type === "file" && nextValue === null) {
-                next.add(name);
-            } else {
-                next.delete(name);
-            }
-
+            next.delete(name);
             return next;
         });
         setTuttiValidi(false);
@@ -109,30 +104,38 @@ export default function UploadNota() {
     };
 
     useEffect(() => {
-        caricaListe();
+        caricaFacolta();
     }, []);
 
 
-    const caricaListe = async () => {
+    const caricaFacolta = async () => {
         try {
-            const [resF, resC, resM] = await Promise.all([
-                fetch(API_FACOLTA_URL),
-                fetch(API_CORSO_URL),
-                fetch(API_MATERIA_URL),
-            ]);
-            if (!resF.ok || !resC.ok || !resM.ok) throw new Error("Errore nel caricamento delle materie");
+            const response = await fetch('/api/facolta')
+            if (!response.ok) throw new Error("Errore nel caricamento delle materie");
 
-            const [facoltaData, corsoData, materiaData] = await Promise.all([
-                resF.json(), resC.json(), resM.json(),
-            ]);
-
+            const facoltaData = await response.json();
             setFacolta(facoltaData);
-            setCorso(corsoData);
-            setMateria(materiaData);
+            console.log(facolta)
         } catch (error) {
             console.error(error);
         }
     };
+
+    useEffect(()=>{
+        if (formData.facolta) caricaCorsi();
+    },[formData.facolta])
+
+    const caricaCorsi = async () => {
+        try {
+            const response = await fetch(`/api/corsi?facolta_id=${formData.facolta}`)
+            if (!response.ok) throw new Error("Impossibile caricare i corsi")
+
+            const corsi = await response.json()
+            setCorso(corsi)
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -141,7 +144,6 @@ export default function UploadNota() {
             titolo: formData.nome,
             facolta: formData.facolta,
             corso: formData.corso,
-            materia: formData.materia,
             descrizione: formData.descrizione,
         });
 
@@ -150,10 +152,11 @@ export default function UploadNota() {
                 const payload = new FormData();
                 payload.append("file", formData.upload);
                 payload.append("titolo", formData.nome.trim());
-                payload.append("facolta", formData.facolta);
+ 
                 payload.append("corso", formData.corso);
-                payload.append("materia", formData.materia);
                 payload.append("descrizione", formData.descrizione.trim());
+                
+
 
                 const response = await fetch(API_UPLOAD_URL, {
                     method: "POST",
@@ -164,9 +167,12 @@ export default function UploadNota() {
                     setFeedback({ show: true, type: "ok", errori: [] });
                     setTuttiValidi(true);
                     setCampiInErrore(new Set());
+                    navigate("/homepage");
+                    /*
                     setTimeout(() => {
                         navigate("/");
                     }, 5000);
+                    */
                 } else {
                     throw new Error("Impossibile caricare la nota");
                 }

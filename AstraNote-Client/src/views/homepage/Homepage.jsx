@@ -71,8 +71,9 @@ const Homepage = () =>{
             }
         </div>
         */}
-        <img src={Gatto}></img><br/>
-        <img src={Gatto}></img><br/>
+        <div className="d-grid gap-2">
+            <Link to="/upload">Upload</Link>
+        </div>
         
         </>
        //Mi servono le cardAppunto

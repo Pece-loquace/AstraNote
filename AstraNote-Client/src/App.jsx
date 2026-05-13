@@ -12,6 +12,7 @@ import AppuntoSpecifico from './components/AppuntoSpecifico'
 
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link, Outlet, useNavigate } from 'react-router-dom';
+import UploadNota from "./views/uploadnota/UploadNota"
 
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
         <Route element={<AuthLayout/>}>
           <Route path = "/login" element = {<Login/>}/>
           <Route path = "/register" element = {<Register/>}/>
+          <Route path = "/upload" element = {<UploadNota/>}/>
         </Route>
 
         <Route element={<DefaultLayout/>}>

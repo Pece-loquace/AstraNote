@@ -18,6 +18,40 @@ app.use(express.static(ROOT));
 
 
 
+/* Impostare sessioni */
+const session = require('express-session'); 
+const pgSession = require('connect-pg-simple')(session); 
+const { Pool } = require('pg'); 
+
+
+const pgPool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // NECESSARIO per connettersi a Supabase da locale
+});
+// AGGIUNGI QUESTO LOG:
+console.log("Tentativo di connessione al DB con stringa:", process.env.DATABASE_URL ? "Caricata correttamente" : "NON TROVATA!");
+
+app.use(express.json());
+
+//setup della gestione delle sessioni
+app.use(session({
+  store: new pgSession({
+    pool: pgPool,
+    tableName: 'session',
+    createTableIfMissing: false   //qui è importante specificare il nome giusto
+  }),
+  secret:'una_stringa_segreta_molto_lunga', 
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    maxAge: 1000 * 60 * 60 * 24, //impostiamo la durata del cookie pari a 24 ore
+    httpOnly: true //per non far leggere il cookie nel client (sicurezza)
+  }
+}));
+
+const bcrypt = require('bcrypt') 
+/*-------------------------- */
+
 //IMPOSTIAMO LE ROTTE
 //QUERY SU DATABASE
 const {createClient} = require("@supabase/supabase-js")
@@ -26,50 +60,104 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY
 //Uso multer
 const multer = require ('multer')
 const upload = multer({storage: multer.memoryStorage()}) // Carica il file temporaneamente in RAM
-
+const { fromBuffer } = require('pdf2pic');
 /*********************CRUD Appunti************/
 app.post('/api/appunti',upload.single('file'), async(req,res) => {
     const file = req.file;
-    const {titolo,descrizione,data_creazione, id_autore,facoltà} = req.body;
+    const {titolo,descrizione,corso} = req.body;
+    const id_autore = req.session.user.id;
+    const data_creazione = new Date().toISOString();
 
-    if(!titolo || !descrizione || !id_autore || !facoltà || !data_creazione){
-        return res.status(400).json({error: "Tutti i campi sono obbligatori"});
+
+    if (!req.session || !req.session.user) {
+            return res.status(401).json({ error: "Effettua il login" });
     }
 
+
+    if(!titolo || !corso ){
+        console.log("Non sono presenti tutti i campi")
+        return res.status(400).json({error: "Tutti i campi sono obbligatori"});
+    }
+ 
+    const fileName = `${Date.now()}_${file.originalname}`;
     //Upload del file su supabase
-    const response = await supabase.storage
-        .from('Appunti')
+    const responseUpload = await supabase.storage
+        .from('AstraNote-files')
         .upload(`${Date.now()}_${file.originalname}`,file.buffer,{
             contentType: file.mimetype
         });
     
-    if(response.error){
-        console.error(error);
+    if(responseUpload.error){
+        console.error(responseUpload.error);
         return res.status(200).json({error:"Errore nell'upload del file"})
     }
 
     //Ottengo l'URL pubblico
     const urlData = supabase.storage
-        .from("")
-        .getPublicUrl(filePath)
+        .from('AstraNote-files')
+        .getPublicUrl(fileName)
         .data;
     const publicUrl = urlData.publicUrl; 
 
+     console.log("Passa file")
+     
+    // 2. Genera la thumbnail dalla prima pagina
+    let url_thumbnail = null;
+    try {
+        const converter = fromBuffer(file.buffer, {
+            density: 100,
+            format: "jpg",
+            width: 400,
+            height: 600,
+        });
 
-    response = await supabase 
-        .from('appunti')
+        console.log("Dimensione buffer PDF:", file.buffer.length);
+
+        // FIX: Aggiungi l'oggetto opzioni come secondo parametro qui!
+        const risultato = await converter(1, { responseType: "buffer" }); 
+
+        if (risultato && risultato.buffer) {
+            console.log("Dimensione buffer Thumbnail:", risultato.buffer.length);
+            const thumbBuffer = risultato.buffer;
+
+            const thumbName = `${Date.now()}_thumb.jpg`;
+            const { data: thumbData, error: thumbError } = await supabase.storage
+                .from('thumbnails')
+                .upload(thumbName, thumbBuffer, {
+                    contentType: 'image/jpeg'
+                });
+
+            if (!thumbError) {
+                url_thumbnail = supabase.storage.from('thumbnails').getPublicUrl(thumbName).data.publicUrl;
+            } else {
+                console.error("Errore upload thumbnail su Supabase:", thumbError);
+            }
+        } else {
+            console.error("Il convertitore non ha restituito un buffer valido.");
+        }
+    } catch (err) {
+        console.error("Errore generazione thumbnail:", err);
+    }
+
+    console.log("Passa thumbnail")
+    const { data, error: dbError } = await supabase 
+        .from('Appunti')
         .insert([
             {
                 titolo:titolo,
-                descrizione:descrizione,
                 data_creazione:data_creazione,
                 id_autore: id_autore,
-                facoltà: facoltà,
+                url_file: publicUrl,
+                descrizione:descrizione,
+                corso:corso,
+                url_thumbnail: url_thumbnail,
             }    
-        ]
-        )
-      
-    if(response.error){
+        ])
+        .select();
+
+     console.log("Passa query")
+    if(dbError){
+             console.error("ERRORE DATABASE DETTAGLIATO:", dbError);
              return res.status(500).json({error:"Errore nell'inserimento dei dati"})
     }
     //Invio i dati in formato JSON
@@ -300,13 +388,16 @@ app.delete('/api/recensioni/:id' ,async(req,res)=>{
 
 /* -------------------Altri endpoint---------- */
 /*Quando faccio il login nel mio sito devo vedere tutti i corsi che ho nella mia facoltà */
-app.get('api/corsi' , async (req,res)=>{
-    const facoltaId = req.body.facolta_id;
+app.get('/api/corsi' , async (req,res)=>{
+    const facoltaId = req.query.facolta_id;
 
     const{data,error} = await supabase
-        .from('corsi')
+        .from('Corsi')
+        .select('*')
         .eq('facoltà',facoltaId)
     
+        console.log(data)
+        console.log(error)
     if(error){
         return res.status(500).json({error:"Errore nei corsi"})
     }   
@@ -347,8 +438,7 @@ app.get('/api/facolta', async(req,res)=>{
 
     const {data,error} = await supabase
         .from('facolta')
-    .select('id, nome')
-    .limit(10)
+        .select('id, nome')
     
         console.log(data)
         console.log(error)
@@ -362,46 +452,8 @@ app.get('/api/facolta', async(req,res)=>{
 
 //---------------------SESSIONI---------------------
 
-const session = require('express-session'); 
-const pgSession = require('connect-pg-simple')(session); 
-const { Pool } = require('pg'); 
-
-
-const pgPool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // NECESSARIO per connettersi a Supabase da locale
-});
-// AGGIUNGI QUESTO LOG:
-console.log("Tentativo di connessione al DB con stringa:", process.env.DATABASE_URL ? "Caricata correttamente" : "NON TROVATA!");
-
-app.use(express.json());
-
-//setup della gestione delle sessioni
-app.use(session({
-  store: new pgSession({
-    pool: pgPool,
-    tableName: 'session',
-    createTableIfMissing: false   //qui è importante specificare il nome giusto
-  }),
-  secret:'una_stringa_segreta_molto_lunga', 
-  resave: false,
-  saveUninitialized: false,
-  cookie: { 
-    maxAge: 1000 * 60 * 60 * 24, //impostiamo la durata del cookie pari a 24 ore
-    httpOnly: true //per non far leggere il cookie nel client (sicurezza)
-  }
-}));
-
-
-
-
-
-const bcrypt = require('bcrypt') 
-
 /*Accede ai dati utente quando vado nell'homepage */
 app.get('/api/me', (req, res) => {
-
-    
     if (req.session.user) {
         
         res.json(req.session.user);
@@ -418,7 +470,7 @@ app.post("/api/login", async (req,res) =>{
     }
 
     const { data: user, error } = await supabase
-        .from('utenti')
+        .from('Utente')
         .select('*')
         .eq('email', email)
         .single();
@@ -611,6 +663,13 @@ const redirectIfLoggedIn = (req, res, next) => {
 };
 
 
+const autenticato = (req, res, next) => {
+    if (!req.session.user) {
+        return res.status(401).json({ error: "Non sei loggato" });
+    }
+    next();
+};
+
 //Login 
 app.get("/accedi/login", redirectIfLoggedIn, (req, res)=>{
     res.sendFile(path.join(ROOT, 'auth','login','index.html'))
@@ -621,8 +680,6 @@ app.get("/accedi/registrazione", redirectIfLoggedIn, (req, res)=>{
     res.sendFile(path.join(ROOT, 'auth','registrazione','index.html'))
 })
 
-
-/*Middleware */
 app.use((req,res) => {
  res.sendFile(path.join(ROOT,'index.html'));
 });
