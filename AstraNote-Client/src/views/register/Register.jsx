@@ -178,7 +178,7 @@ export default function RegistrazioneConFacolta() {
             });
 
             if (response.ok) {
-                navigate("/login");
+                navigate("/homepage");
             } else {
                 throw new Error("Impossibile completare l'ordine")
             }

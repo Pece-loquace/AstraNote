@@ -152,11 +152,8 @@ export default function UploadNota() {
                 const payload = new FormData();
                 payload.append("file", formData.upload);
                 payload.append("titolo", formData.nome.trim());
- 
                 payload.append("corso", formData.corso);
                 payload.append("descrizione", formData.descrizione.trim());
-                
-
 
                 const response = await fetch(API_UPLOAD_URL, {
                     method: "POST",
@@ -167,7 +164,7 @@ export default function UploadNota() {
                     setFeedback({ show: true, type: "ok", errori: [] });
                     setTuttiValidi(true);
                     setCampiInErrore(new Set());
-                    navigate("/homepage");
+                    navigate("/upload"); 
                     /*
                     setTimeout(() => {
                         navigate("/");

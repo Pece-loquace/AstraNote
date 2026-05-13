@@ -62,12 +62,14 @@ const multer = require ('multer')
 const upload = multer({storage: multer.memoryStorage()}) // Carica il file temporaneamente in RAM
 const { fromBuffer } = require('pdf2pic');
 /*********************CRUD Appunti************/
-app.post('/api/appunti',upload.single('file'), async(req,res) => {
+app.post('/api/appunti', upload.single('file'), async(req,res) => {
     const file = req.file;
     const {titolo,descrizione,corso} = req.body;
     const id_autore = req.session.user.id;
     const data_creazione = new Date().toISOString();
 
+
+    console.log("Passa caricamento")
 
     if (!req.session || !req.session.user) {
             return res.status(401).json({ error: "Effettua il login" });
@@ -78,7 +80,9 @@ app.post('/api/appunti',upload.single('file'), async(req,res) => {
         console.log("Non sono presenti tutti i campi")
         return res.status(400).json({error: "Tutti i campi sono obbligatori"});
     }
- 
+    
+    console.log("Passa controlli")
+
     const fileName = `${Date.now()}_${file.originalname}`;
     //Upload del file su supabase
     const responseUpload = await supabase.storage

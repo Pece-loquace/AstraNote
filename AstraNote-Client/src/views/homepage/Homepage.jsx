@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState ,useEffect } from "react";
 import {Link} from "react-router-dom"
 //import Filter from "../../components/Filters";
 import Gatto from "./origini-del-gatto.jpg";
 const Homepage = () =>{
-    /*
-    const {appuntiFacolta,setAppunti} = useState([])
+    
+    const [appuntiFacolta,setAppunti] = useState([])
     const [errore,setErrore] = useState(null)
 
     //Seleziona i corsi dei vari 
@@ -17,17 +17,6 @@ const Homepage = () =>{
     const [stelle,setStelle] = useState(0)
 
     const appuntiFiltrati = appuntiFacolta
-
-    const filterMateria  = (array) => {
-        
-    }
-    const filterStelle = (array) =>{
-        
-    }
-
-    const filterData = (array) =>{
-
-    }
 
     useEffect(()=>{
         caricaAppunti()
@@ -59,18 +48,16 @@ const Homepage = () =>{
             console.log(err)
         }
     }
-    */
+    
     return (
         <>
-        {/*
-            <Filters/>
         <div className="row g-4">
             {
                 appuntiFacolta.map((a) => (
-                <CardAppunto key = {AppuntoSpecifico.id} appunto={appunto.id} appunto={appunto} />))
+                <CardAppunto key = {a.id} appunto={a.id} appunto={a} />))
             }
         </div>
-        */}
+        
         <div className="d-grid gap-2">
             <Link to="/upload">Upload</Link>
         </div>
