@@ -16,21 +16,21 @@
 
 .logo {
     z-index: 2; 
-    width: 70%;
-    height: 70%;
+    width: 1024px;
+    height: 720px;
     background-size: 60%;
+    object-fit: contain;
     background-repeat: no-repeat;
     background-position: center; 
 }
 
-
-
 .panel {
     z-index: 2;
     width: 0;
+    opacity: 0;
     height: 100%;
     overflow: hidden;
-    transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
 }
 
 
@@ -45,6 +45,7 @@
 
 .cnt.login .panel.left {
     width: 40%;
+    opacity: 1;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -52,6 +53,7 @@
 
 .cnt.register .panel.right {
     width: 40%;
+    opacity: 1;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -62,7 +64,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.5s ease-in-out;
+    transition: all 1.5s ease-in-out, opacity 0.5s ease-in-out;
 }
 
 
@@ -76,8 +78,9 @@
     padding: 40px;
 }
 
-.btn-custom_2 {
+.btn-back {
     z-index: 3;
+    background: rgba(128, 128, 128, 0.795);
     border-radius: 8px;
     padding: 8px 28px; 
     border: none; 
@@ -85,12 +88,12 @@
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.btn-custom_2:hover {
+.btn-back:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.25) !important;
 }
 
-.btn-custom_2:active {
+.btn-back:active {
     transform: translateY(1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.612) !important;
 }

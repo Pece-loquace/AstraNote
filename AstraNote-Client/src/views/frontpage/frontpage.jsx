@@ -4,11 +4,12 @@ import Login from '../login/Login'
 import '../../style/sfondo.css'
 import '../../style/buttons.css'
 import './frontpage.css'
-import logo from "../../../public/AstraNote_Banner_IT.png"
+import logo from "../../../public/AstraNote_Banner_IT_720.png"
 
 
 const Frontpage = () =>{
     const [view, setView] = useState('frontpage');
+    
     return (
         <>
         <div className="sfondo"></div>
@@ -31,7 +32,7 @@ const Frontpage = () =>{
                                 Accedi
                             </button>
                             {view !== 'frontpage' && (
-                                <button className="btn-custom_2" style={{width: '260px', height: '70px', fontSize: '32px'}}
+                                <button className="btn-back" style={{width: '260px', height: '70px', fontSize: '32px'}}
                                         onClick={() => setView('frontpage')}>
                                     Indietro
                                 </button>
@@ -40,10 +41,18 @@ const Frontpage = () =>{
                         )}                            
                         
                         {view !== 'register' && (
+                            <>
                             <button className="btn-custom" style={{width: '260px', height: '70px', fontSize: '32px'}}
                                     onClick={() => setView('register')}>
                                 Registrati
                             </button>
+                            {view !== 'frontpage' && (
+                                <button className="btn-back" style={{width: '260px', height: '70px', fontSize: '32px'}}
+                                onClick={() => setView('frontpage')}>
+                                    Indietro
+                                </button>
+                            )}
+                            </>
                         )}
                     </div>
                 </div>
