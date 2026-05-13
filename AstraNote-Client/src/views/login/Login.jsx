@@ -171,7 +171,6 @@ export default function RegistrazioneConFacolta() {
 
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Login</button>
-                            <Link className = " btn btn-outline-secondary   text-decoration-none" to ="/">Indietro</Link>
                         </div>
                         
                         {feedback.show && (

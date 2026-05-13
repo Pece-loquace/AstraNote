@@ -24,6 +24,7 @@
 }
 
 
+
 .panel {
     z-index: 2;
     width: 0;
@@ -46,7 +47,6 @@
     width: 40%;
     overflow-x: hidden;
     overflow-y: auto;
-    background: #782f4098;
 }
 
 
