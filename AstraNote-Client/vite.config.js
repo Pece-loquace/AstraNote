@@ -9,5 +9,8 @@ export default defineConfig({
       '/api': 'http://localhost:3000'
     }
   },
-  
+  build: {
+    outDir: '../AstraNote-Server/dist',
+    emptyOutDir: true
+  }
 })
