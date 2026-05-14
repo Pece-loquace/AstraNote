@@ -60,7 +60,7 @@ const Homepage = () =>{
             <div className="row g-4">
                 {
                     appuntiFacolta.map((a) => (
-                <CardAppunto key = {a.id} appunto={a.id} appunto={a} />))
+                <CardAppunto key = {a.id}  appunto={a} />))
                 }    
             </div>
             

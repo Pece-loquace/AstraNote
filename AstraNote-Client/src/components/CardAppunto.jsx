@@ -64,17 +64,8 @@ export default function  CardAppunto({appunto}){
     }
 
     return (
-        <div className = "col-lg-3">
-            {/*
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src={appunto.url_thumbnail} alt="Card image cap"/>
-                <div class="card-body">
-                    <h5 class="card-title">{appunto.titolo}</h5>
-                    <p class="card-text">{valutazioneMedia}</p>
-                    <a href="#" class="btn btn-primary">{numeroDownload}</a>
-                </div>
-            </div>
-                */}
+        <div className = "col-lg-3  col-md-6 col-12">
+            <div className="border rounded p-3 h-100 shadow-sm">
             {loading && (
                 <div style={{
                     position: 'fixed', inset: 0,
@@ -88,7 +79,7 @@ export default function  CardAppunto({appunto}){
             )}
 
             <div className="d-flex" style={{ width: '18rem' }}>
-                <img className="col-4 object-fit-cover rounded" src={appunto.url_thumbnail} alt="Card image cap" />
+                <img className="col-4 object-fit-cover rounded border border-info-subtle  border-3" src={appunto.url_thumbnail} alt="Card image cap" />
                 <div className="d-flex flex-column ms-2">
                     <h5>{appunto.titolo}</h5>
                     <p className>({numeroDownload}){stelle}</p>
@@ -130,6 +121,7 @@ export default function  CardAppunto({appunto}){
                 </div>
             </div>
             </div>
+        </div>
         </div>
     )
 }
