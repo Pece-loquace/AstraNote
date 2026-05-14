@@ -174,7 +174,7 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
 app.get('/api/appunti', async(req,res) => {
     const {error,data} = await supabase
         .from("appunti")
-        .select()
+        .select('*')
 
     if(error){
         return res.status(500).json({error:"Errore durante il  recupero dei dati"})
@@ -215,20 +215,24 @@ app.delete('/api/appunti/:id',async(req,res) => {
 
 /*********************CRUD Segnalazioni ************/
 app.post("/api/segnalazioni", async(req,res) => {
-    const {utente_id , messaggio,created_at,appunto_id} = req.body;
+    const {messaggio,appuntoId} = req.body;
+    const data_creazione = new Date().toISOString();
+    console.log("Body ricevuto:", req.body) 
+    console.log("AppuntId , messaggio", appuntoId, req.body.messaggio)
 
     const {data,error} = await supabase
         .from('segnalazioni')
         .insert([
             {
-                utente_id: utente_id,
+                utente_id: req.session.user.id,
                 messaggio: messaggio,
-                created_at: created_at,
-                appunto_id: appunto_id
+                created_at: data_creazione,
+                appunto_id: appuntoId,
             }
         ])
         .select()
-
+        console.log(data)
+        console.log(error)
     if(error){
         return res.status(500).json({error: "Errore nella creazione della segnalazione"})
     }
@@ -311,7 +315,7 @@ app.post('/api/recensioni',async(req,res)=>{
         .insert([
             {   
                 appunti_id:appunti_id,
-                utente_valutante: utente_valutante,
+                utente_valutante: req.session.user.id,
                 valutazione: valutazione
             }
         ])
@@ -351,7 +355,7 @@ app.get('/api/recensioni/:id' ,async(req,res)=>{
     if(error){
         return res.status(500).json({error:"Errore nell'ottenere la recension"})
     }
-    res.json({ recensioni: data });
+    res.json(data);
 })
 
 app.put('/api/recensioni/:id',async(req,res)=>{
@@ -409,11 +413,12 @@ app.get('/api/corsi' , async (req,res)=>{
 })
 
 /*-----CRUD file_scaricati-----*/
-app.post('/api/file_scaricati', async (req,res)=>{
+/*Crea una riga nella tabella file_scaricati */
+app.post('/api/downloads', async (req,res)=>{
     const {appunto_id: appuntoId} = req.body;
 
     const {data,error} = await supabase
-        .from('FileScaricati')
+        .from('downloads')
         .insert([
             {   
                 user_id: req.session.user.id,
@@ -431,12 +436,27 @@ app.post('/api/file_scaricati', async (req,res)=>{
     res.status(201).json(data)
 })
 
+/*Prendi tutti i download che hanno quell'appunto_id */
+app.get('/api/appunti/:appuntoId/downloads', async(req,res)=>{
+    const { appuntoId  } = req.params;
 
+    const{data,error} = await supabase
+        .from('downloads')
+        .select('*')
+        .eq('appunto_id',appuntoId )
+
+    if(error){
+        console.log(error);
+        return res.status(500).json({error:"Errore nel recupero dei file scaricati"})
+    }
+    console.log(data)
+    res.json(data)
+})
 
 app.get('/api/file_scaricati', async (req,res)=>{
 
     const {data,error} = await supabase
-        .from('FileScaricati')
+        .from('downloads')
         .select('*')
         .eq('user_id',req.session.user.id) 
 
@@ -479,6 +499,20 @@ app.get('/api/facolta', async(req,res)=>{
     res.json(data)
 })
 
+//----------Utente -----------
+app.get('/api/utenti/:id', async(req,res)=>{
+    const id_utente = req.params.id 
+
+    const{data,error} = await supabase
+        .from('Utente')
+        .select('*')
+        .eq('id',id_utente)
+    
+    if(error){
+        return res.status(500).json({error:"Errore nella query al database"})
+    }
+    res.json(data)
+})
 
 
 //---------------------SESSIONI---------------------
