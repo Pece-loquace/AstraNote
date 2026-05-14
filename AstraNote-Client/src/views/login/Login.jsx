@@ -153,7 +153,8 @@ export default function RegistrazioneConFacolta() {
                         <div className="mb-3">
                             <label htmlFor="email" className="form-label custom-label">Email istituzionale</label>
                             <input type="email" id="email" name="email" required value={formData.email} onChange={handleChange} className={`form-control ${classFor("email")}`} />
-                            <div className="form-text">formato: cognome.matricola@studenti.uniroma1.it</div>
+                            {//<div className="form-text">formato: cognome.matricola@studenti.uniroma1.it</div>
+                            }
                         </div>
 
         
@@ -166,7 +167,8 @@ export default function RegistrazioneConFacolta() {
                                     {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                                 </button>
                             </div>
-                            <div className="form-text">Almeno 8 caratteri: una minuscola (a-z), una maiuscola (A-Z), un numero (0-9) e un simbolo (es. ?!@,.)</div>
+                            {//<div className="form-text">Almeno 8 caratteri: una minuscola (a-z), una maiuscola (A-Z), un numero (0-9) e un simbolo (es. ?!@,.)</div>
+                            }
                         </div>
 
                         <div className="d-grid gap-2">
@@ -179,7 +181,7 @@ export default function RegistrazioneConFacolta() {
                                     "Login eseguito con successo. Benvenuto in AstraNote."
                                 ) : (
                                     <>
-                                        <strong className="d-block mb-2">Impossibile creare l'account:</strong>
+                                        <strong className="d-block mb-2">Impossibile accedere all'account:</strong>
                                         <ul className="mb-0">
                                             {feedback.errori.map((err, i) => (
                                                 <li className="text-start" key={i}>{err}</li>
