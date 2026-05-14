@@ -14,7 +14,7 @@
     transition: all 0.5s ease-in-out;
 }
 
-.logo {
+.astranote {
     z-index: 2; 
     width: 1024px;
     height: 720px;
@@ -40,7 +40,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
 }
 
 .cnt.login .panel.left {
@@ -48,7 +48,6 @@
     opacity: 1;
     overflow-x: hidden;
     overflow-y: auto;
-    background: #782f4098;
 }
 
 
@@ -65,7 +64,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 1.5s ease-in-out, opacity 0.5s ease-in-out;
+    transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
 }
 
 

@@ -22,7 +22,7 @@ const Frontpage = () =>{
             </div>
 
             <div className="frontpage">
-                <img src={logo} fixed alt="logo" className="logo"/>
+                <img src={logo} fixed alt="logo" className="astranote"/>
                 <div className="buttons">
                     <div className="d-flex gap-5 justifyContent-center">
                         {view !== 'login' && (
