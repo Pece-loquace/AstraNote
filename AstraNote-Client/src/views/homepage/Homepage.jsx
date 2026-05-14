@@ -4,7 +4,6 @@ import {Link} from "react-router-dom"
 import Gatto from "./origini-del-gatto.jpg";
 import CardAppunto from "../../components/CardAppunto";
 const Homepage = () =>{
-    
     const [appuntiFacolta,setAppunti] = useState([])
     const [errore,setErrore] = useState(null)
 
@@ -62,8 +61,7 @@ const Homepage = () =>{
                 {
                     appuntiFacolta.map((a) => (
                 <CardAppunto key = {a.id} appunto={a.id} appunto={a} />))
-                }   
-                
+                }    
             </div>
             
             { 

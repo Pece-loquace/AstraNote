@@ -408,7 +408,31 @@ app.get('/api/corsi' , async (req,res)=>{
     res.json(data)
 })
 
-/**/
+/*-----CRUD file_scaricati-----*/
+app.post('/api/file_scaricati', async (req,res)=>{
+    const {appunto_id: appuntoId} = req.body;
+
+    const {data,error} = await supabase
+        .from('FileScaricati')
+        .insert([
+            {   
+                user_id: req.session.user.id,
+                data_download: new Date().toISOString(),
+                appunto_id: appuntoId
+            }
+        ])
+        .select()
+
+    if(error){
+        console.log(error);
+        return res.status(500).json({error:"Errore nel recupero dei file scaricati"})
+    }
+
+    res.status(201).json(data)
+})
+
+
+
 app.get('/api/file_scaricati', async (req,res)=>{
 
     const {data,error} = await supabase
@@ -422,6 +446,8 @@ app.get('/api/file_scaricati', async (req,res)=>{
 
     res.json(data)
 })
+
+//---------------------------------------------
 
 /*Endpoint per restituire i corsi della facoltà nel momento del login */
 app.get('/api/facolta/:id/corsi', async(req,res)=>{
