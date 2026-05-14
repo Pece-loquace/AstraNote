@@ -145,7 +145,7 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
 
     console.log("Passa thumbnail")
     const { data, error: dbError } = await supabase 
-        .from('Appunti')
+        .from('appunti')
         .insert([
             {
                 titolo:titolo,
@@ -341,17 +341,17 @@ app.get('/api/recensioni',async(req,res)=>{
 
 
 app.get('/api/recensioni/:id' ,async(req,res)=>{
-    const recensioneId = req.params.id;
+    const appuntoId = req.params.id;
 
     const {data,error} = await supabase
-        .from('recensioni')
+        .from('Recensioni')
         .select('*')
-        .eq('id',)
+        .eq('appunto_id',appuntoId)
 
     if(error){
         return res.status(500).json({error:"Errore nell'ottenere la recension"})
     }
-    res.json(data);
+    res.json({ recensioni: data });
 })
 
 app.put('/api/recensioni/:id',async(req,res)=>{
@@ -413,8 +413,9 @@ app.get('/api/file_scaricati', async (req,res)=>{
 
     const {data,error} = await supabase
         .from('FileScaricati')
+        .select('*')
         .eq('user_id',req.session.user.id) 
-    
+
     if(error){
         return res.status(500).json({error:"Errore nel recupero dei file scaricati"})
     }

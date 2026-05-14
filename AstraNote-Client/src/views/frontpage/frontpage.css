@@ -16,13 +16,16 @@
 
 .logo {
     z-index: 2; 
-    width: 70%;
+    width: 500px;
+    max-width: 100%;
+    height: auto;    
+    object-fit: contain;
+    /*width: 70%;
     height: 70%;
     background-size: 60%;
     background-repeat: no-repeat;
-    background-position: center; 
+    background-position: center; */
 }
-
 
 
 .panel {
@@ -47,6 +50,7 @@
     width: 40%;
     overflow-x: hidden;
     overflow-y: auto;
+    background: #782f4098;
 }
 
 

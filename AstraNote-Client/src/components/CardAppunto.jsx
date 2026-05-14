@@ -1,73 +1,92 @@
+
+import { useState } from "react";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 
 export default function  CardAppunto({appunto}){
-    const{appunti,setAppunti} = useState([]);
-    const {numeroDownload, setDownloads} = useState(0);
-    const {valutazioneMedia, setMedia} = useState(0);
+    const[appunti,setAppunti] = useState([]);
+    const [numeroDownload, setDownloads] = useState(0);
+    const [stelle, setStelle] = useState(0);
     
-    useEffect(()=>{
-        impostaNumeroDownloads()
+    useEffect(() => {
+        fetchCard()
     },[])
-
-    
-    const impostaNumeroDownloads = async() =>{
+   
+    const fetchCard = async() => { 
         const appuntoId = appunto.id;
-        try{
-            const response = await fetch(`api/file-scaricati?appuntoId=${appuntoId}`);
 
-            if(!response.ok) throw new Error("Impossibile ottenere i file scaricati")
+        try {
+            const[res1, res2] = await Promise.all([
+               fetch(`/api/file_scaricati?appuntoId=${appuntoId}`),
+               fetch(`/api/recensioni/${appuntoId}`)
+            ])
 
-            const risultato = await response.json();
-            setDownloads(risultato.appunti.length)
-        }catch(err){
-            alert(err.message);
-        }
-    }
+            if(!res1.ok || !res2.ok){
+                throw new Error("Errore nel recupero dati");
+            }
 
-    useEffect(()=>{
-        impostaMedia()
-    },[])
+            const [recensioni,file_scaricati] = await Promise.all([res1.json(),res2.json])
 
-    const impostaMedia = async() => {
-        const appuntoId = appunto.id;
-        try{
-            const response = await fetch (`/api/recensioni/${appunto.id}`)
-            if (!response.ok) throw new Error("Errore nel recupero recensioni");
+            setDownloads(file_scaricati.length)
 
-            const response = await response.json();
+            if(recensioni.length == 0){
+                setStelle("☆".repeat(5))
+            }else{
+                const somma = recensioni.reduce((acc, curr) => acc + curr.punteggio, 0);
+                const  media  = somma / recensioni.length
+                const valutazioneMedia = Math.round(media);
+                const stringaStelle = "⭐".repeat(valutazioneMedia) + "☆".repeat(5-valutazioneMedia);
+                setStelle (stringaStelle)
+            }
 
-            const somma = response.rencensioni.reduce((acc, curr) => acc + curr.punteggio, 0);
-            setMedia(somma/response.recensioni.length)
-        }catch(err){
-            alert(err.message)
+        } catch (error) {
+            alert(error.message)
         }
     }
 
     return (
-        <div>
-            <Link to = {`/appunto/${appunto.id}`}>
-                <div className = "container text-center">
-                    <div className="col">
-                        <div className="row">
-                            <img 
-                            src={appunto.copertina_url}
-                            className ="card-img-top"
-                            />
-                        </div>
-                        <div className="row">
-                            <h3>{appunto.titolo}</h3>
-                        </div>
-                        <div className="row">
-                            <p>{numeroDownload}</p>
-                        </div>
-                        <div className = "row">
-                            <p>{valutazioneMedia}</p>
-                        </div>
-                    </div>
+        <div className = "col-lg-3">
+            {/*
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src={appunto.url_thumbnail} alt="Card image cap"/>
+                <div class="card-body">
+                    <h5 class="card-title">{appunto.titolo}</h5>
+                    <p class="card-text">{valutazioneMedia}</p>
+                    <a href="#" class="btn btn-primary">{numeroDownload}</a>
                 </div>
-            </Link>
+            </div>
+                */}
+            <div className="d-flex" style={{ width: '18rem' }}>
+                <img className="col-4 object-fit-cover rounded" src={appunto.url_thumbnail} alt="Card image cap" />
+                <div className="d-flex flex-column ms-2">
+                    <h5>{appunto.titolo}</h5>
+                    <p className>{stelle}</p>
+                    <p className="card-text">{numeroDownload}</p>
+                    <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
+                        Mostra
+                    </button>
+                </div>
+            </div>
             
+           {/*Modal */}
+            <div className="modal fade" id={`modal-${appunto.id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div className="modal-dialog">
+                <div className="modal-content">
+                <div className="modal-header">
+                    <h1 className="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div className="modal-body">
+                    ...
+                </div>
+                <div className="modal-footer">
+                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" className="btn btn-primary">Save changes</button>
+                </div>
+                </div>
+            </div>
+            </div>
         </div>
     )
 }

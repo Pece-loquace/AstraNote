@@ -2,6 +2,7 @@ import { useState ,useEffect } from "react";
 import {Link} from "react-router-dom"
 //import Filter from "../../components/Filters";
 import Gatto from "./origini-del-gatto.jpg";
+import CardAppunto from "../../components/CardAppunto";
 const Homepage = () =>{
     
     const [appuntiFacolta,setAppunti] = useState([])
@@ -25,15 +26,15 @@ const Homepage = () =>{
     const caricaAppunti = async () =>{
         try {
             const response = await fetch('/api/appunti')
+            
             if(!response.ok) throw new Error('Errore nel caricamento')
 
             const appunti = await response.json()
-            console.log(appunti)
-
+             console.log(appunti[0]) 
             setAppunti (appunti)
         } catch (error) {
             setErrore(error.message)
-            console.error(err)
+            console.error(error.message)
         }
     }
 
@@ -45,25 +46,34 @@ const Homepage = () =>{
 
             const risultato = await response.json();
         }catch(err){
+            setErrore(err.message)
             console.log(err)
         }
     }
     
     return (
-        <>
-        <div className="row g-4">
-            {
-                appuntiFacolta.map((a) => (
-                <CardAppunto key = {a.id} appunto={a.id} appunto={a} />))
+        <div className="container my-5 flex-grow-1">
+            { errore && 
+                <div className="alert alert-danger">{ errore }</div>
             }
+            
+
+            <div className="row g-4">
+                {
+                    appuntiFacolta.map((a) => (
+                <CardAppunto key = {a.id} appunto={a.id} appunto={a} />))
+                }   
+                
+            </div>
+            
+            { 
+            (appuntiFacolta.length === 0 && !errore) &&
+                <div className="text-center">
+                    Caricamento appunti...
+                </div>
+            }
+            
         </div>
-        
-        <div className="d-grid gap-2">
-            <Link to="/upload">Upload</Link>
-        </div>
-        
-        </>
-       //Mi servono le cardAppunto
     );
 };
 
