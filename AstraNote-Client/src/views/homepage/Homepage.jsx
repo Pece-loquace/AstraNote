@@ -21,6 +21,7 @@ const Homepage = () =>{
     useEffect(()=>{
         caricaAppunti()
     },[])
+    
 
     const caricaAppunti = async () =>{
         try {

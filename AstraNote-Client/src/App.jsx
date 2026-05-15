@@ -13,6 +13,7 @@ import AppuntoSpecifico from './components/AppuntoSpecifico'
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link, Outlet, useNavigate } from 'react-router-dom';
 import UploadNota from "./views/uploadnota/UploadNota"
+import Searchpage from "./views/searchpage/searchpage"
 
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
         <Route element={<DefaultLayout/>}>
           <Route path = "/homepage" element = {<Homepage/>}/>
           <Route path = "/appunto_specifico" element = {<AppuntoSpecifico/>}/>
+          <Route path = "/search" element = {<Searchpage/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

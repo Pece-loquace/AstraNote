@@ -8,6 +8,7 @@ import profileIcon from "../assets/profile.svg"
 import settingsIcon from "../assets/settings.svg"
 import AstraLogo from "../assets/AstraNote_Logo.svg"
 import "../style/Navbar.css"
+import { useNavigate } from 'react-router-dom'
 
 const translations = {
             it: {
@@ -34,13 +35,20 @@ const translations = {
 
 function Navbar({children}) {
     const [lang, setLang] = useState('it');
+    const [query,setQuery] = useState('');
+    const navigate = useNavigate();
 
     const cambiaLingua = () => {setLang(lang === 'it' ? 'en' : 'it')};
 
     /*<div className="temaCnt">
                 <img src={themeIcon} alt="tema" className="tema"></img>
             </div>*/
-
+      const handleKeyDown = (e) => {    
+         if (e.key === "Enter" && query.trim() !== " ") {
+            navigate(`/search?q=${encodeURIComponent(query)}`);
+        }
+    }
+   
     return (
         <>
           <nav className="navbarCnt">
@@ -53,7 +61,7 @@ function Navbar({children}) {
             
             <div className="searchCnt flex-grow-1">
                 <img src={searchIcon} className="searchIcon" alt="searchIcon" />
-                <input className="search" placeholder={translations[lang].search}></input>
+                <input className="search" placeholder={translations[lang].search}  onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
             </div>
             <div className="libraryCnt">
                 <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
