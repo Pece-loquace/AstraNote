@@ -34,8 +34,9 @@ export default function Libreria(){
             console.error(error)
         }
     }
-
-
+    
+    /*Per eliminare i download duplicati altrimenti dava errore nella map quando si metteva key={id} */
+    const appuntiScaricatiUnici = [...new Map(appuntiScaricati.map(a => [a.id, a])).values()]
 
     return(
        <div className="container my-5 flex-grow-1">
@@ -78,7 +79,7 @@ export default function Libreria(){
                        (appuntiScaricati.length === 0 ? <p>Nessun appunto scaricato</p>: 
                         <div className="row g-4"> 
                         {
-                            appuntiScaricati.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
+                            appuntiScaricatiUnici.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
                         }
                         </div>)
                    }

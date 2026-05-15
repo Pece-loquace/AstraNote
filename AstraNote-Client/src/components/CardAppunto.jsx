@@ -26,6 +26,7 @@ export default function  CardAppunto({appunto}){
                fetch(`/api/recensioni/${appuntoId}`),
                fetch(`/api/utenti/${appunto.id_autore}`)   /*Per caricare nome e cognome dell'utente*/
             ])
+            
             console.log("Chiamata 1" +res1.ok)
             console.log("Chiamata 2" + res2.ok)
             console.log("Chiamata 3" + res3.ok)
