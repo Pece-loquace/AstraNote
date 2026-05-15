@@ -13,20 +13,22 @@ export default function  CardAppunto({appunto}){
     const[utente,setUtente] = useState([])
     const [showSegnala, setShowSegnala] = useState(false);
 
-
-    useEffect(() => {
-        fetchCard()
+    useEffect(() => { 
+            fetchCard()
     },[])
    
     const fetchCard = async() => { 
         const appuntoId = appunto.id;
-
+        console.log("Appunto id" + appuntoId)
         try {
             const[res1, res2, res3] = await Promise.all([
                fetch(`/api/appunti/${appuntoId}/downloads`), 
                fetch(`/api/recensioni/${appuntoId}`),
                fetch(`/api/utenti/${appunto.id_autore}`)   /*Per caricare nome e cognome dell'utente*/
             ])
+            console.log("Chiamata 1" +res1.ok)
+            console.log("Chiamata 2" + res2.ok)
+            console.log("Chiamata 3" + res3.ok)
 
             if(!res1.ok || !res2.ok || !res3.ok){
                 throw new Error("Errore nel recupero dati");
@@ -55,6 +57,8 @@ export default function  CardAppunto({appunto}){
             alert(error.message)
         }
     }
+
+
 
     const handleScarica = async() => {
         setLoading(true);

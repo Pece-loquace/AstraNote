@@ -8,7 +8,7 @@ import profileIcon from "../assets/profile.svg"
 import settingsIcon from "../assets/settings.svg"
 import AstraLogo from "../assets/AstraNote_Logo.svg"
 import "../style/Navbar.css"
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const translations = {
             it: {
@@ -66,7 +66,10 @@ function Navbar({children}) {
             </div>
             <div className="libraryCnt">
                 <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
+                <Link className="library" to="/libreria">{translations[lang].library}</Link>
+                {/*
                 <a href="#" className="library">{translations[lang].library}</a>
+                */}
             </div>
             <div className="profileCnt">
                 <img src={profileIcon} alt="profile" className="profileIcon"></img>

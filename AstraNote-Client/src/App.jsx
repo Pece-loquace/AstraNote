@@ -14,6 +14,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link, Outlet, useNavigate } from 'react-router-dom';
 import UploadNota from "./views/uploadnota/UploadNota"
 import Searchpage from "./views/searchpage/searchpage"
+import Libreria from "./views/libreria/Libreria"
 
 
 export default function App() {
@@ -32,6 +33,7 @@ export default function App() {
           <Route path = "/homepage" element = {<Homepage/>}/>
           <Route path = "/appunto_specifico" element = {<AppuntoSpecifico/>}/>
           <Route path = "/search" element = {<Searchpage/>}/>
+          <Route path = "/libreria" element = {<Libreria/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

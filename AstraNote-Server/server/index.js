@@ -173,8 +173,9 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
 
 app.get('/api/appunti', async(req,res) => {
     const {error,data} = await supabase
-        .from("appunti")
-        .select('*')
+        .from('appunti')
+        .select('id,titolo,descrizione,id_autore')
+
 
     if(error){
         return res.status(500).json({error:"Errore durante il  recupero dei dati"})
@@ -212,6 +213,20 @@ app.delete('/api/appunti/:id',async(req,res) => {
     }    
 })
 
+app.get('api/file_caricati', async(req,res)=>{
+
+    const {data,error} = await supabase 
+        .from('appunti')
+        .select('*')
+        .eq('id_autore',req.session.user)
+    
+
+     if(error) {
+        return res.status(500).json({error: "Errore durante l'eliminazione dell'appunto"})
+    }  
+    console.log("Caricati " + data )
+    res.json(data)
+})
 
 /*********************CRUD Segnalazioni ************/
 app.post("/api/segnalazioni", async(req,res) => {
@@ -348,7 +363,7 @@ app.get('/api/recensioni/:id' ,async(req,res)=>{
     const appuntoId = req.params.id;
 
     const {data,error} = await supabase
-        .from('Recensioni')
+        .from('recensioni')
         .select('*')
         .eq('appunto_id',appuntoId)
 
@@ -445,26 +460,34 @@ app.get('/api/appunti/:appuntoId/downloads', async(req,res)=>{
         .select('*')
         .eq('appunto_id',appuntoId )
 
+    console.log(data)
+    console.log(error)
+
     if(error){
-        console.log(error);
         return res.status(500).json({error:"Errore nel recupero dei file scaricati"})
     }
-    console.log(data)
     res.json(data)
 })
 
 app.get('/api/file_scaricati', async (req,res)=>{
-
-    const {data,error} = await supabase
-        .from('downloads')
-        .select('*')
-        .eq('user_id',req.session.user.id) 
+    const { data, error } = await supabase
+        .from("downloads")
+        .select(`
+            appunti (
+                id,
+                titolo,
+                descrizione,
+                id_autore
+            )
+        `)
+        .eq("user_id", req.session.user.id)
 
     if(error){
         return res.status(500).json({error:"Errore nel recupero dei file scaricati"})
     }
 
-    res.json(data)
+    const appuntiScaricati = data.map(d => d.appunti);
+    res.json(appuntiScaricati)
 })
 
 //---------------------------------------------
@@ -504,9 +527,10 @@ app.get('/api/utenti/:id', async(req,res)=>{
     const id_utente = req.params.id 
 
     const{data,error} = await supabase
-        .from('Utente')
+        .from('utenti')
         .select('*')
         .eq('id',id_utente)
+        .single()
     
     if(error){
         return res.status(500).json({error:"Errore nella query al database"})
@@ -535,7 +559,7 @@ app.post("/api/login", async (req,res) =>{
     }
 
     const { data: user, error } = await supabase
-        .from('Utente')
+        .from('utenti')
         .select('*')
         .eq('email', email)
         .single();
@@ -655,7 +679,7 @@ app.post("/api/register", upload.single('file'), async (req, res) =>{
         const hash = await bcrypt.hash(password, saltRounds);
 
         const { data, error } = await supabase
-            .from('Utente')
+            .from('utenti')
             .insert([
                 { 
                     nome: nome,

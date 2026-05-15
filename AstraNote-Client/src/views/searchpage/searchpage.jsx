@@ -20,7 +20,6 @@ export default function Searchpage(){
     },[query])
    
     const caricaRisultato = async() => {
-
         try {
             const response = await fetch('/api/appunti');
             if(!response.ok) throw new Error("Impossibile caricare il risultato");
@@ -55,7 +54,10 @@ export default function Searchpage(){
                 <h1>Ricerca: {query}</h1>
             </div>  
 
-            <Filters filters={filters} setFilters={setFilters} />
+
+            <div className="mb-4">
+                <Filters filters={filters} setFilters={setFilters}/>
+            </div>
             
 
             
@@ -64,7 +66,7 @@ export default function Searchpage(){
                         appuntiFiltrati.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
                     }           
             </div>
-            
+                    
 
         </div>
     );
