@@ -61,7 +61,8 @@ function Navbar({children}) {
             
             <div className="searchCnt flex-grow-1">
                 <img src={searchIcon} className="searchIcon" alt="searchIcon" />
-                <input className="search" placeholder={translations[lang].search}  onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
+                <input className="search" placeholder={translations[lang].search} 
+                 onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
             </div>
             <div className="libraryCnt">
                 <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>

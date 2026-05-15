@@ -3,6 +3,7 @@ import {Link} from "react-router-dom"
 //import Filter from "../../components/Filters";
 import Gatto from "./origini-del-gatto.jpg";
 import CardAppunto from "../../components/CardAppunto";
+import Filters from "../../components/Filters";
 const Homepage = () =>{
     const [appuntiFacolta,setAppunti] = useState([])
     const [errore,setErrore] = useState(null)
@@ -48,7 +49,7 @@ const Homepage = () =>{
         }catch(err){
             setErrore(err.message)
             console.log(err)
-        }
+        } 
     }
     
     return (
@@ -56,9 +57,13 @@ const Homepage = () =>{
             { errore && 
                 <div className="alert alert-danger">{ errore }</div>
             }
-            
+        
+            <div className="mb-4">   
+                <Filters/>
+            </div>
 
-            <div className="row g-4">
+
+            <div className="row g-4 m-3">
                 {
                     appuntiFacolta.map((a) => (
                 <CardAppunto key = {a.id}  appunto={a} />))

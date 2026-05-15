@@ -1,19 +1,85 @@
+import { useEffect, useState } from "react";
+
+export default function  Filters({filters,setFilters}){
+    const [facolta,setFacolta] = useState([])
+    const [corsi,setCorsi] = useState([])
+    const [anni,setAnni] = useState([])
+    const [stelle,setStelle] = useState("---Select option----")
+    
+    useEffect(() => {
+        loadFilters()
+    },[])
+
+    const loadFilters = async() =>{
+        const anni = [];
+        for(let i = 0; i <= 10; i++){
+            anni.push((2026)-i);
+        }    
+        console.log(anni)
+        setAnni(anni);
+        
+        try {
+            const response = await fetch('/api/facolta')
+            if(!response.ok) throw new Error('Errore nel caricare le facoltà')
+
+            const data = await response.json()
+            console.log(data)
+            
+            setFacolta(data)
+        } catch (error) {
+            console.error(error)
+        }
+
+    }
+
+    const loadCorsi = async(facoltaId) => {
+        try {
+            const response = await fetch(`/api/corsi?facolta = ${facoltaId}`)
+            if(!response.ok) throw new Error('Errore nel caricare i corsi')
+
+            const data = await response.json();
+            setCorsi(data);
+        } catch (error) {
+            console.error("Errore nel caricamento dei corsi");
+        }
+    }
 
 
-
-
-export default function Filters(appunti){
     return(
         <div className="container text-center">
-            <div className="row">
-                <div className="col">
-                    Corso:
+            <div className="row d-flex justify-content-between">
+                <div className="col-auto">
+                   <label for ="facolta">Facoltà:</label>
+                   <select name = "facolta" id= "facolta" onChange={(e) => {
+                        loadCorsi(e.target.value); 
+                        setFilters(prev => ({...prev, facolta: e.target.value}));
+                    }}>
+                    <option value={""}>---Seleziona una facoltà---</option>
+                    {
+                        facolta.map(f => <option value = {f.id} key={f.id}>{f.nome}</option>)
+                    }
+                   </select>
                 </div>
-                <div className="col">
-                    Stelle:
+                
+                <div className="col-auto">
+                    <label for ="anno">Anno:</label>
+                    <select name = "anno" id= "anno" >
+                        <option value={""}>---Seleziona un anno----</option>
+                        {
+                            anni.map((anno) => (<option value = {anno} key={anno} >{anno}</option>))
+                        }
+                    </select>
                 </div>
-                <div className="col">
-                    Anno:
+                <div className="col-auto">
+                    <label for = "stelle">Stelle: </label>
+                    <select name = "stelle" id= "anno">
+                        <option value = "">----------</option>
+                        <option value="1 ">⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                    </select>
                 </div>
             </div>
         </div>

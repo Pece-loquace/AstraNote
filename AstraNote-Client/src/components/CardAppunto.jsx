@@ -89,7 +89,7 @@ export default function  CardAppunto({appunto}){
                 </div>
             )}
 
-            <div className="d-flex" style={{ width: '18rem' }}>
+            <div className="d-flex w-100" >
                 <img className="col-4 object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
                 <div className="d-flex flex-column ms-2">
                     <h5>{appunto.titolo}</h5>

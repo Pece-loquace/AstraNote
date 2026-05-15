@@ -397,7 +397,7 @@ app.delete('/api/recensioni/:id' ,async(req,res)=>{
 /* -------------------Altri endpoint---------- */
 /*Quando faccio il login nel mio sito devo vedere tutti i corsi che ho nella mia facoltà */
 app.get('/api/corsi' , async (req,res)=>{
-    const facoltaId = req.query.facolta_id;
+    const { facoltaId } = req.query; 
 
     const{data,error} = await supabase
         .from('Corsi')
