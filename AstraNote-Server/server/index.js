@@ -425,11 +425,11 @@ app.get('/api/corsi' , async (req,res)=>{
 
 /*-----CRUD file_scaricati-----*/
 /*Crea una riga nella tabella file_scaricati */
-app.post('/api/downloads', async (req,res)=>{
+app.post('/api/preferiti', async (req,res)=>{
     const {appunto_id: appuntoId} = req.body;
 
     const {data,error} = await supabase
-        .from('downloads')
+        .from('preferiti')
         .insert([
             {   
                 user_id: req.session.user.id,
@@ -441,23 +441,20 @@ app.post('/api/downloads', async (req,res)=>{
 
     if(error){
         console.log(error);
-        return res.status(500).json({error:"Errore nel recupero dei file scaricati"})
+        return res.status(500).json({error:"Errore nel salvare il"})
     }
 
     res.status(201).json(data)
 })
 
-/*Prendi tutti i download che hanno quell'appunto_id */
-app.get('/api/appunti/:appuntoId/downloads', async(req,res)=>{
+/*Vede se l'utente con la sessione in corso ha quella card salvata */
+app.get('/api/appunti/:appuntoId/preferiti', async(req,res)=>{
     const { appuntoId  } = req.params;
 
     const{data,error} = await supabase
-        .from('downloads')
+        .from('preferiti')
         .select('*')
         .eq('appunto_id',appuntoId )
-
-    console.log(data)
-    console.log(error)
 
     if(error){
         return res.status(500).json({error:"Errore nel recupero dei file scaricati"})
@@ -484,6 +481,21 @@ app.get('/api/file_scaricati', async (req,res)=>{
 
     const appuntiScaricati = data.map(d => d.appunti);
     res.json(appuntiScaricati)
+})
+
+app.delete('/api/preferiti', async(req,res)=>{
+    const {appunto_id} = req.body;
+
+    console.log("Appunto " + appunto_id + " utente: " + req.session.user.id)
+    const{data,error} = await supabase 
+        .from('preferiti')
+        .delete()
+        .eq('appunto_id',appunto_id)
+        .eq('user_id',req.session.user.id)
+
+    if(error){
+        return res.status(500).json({error:"Impossibile eliminare il preferito"})
+    }
 })
 
 //---------------------------------------------

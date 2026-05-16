@@ -48,7 +48,6 @@ const Homepage = () =>{
         } 
     }   
     const appuntiFiltrati = appuntiFacolta.filter(a => {
-        console.log("corso di", a.titolo, ":", a.corso); 
         if(filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false;
         if(filters.corso !== "" && (a.corso.nome) !== filters.corso) return false;
         if(filters.anno !== "" && String(a.anno_riferimento) !== String(filters.anno)) return false;
@@ -68,7 +67,9 @@ const Homepage = () =>{
                 <Filters filters={filters} setFilters={setFilters} />
             </div>
 
-            
+            {
+                
+            }
 
 
             <div className="row g-4 m-3">
