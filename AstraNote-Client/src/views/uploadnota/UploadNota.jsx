@@ -158,7 +158,7 @@ export default function UploadNota() {
                 payload.append("file", formData.upload);
                 payload.append("titolo", formData.nome.trim());
                 payload.append("corso", formData.corso);
-                payload.append("anno",formData.anno)
+                payload.append("anno_riferimento",formData.anno)
                 payload.append("descrizione", formData.descrizione.trim());
 
                 const response = await fetch(API_UPLOAD_URL, {

@@ -7,12 +7,9 @@ import Filters from "../../components/Filters";
 const Homepage = () =>{
     const [appuntiFacolta,setAppunti] = useState([])
     const [errore,setErrore] = useState(null)
-    const [filters,setFilters] = useState({facolta:"",anno:"",stelle:""})
+    const [filters,setFilters] = useState({facolta:"",corso:"",anno:"",stelle:""})
 
-    //Seleziona i corsi dei vari 
-    
-    const corsi = Array.from(new Set (appuntiFacolta.map(a => a.corsi)))
-
+   
     //Campi Filters
     const [corso,setCorso] = useState(null)
     const [data,setData] = useState(null)
@@ -30,7 +27,7 @@ const Homepage = () =>{
             if(!response.ok) throw new Error('Errore nel caricamento')
 
             const appunti = await response.json()
-             console.log(appunti[0]) 
+            console.log("Appunti " + appunti) 
             setAppunti (appunti)
         } catch (error) {
             setErrore(error.message)
@@ -51,12 +48,16 @@ const Homepage = () =>{
         } 
     }   
     const appuntiFiltrati = appuntiFacolta.filter(a => {
-        if(filters.facolta !== "" && a.facolta !== filters.facolta) return false;
-        if(filters.anno !== "" && a.anno !== filters.anno) return false;
-        if(filters.stelle !== "" && a.valutazione !== filters.stelle) return false;
+        console.log("corso di", a.titolo, ":", a.corso); 
+        if(filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false;
+        if(filters.corso !== "" && (a.corso.nome) !== filters.corso) return false;
+        if(filters.anno !== "" && String(a.anno_riferimento) !== String(filters.anno)) return false;
+        if(filters.stelle !== "" && String(a.valutazione) !== String(filters.stelle)) return false;
         return true;
     });
     
+
+
     return (
         <div className="container my-5 flex-grow-1">
             { errore && 
@@ -77,12 +78,14 @@ const Homepage = () =>{
                 }    
             </div>
             
-            { 
-            (appuntiFiltrati.length === 0 && !errore) &&
+            {
+                appuntiFiltrati.length === 0 && 
                 <div className="text-center">
-                    Caricamento appunti...
+                    Nessun appunto trovato
                 </div>
             }
+
+           
             
         </div>
     );

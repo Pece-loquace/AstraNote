@@ -34,7 +34,7 @@ export default function  Filters({filters,setFilters}){
 
     const loadCorsi = async(facoltaId) => {
         try {
-            const response = await fetch(`/api/corsi?facolta = ${facoltaId}`)
+            const response = await fetch(`/api/corsi?facolta_id=${facoltaId}`)
             if(!response.ok) throw new Error('Errore nel caricare i corsi')
 
             const data = await response.json();
@@ -48,9 +48,10 @@ export default function  Filters({filters,setFilters}){
     return(
         <div className="container text-center">
             <div className="row d-flex justify-content-between">
-                <div className="col-auto">
-                   <label for ="facolta">Facoltà:</label>
-                   <select name = "facolta" id= "facolta" onChange={(e) => {
+
+                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
+                   <label htmlFor ="facolta" className="form-label fw-bold mb-1">Facoltà:</label>
+                   <select className="form-select" name = "facolta" id= "facolta" onChange={(e) => {
                         loadCorsi(e.target.value); 
                         setFilters(prev => ({...prev, facolta: e.target.value}));
                     }}>
@@ -60,10 +61,22 @@ export default function  Filters({filters,setFilters}){
                     }
                    </select>
                 </div>
+
+                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
+                    <label htmlFor ="corsi" className="form-label fw-bold mb-1">Corso:</label>
+                    <select  className="form-select" name = "corsi" id= "corsi"  onChange={(e)=>{
+                        setFilters(prev => ({...prev, corso: e.target.value}
+                        ))}}>
+                        <option value={""}>---Seleziona un corso----</option>
+                        {
+                            corsi.map((corso) => (<option value = {corso.nome} key={corso.id} >{corso.nome}</option>))
+                        }
+                    </select>
+                </div>
                 
-                <div className="col-auto">
-                    <label for ="anno">Anno:</label>
-                    <select name = "anno" id= "anno" onChange={(e)=>{
+                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
+                    <label htmlFor ="anno" className="form-label fw-bold mb-1">Anno:</label>
+                    <select  className="form-select" name = "anno" id= "anno" onChange={(e)=>{
                         setFilters(prev => ({...prev, anno: e.target.value}
                         ))}}>
                         <option value={""}>---Seleziona un anno----</option>
@@ -72,11 +85,11 @@ export default function  Filters({filters,setFilters}){
                         }
                     </select>
                 </div>
-                <div className="col-auto">
-                    <label for = "stelle">Stelle: </label>
-                    <select name = "stelle" id= "anno" onChange={(e) => setFilters(prev => ({...prev, stelle: e.target.value}))}>
+                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
+                    <label className="form-label fw-bold mb-1" htmlFor = "stelle">Valutazione: </label>
+                    <select  className="form-select" name = "stelle" id= "anno" onChange={(e) => setFilters(prev => ({...prev, stelle: e.target.value}))}>
                         <option value = "0">----------</option>
-                        <option value="1 ">⭐</option>
+                        <option value="1">⭐</option>
                         <option value="2">⭐⭐</option>
                         <option value="3">⭐⭐⭐</option>
                         <option value="4">⭐⭐⭐⭐</option>

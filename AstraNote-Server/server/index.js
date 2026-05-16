@@ -73,7 +73,7 @@ const { fromBuffer } = require('pdf2pic');
 /*********************CRUD Appunti************/
 app.post('/api/appunti', upload.single('file'), async(req,res) => {
     const file = req.file;
-    const {titolo,descrizione,corso} = req.body;
+    const {titolo,descrizione,corso,anno_riferimento} = req.body;
     const data_creazione = new Date().toISOString();
     const id_autore = req.session.user.id;
    
@@ -152,6 +152,7 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
                 descrizione:descrizione,
                 corso:corso,
                 url_thumbnail: url_thumbnail,
+                anno_riferimento: anno_riferimento
             }    
         ])
         .select();
@@ -170,8 +171,7 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
 app.get('/api/appunti', async(req,res) => {
     const {error,data} = await supabase
         .from('appunti')
-        .select('*')
-
+        .select('*,corso(*,facolta(*))')
 
     if(error){
         return res.status(500).json({error:"Errore durante il  recupero dei dati"})
