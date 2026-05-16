@@ -1,7 +1,14 @@
-
 //Importiamo express
 const express = require('express')
 const app = express() 
+
+/*Aggiungo il middleware Cors per far parlare frontend e backend*/
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true  // necessario per mandare i cookie di sessione
+}));
 
 //Impostiamo la porta, (ecco perche mi ero collegato a localhost:3000)
 const PORT = 3000
@@ -19,6 +26,7 @@ app.use(express.static(ROOT));
 
 
 /* Impostare sessioni */
+
 const session = require('express-session'); 
 const pgSession = require('connect-pg-simple')(session); 
 const { Pool } = require('pg'); 
@@ -28,6 +36,7 @@ const pgPool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false } // NECESSARIO per connettersi a Supabase da locale
 });
+
 // AGGIUNGI QUESTO LOG:
 console.log("Tentativo di connessione al DB con stringa:", process.env.DATABASE_URL ? "Caricata correttamente" : "NON TROVATA!");
 
@@ -65,23 +74,13 @@ const { fromBuffer } = require('pdf2pic');
 app.post('/api/appunti', upload.single('file'), async(req,res) => {
     const file = req.file;
     const {titolo,descrizione,corso} = req.body;
-    const id_autore = req.session.user.id;
     const data_creazione = new Date().toISOString();
-
-
-    console.log("Passa caricamento")
-
-    if (!req.session || !req.session.user) {
-            return res.status(401).json({ error: "Effettua il login" });
-    }
-
-
+    const id_autore = req.session.user.id;
+   
     if(!titolo || !corso ){
         console.log("Non sono presenti tutti i campi")
         return res.status(400).json({error: "Tutti i campi sono obbligatori"});
     }
-    
-    console.log("Passa controlli")
 
     const fileName = `${Date.now()}_${file.originalname}`;
     //Upload del file su supabase
@@ -103,7 +102,6 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
         .data;
     const publicUrl = urlData.publicUrl; 
 
-     console.log("Passa file")
      
     // 2. Genera la thumbnail dalla prima pagina
     let url_thumbnail = null;
@@ -143,7 +141,6 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
         console.error("Errore generazione thumbnail:", err);
     }
 
-    console.log("Passa thumbnail")
     const { data, error: dbError } = await supabase 
         .from('appunti')
         .insert([
@@ -159,7 +156,6 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
         ])
         .select();
 
-     console.log("Passa query")
     if(dbError){
              console.error("ERRORE DATABASE DETTAGLIATO:", dbError);
              return res.status(500).json({error:"Errore nell'inserimento dei dati"})
@@ -174,7 +170,7 @@ app.post('/api/appunti', upload.single('file'), async(req,res) => {
 app.get('/api/appunti', async(req,res) => {
     const {error,data} = await supabase
         .from('appunti')
-        .select('id,titolo,descrizione,id_autore')
+        .select('*')
 
 
     if(error){
@@ -412,12 +408,12 @@ app.delete('/api/recensioni/:id' ,async(req,res)=>{
 /* -------------------Altri endpoint---------- */
 /*Quando faccio il login nel mio sito devo vedere tutti i corsi che ho nella mia facoltà */
 app.get('/api/corsi' , async (req,res)=>{
-    const { facoltaId } = req.query; 
+    const { facolta_id } = req.query; 
 
     const{data,error} = await supabase
-        .from('Corsi')
+        .from('corsi')
         .select('*')
-        .eq('facoltà',facoltaId)
+        .eq('facoltà',facolta_id)
     
         console.log(data)
         console.log(error)

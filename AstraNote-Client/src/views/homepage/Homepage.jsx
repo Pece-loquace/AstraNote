@@ -7,6 +7,7 @@ import Filters from "../../components/Filters";
 const Homepage = () =>{
     const [appuntiFacolta,setAppunti] = useState([])
     const [errore,setErrore] = useState(null)
+    const [filters,setFilters] = useState({facolta:"",anno:"",stelle:""})
 
     //Seleziona i corsi dei vari 
     
@@ -16,8 +17,6 @@ const Homepage = () =>{
     const [corso,setCorso] = useState(null)
     const [data,setData] = useState(null)
     const [stelle,setStelle] = useState(0)
-
-    const appuntiFiltrati = appuntiFacolta
 
     useEffect(()=>{
         caricaAppunti()
@@ -50,7 +49,13 @@ const Homepage = () =>{
             setErrore(err.message)
             console.log(err)
         } 
-    }
+    }   
+    const appuntiFiltrati = appuntiFacolta.filter(a => {
+        if(filters.facolta !== "" && a.facolta !== filters.facolta) return false;
+        if(filters.anno !== "" && a.anno !== filters.anno) return false;
+        if(filters.stelle !== "" && a.valutazione !== filters.stelle) return false;
+        return true;
+    });
     
     return (
         <div className="container my-5 flex-grow-1">
@@ -59,19 +64,21 @@ const Homepage = () =>{
             }
         
             <div className="mb-4">   
-                <Filters/>
+                <Filters filters={filters} setFilters={setFilters} />
             </div>
+
+            
 
 
             <div className="row g-4 m-3">
                 {
-                    appuntiFacolta.map((a) => (
+                    appuntiFiltrati.map((a) => (
                 <CardAppunto key = {a.id}  appunto={a} />))
                 }    
             </div>
             
             { 
-            (appuntiFacolta.length === 0 && !errore) &&
+            (appuntiFiltrati.length === 0 && !errore) &&
                 <div className="text-center">
                     Caricamento appunti...
                 </div>

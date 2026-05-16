@@ -63,7 +63,9 @@ export default function  Filters({filters,setFilters}){
                 
                 <div className="col-auto">
                     <label for ="anno">Anno:</label>
-                    <select name = "anno" id= "anno" >
+                    <select name = "anno" id= "anno" onChange={(e)=>{
+                        setFilters(prev => ({...prev, anno: e.target.value}
+                        ))}}>
                         <option value={""}>---Seleziona un anno----</option>
                         {
                             anni.map((anno) => (<option value = {anno} key={anno} >{anno}</option>))
@@ -72,8 +74,8 @@ export default function  Filters({filters,setFilters}){
                 </div>
                 <div className="col-auto">
                     <label for = "stelle">Stelle: </label>
-                    <select name = "stelle" id= "anno">
-                        <option value = "">----------</option>
+                    <select name = "stelle" id= "anno" onChange={(e) => setFilters(prev => ({...prev, stelle: e.target.value}))}>
+                        <option value = "0">----------</option>
                         <option value="1 ">⭐</option>
                         <option value="2">⭐⭐</option>
                         <option value="3">⭐⭐⭐</option>

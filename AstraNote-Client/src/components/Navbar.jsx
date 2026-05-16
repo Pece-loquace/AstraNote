@@ -53,7 +53,9 @@ function Navbar({children}) {
         <>
           <nav className="navbarCnt">
             <div className="logoCnt">
-                <img src={AstraLogo} className="logo" alt="React logo"></img>
+                <Link to="/homepage">
+                    <img src={AstraLogo} className="logo" alt="React logo" ></img>
+                </Link>
             </div>
             <div className="flagCnt">
                 <img src={lang == 'it' ? flagIT : flagUK} alt="change lang" className="flag" onClick={cambiaLingua}></img>
@@ -67,9 +69,7 @@ function Navbar({children}) {
             <div className="libraryCnt">
                 <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
                 <Link className="library" to="/libreria">{translations[lang].library}</Link>
-                {/*
-                <a href="#" className="library">{translations[lang].library}</a>
-                */}
+
             </div>
             <div className="profileCnt">
                 <img src={profileIcon} alt="profile" className="profileIcon"></img>

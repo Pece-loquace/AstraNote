@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import {useLocation, Link } from "react-router-dom";
 import Segnala from "./Segnala";
 
 
@@ -12,6 +12,14 @@ export default function  CardAppunto({appunto}){
     const[loading,setLoading] = useState(false);
     const[utente,setUtente] = useState([])
     const [showSegnala, setShowSegnala] = useState(false);
+    const [scaricato,setScaricato] = useState(false)
+
+
+    //const [cardState,setCardState] = useState({titolo:"",descrizione:"",utente:""})
+
+    /*Controlla se l'URL corrente è libreria */
+    const location = useLocation(); 
+    const isLibreria = location.pathname === "/libreria";
 
     useEffect(() => { 
             fetchCard()
@@ -19,17 +27,13 @@ export default function  CardAppunto({appunto}){
    
     const fetchCard = async() => { 
         const appuntoId = appunto.id;
-        console.log("Appunto id" + appuntoId)
         try {
             const[res1, res2, res3] = await Promise.all([
                fetch(`/api/appunti/${appuntoId}/downloads`), 
                fetch(`/api/recensioni/${appuntoId}`),
                fetch(`/api/utenti/${appunto.id_autore}`)   /*Per caricare nome e cognome dell'utente*/
             ])
-            
-            console.log("Chiamata 1" +res1.ok)
-            console.log("Chiamata 2" + res2.ok)
-            console.log("Chiamata 3" + res3.ok)
+
 
             if(!res1.ok || !res2.ok || !res3.ok){
                 throw new Error("Errore nel recupero dati");
@@ -78,7 +82,7 @@ export default function  CardAppunto({appunto}){
         }
     }
 
-
+    console.log("Appunto " + appunto.id +" "+  appunto.url_thumbnail)
     return (
         <div className = "col-lg-3  col-md-6 col-12">
             <div className="border rounded p-3 h-100 shadow-sm">
@@ -119,16 +123,33 @@ export default function  CardAppunto({appunto}){
                             <div className="d-flex flex-column ms-2">
                                 <h5>{appunto.titolo}</h5>
                                 <p>Descrizione: {appunto.descrizione}</p>
-                                <p>{utente.nome} {utente.cognome}</p>
+                                <p>(di {utente.nome} {utente.cognome})</p>
+                                <p>{appunto.anno}</p>
                                 <p>({numeroDownload}) {stelle}</p>
                             </div>
                         </div>
-                        <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} onClick={handleScarica}>
-                                Scarica 
-                        </button>
-                        <button className="btn  btn-warning"  onClick={()  => { console.log("ID CHE STO MANDANDO:", appunto.id);setShowSegnala(true)}}>
-                                Segnala
-                        </button>
+                        
+                        <div className="row d-flex justify-content-between">
+                            <div className="col-auto">
+                                {/*Leggo se scaricato */
+                                    <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} onClick={handleScarica}>
+                                        Leggi 
+                                    </button>
+                                }
+                            </div>
+                            <div className="col-auto">
+                                    <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} onClick={handleScarica}>
+                                            Scarica 
+                                    </button>
+                            </div>
+                            <div className="col-auto">
+                                    <button className="btn  btn-warning"  onClick={()  => { console.log("ID CHE STO MANDANDO:", appunto.id);setShowSegnala(true)}}>
+                                            Segnala
+                                    </button>
+                            </div>
+                        </div>
+                        
+
                          {showSegnala && (<Segnala appuntoId={appunto.id} onClose={() => setShowSegnala(false)}/>)}
                     </div>
                     <div className="modal-footer">

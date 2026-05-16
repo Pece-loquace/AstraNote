@@ -16,7 +16,7 @@ const API_CORSO_URL = "http://localhost:3000/api/corso";
 const API_MATERIA_URL = "http://localhost:3000/api/materia";
 const API_UPLOAD_URL = "http://localhost:3000/api/appunti";
 
-function validaCaricamento({ file, titolo, facolta, corso, descrizione }) {
+function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) {
     const errori = [];
     const campiInErrore = new Set();
 
@@ -61,6 +61,10 @@ function validaCaricamento({ file, titolo, facolta, corso, descrizione }) {
         campiInErrore.add("materia");
     }
     */
+   if(!anno){
+    errori.push("Devi inserire un anno")
+    campiInErrore.add("anno")
+   }
 
     if (descrizione && descrizione.length > DESCRIZIONE_MAX) {
         errori.push("La descrizione non può superare i " + DESCRIZIONE_MAX + " caratteri.");
@@ -71,7 +75,7 @@ function validaCaricamento({ file, titolo, facolta, corso, descrizione }) {
 }
 
 const initialFormState = {
-    upload: null, nome: "", facolta: "", corso: "", descrizione: "",
+    upload: null, nome: "", facolta: "", corso: "",anno:"", descrizione: "",
 };
 
 export default function UploadNota() {
@@ -144,6 +148,7 @@ export default function UploadNota() {
             titolo: formData.nome,
             facolta: formData.facolta,
             corso: formData.corso,
+            anno: formData.anno,
             descrizione: formData.descrizione,
         });
 
@@ -153,23 +158,22 @@ export default function UploadNota() {
                 payload.append("file", formData.upload);
                 payload.append("titolo", formData.nome.trim());
                 payload.append("corso", formData.corso);
+                payload.append("anno",formData.anno)
                 payload.append("descrizione", formData.descrizione.trim());
 
                 const response = await fetch(API_UPLOAD_URL, {
                     method: "POST",
-                    body: payload,
+                    credentials: 'include',
+                    body: payload
                 });
 
+                console.log("Risposta " + response.ok)
                 if (response.ok) {
                     setFeedback({ show: true, type: "ok", errori: [] });
                     setTuttiValidi(true);
                     setCampiInErrore(new Set());
                     navigate("/upload"); 
-                    /*
-                    setTimeout(() => {
-                        navigate("/");
-                    }, 5000);
-                    */
+
                 } else {
                     throw new Error("Impossibile caricare la nota");
                 }
@@ -230,12 +234,9 @@ export default function UploadNota() {
                             <label htmlFor="facolta" className="form-label custom-label">Facoltà</label>
                             <select id="facolta" name="facolta" required value={formData.facolta} onChange={handleChange} className={`form-select ${classFor("facolta")}`}>
                                 <option value="" disabled>- Seleziona la facoltà per la tua nota -</option>
-
                                 {facolta.map(f => (
                                     <option key={f.id} value={f.id}>{f.nome}</option>
                                 ))}
-
-
                             </select>
                         </div>
 
@@ -253,15 +254,17 @@ export default function UploadNota() {
                         </div>
 
                         <div className="mb-3">
-                            <label htmlFor="materia" className="form-label custom-label">Materia</label>
-                            <select id="materia" name="materia" value={formData.materia} onChange={handleChange} className={`form-select ${classFor("materia")}`}>
-                                <option value="" disabled>- Seleziona una materia per la tua nota -</option>
-
-                                {materia.map(m => (
-                                    <option key={m.id} value={m.id}>{m.nome}</option>
-                                ))}
-
-
+                            <label htmlFor="anno" className="form-label custom-label">Anno di riferimento</label>
+                            <select id="anno" name="anno" value = {formData.anno} onChange={handleChange} className={`form-select ${classFor("anno")}`}>
+                            <option value ="" disabled>-Seleziona un anno -</option>
+                                <option value = "2015">2019</option>
+                                <option value = "2020">2020</option>
+                                <option value = "2021">2021</option>
+                                <option value = "2022">2022</option>
+                                <option value = "2023">2023</option>
+                                <option value = "2024">2024</option>
+                                <option value = "2025">2025</option>
+                                <option value = "2026">2026</option>
                             </select>
                         </div>
 

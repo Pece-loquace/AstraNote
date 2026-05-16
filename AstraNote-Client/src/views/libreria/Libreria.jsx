@@ -54,7 +54,7 @@ export default function Libreria(){
                                 className={`nav-link ${sezioneAttiva === "scaricati" ? "active" : ""}`}
                                 onClick={() => setSezioneAttiva("scaricati")}  
                             >
-                                Appunti Scaricati ({appuntiScaricati.length})
+                                Appunti Scaricati ({appuntiScaricatiUnici.length})
                             </button>
                             </li>
                         </ul>
