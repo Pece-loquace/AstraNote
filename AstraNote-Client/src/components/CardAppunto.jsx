@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useEffect } from "react";
 import {useLocation, Link } from "react-router-dom";
@@ -118,7 +117,7 @@ export default function  CardAppunto({appunto}){
     if (recensioniAggiornate.length === 0) {
         setStelle("☆".repeat(5));
     } else {
-        const somma = recensioniAggiornate.reduce((acc, curr) => acc + curr.punteggio, 0);
+        const somma = recensioniAggiornate.reduce((acc, curr) => acc + curr.valutazione, 0);
         const media = Math.round(somma / recensioniAggiornate.length);
         setStelle("⭐".repeat(media) + "☆".repeat(5 - media));
         }
@@ -139,7 +138,7 @@ export default function  CardAppunto({appunto}){
                 });
                 if(!response.ok) throw new Error("Errore nel creare la recensione");
                 
-                recensioniAggiornate = [...recensioni, { punteggio: stelle }];
+                recensioniAggiornate = [...recensioni, { valutazione: stelle }];
             }else{
                 console.log("La modifico una")
                 response = await fetch('/api/recensioni',{
@@ -149,7 +148,7 @@ export default function  CardAppunto({appunto}){
                 })
                 if(!response.ok) throw new Error("Errore nel modificare la recensione");
                 recensioniAggiornate = recensioni.map(r =>
-                r.utente_valutante === utente.id ? { ...r, punteggio: stelle } : r);
+                r.utente_valutante === utente.id ? { ...r, valutazione: stelle } : r);
             }
 
             setRecensioni(recensioniAggiornate);
@@ -197,7 +196,7 @@ export default function  CardAppunto({appunto}){
                 <img className="col-4 object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
                 <div className="d-flex flex-column ms-2">
                     <h5>{appunto.titolo}</h5>
-                    <p>{numSalvato}{stelle}</p>
+                    <p>{recensioni.length}{stelle}</p>
                     <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
                         Mostra
                     </button>
@@ -220,7 +219,7 @@ export default function  CardAppunto({appunto}){
                                 <p>Descrizione: {appunto.descrizione}</p>
                                 <p>(di {utente.nome} {utente.cognome})</p>
                                 <p>{appunto.anno}</p>
-                                <p>({numSalvato}) {stelle}</p>
+                                <p>({recensioni.length}) {stelle}</p>
                                 <p>Recensione personale</p>
                                 <StelleValutazioni stelleAttuali={valutazioneUtente} onChange = {changeRecensioni}/>
                             </div>
