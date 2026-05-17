@@ -5,9 +5,9 @@ import CardAppunto from "../../components/CardAppunto"
 
 
 export default function Libreria(){
-    const [appuntiScaricati,setAppuntiScaricati] = useState([])
     const [appuntiCaricati,setAppuntiCaricati] = useState([])
-    const [filters,setFilters] = useState({facolta:"",anno:"",stelle:""})
+    const [appuntiPreferiti,setAppuntiPreferiti] = useState([])
+    const [filters,setFilters] = useState({facolta:"",corso:"",anno:"",stelle:""})
     const [sezioneAttiva,setSezioneAttiva] = useState("caricati")
 
     useEffect(()=>{
@@ -17,17 +17,15 @@ export default function Libreria(){
     const caricaLibreria = async() =>{
         try {
             const [res1,res2] = await Promise.all([
-                fetch('/api/file_scaricati'),
-                /*fetch('/api/file_caricati'),*/
-                fetch('/api/appunti')
+                fetch('/api/preferiti'),
+                fetch('/api/appunti') 
             ])
-            console.error("Chiamata 1 " + res1.ok)
-            console.error("Chaiamta 2 " +res2.ok)
+
             if(!res1.ok || !res2.ok ) throw new Error("Impossibile caricare i dati")
             
             const[ris1,ris2] = await Promise.all([res1.json(),res2.json()])
 
-            setAppuntiScaricati( ris1)
+            setAppuntiPreferiti(ris1)
             setAppuntiCaricati(ris2)
         } catch (error) {
             console.log("Errore nella chiamata")
@@ -35,8 +33,7 @@ export default function Libreria(){
         }
     }
     
-    /*Per eliminare i download duplicati altrimenti dava errore nella map quando si metteva key={id} */
-    const appuntiScaricatiUnici = [...new Map(appuntiScaricati.map(a => [a.id, a])).values()]
+    
 
     return(
        <div className="container my-5 flex-grow-1">
@@ -54,7 +51,7 @@ export default function Libreria(){
                                 className={`nav-link ${sezioneAttiva === "scaricati" ? "active" : ""}`}
                                 onClick={() => setSezioneAttiva("scaricati")}  
                             >
-                                Appunti Scaricati ({appuntiScaricatiUnici.length})
+                                Appunti Salvati ({appuntiPreferiti.length})
                             </button>
                             </li>
                         </ul>
@@ -68,7 +65,7 @@ export default function Libreria(){
                         appuntiCaricati.length === 0 ? <p>Nessun appunto caricato</p>: 
                         <div className="row g-4"> 
                         {   
-                                appuntiCaricati.map((a) =>(<CardAppunto key={a.id} appunto={a} appunto_mode = {"caricati"}/>))
+                                appuntiCaricati.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
                         }
                         </div>
                     )
@@ -76,10 +73,10 @@ export default function Libreria(){
 
                    {
                     (sezioneAttiva === "scaricati") &&  
-                       (appuntiScaricati.length === 0 ? <p>Nessun appunto scaricato</p>: 
+                       (appuntiPreferiti.length === 0 ? <p>Nessun appunto scaricato</p>: 
                         <div className="row g-4"> 
                         {
-                            appuntiScaricatiUnici.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
+                            appuntiPreferiti.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
                         }
                         </div>)
                    }

@@ -423,8 +423,8 @@ app.get('/api/corsi' , async (req,res)=>{
     res.json(data)
 })
 
-/*-----CRUD file_scaricati-----*/
-/*Crea una riga nella tabella file_scaricati */
+/*-----CRUD preferiti-----*/
+/*Crea una riga nella tabella preferiti */
 app.post('/api/preferiti', async (req,res)=>{
     const {appunto_id: appuntoId} = req.body;
 
@@ -462,17 +462,12 @@ app.get('/api/appunti/:appuntoId/preferiti', async(req,res)=>{
     res.json(data)
 })
 
-app.get('/api/file_scaricati', async (req,res)=>{
+/*Usato in libreria >Appunti salvati : 
+restituisce tutti gli appunti salvati */
+app.get('/api/preferiti', async (req,res)=>{
     const { data, error } = await supabase
-        .from("downloads")
-        .select(`
-            appunti (
-                id,
-                titolo,
-                descrizione,
-                id_autore
-            )
-        `)
+        .from("preferiti")
+        .select(`appunti (*)`)
         .eq("user_id", req.session.user.id)
 
     if(error){
@@ -486,7 +481,6 @@ app.get('/api/file_scaricati', async (req,res)=>{
 app.delete('/api/preferiti', async(req,res)=>{
     const {appunto_id} = req.body;
 
-    console.log("Appunto " + appunto_id + " utente: " + req.session.user.id)
     const{data,error} = await supabase 
         .from('preferiti')
         .delete()
@@ -496,6 +490,8 @@ app.delete('/api/preferiti', async(req,res)=>{
     if(error){
         return res.status(500).json({error:"Impossibile eliminare il preferito"})
     }
+
+    return res.status(200).json({message:"Preferito eliminato"})
 })
 
 //---------------------------------------------

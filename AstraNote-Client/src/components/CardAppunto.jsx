@@ -71,6 +71,7 @@ export default function  CardAppunto({appunto}){
     }
 
     const saveCard = async() =>{
+        console.log("Aggiungo l'appunto")
          try{
             const response = await fetch ("/api/preferiti",{
                 method: 'POST',
@@ -78,6 +79,7 @@ export default function  CardAppunto({appunto}){
                 body: JSON.stringify({appunto_id: appunto.id})
             })
             if(!response.ok) throw new Error("Errore nel recupero dati");
+            console.log("Appunto aggiunto")
         }catch(error){
             setErrore("Errore nel salvare la card")
             console.log(error)
@@ -95,6 +97,7 @@ export default function  CardAppunto({appunto}){
                 body: JSON.stringify({appunto_id: appunto.id})
             })
             if(!response.ok) throw new Error("Errore nel recupero dati");
+            console.log("Appunto eliminato con successo")
         }catch(error){
             setErrore("Errore nell'eliminare il salvataggio")
             console.log(error)
@@ -103,7 +106,6 @@ export default function  CardAppunto({appunto}){
         }
     }
 
-    console.log("Appunto " + appunto.id +" "+  appunto.url_thumbnail)
     return (
         <div className = "col-lg-3  col-md-6 col-12">
             <div className="border rounded p-3 h-100 shadow-sm position-relative">
