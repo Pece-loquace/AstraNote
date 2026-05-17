@@ -60,10 +60,12 @@ export default function  CardAppunto({appunto}){
             if(recensioni.length == 0){
                 setStelle("☆".repeat(5))
             }else{
-                const somma = recensioni.reduce((acc, curr) => acc + curr.punteggio, 0);
-                const  media  = somma / recensioni.length
+                const somma = recensioni.reduce((acc, rec) => acc + rec.valutazione, 0);
+                const  media  = somma / recensioni.length;
                 const valutazioneMedia = Math.round(media);
+                console.log("Somma " + somma + "media " + media + "val media " + valutazioneMedia) 
                 const stringaStelle = "⭐".repeat(valutazioneMedia) + "☆".repeat(5-valutazioneMedia);
+                console.log(stringaStelle)
                 setStelle (stringaStelle)
             }
 
