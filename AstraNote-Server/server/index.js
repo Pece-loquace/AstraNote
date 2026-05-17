@@ -534,6 +534,7 @@ app.get('/api/utenti/:id', async(req,res)=>{
     if(error){
         return res.status(500).json({error:"Errore nella query al database"})
     }
+
     res.json(data)
 })
 
@@ -578,11 +579,10 @@ app.post("/api/login", async (req,res) =>{
             email: user.email 
         };
 
-        res.json({ message: "Login effettuato!", user: req.session.user});
+        res.json({ message: "Login !", user: req.session.user});
     } else {
-        res.status(401).json({ error: "Password errata" });
+        res.status(401).json({ error: "password" });
     }
-
 })
 
 

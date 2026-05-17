@@ -31,7 +31,6 @@ function validazioneLogin({email, password }) {
         if (!match) {
             errori.push("Il formato dell'email non è valido. Usa: cognome.matricola@studenti.uniroma1.it"); campiInErrore.add("email");
         } 
-
     }
 
 
@@ -118,7 +117,12 @@ export default function RegistrazioneConFacolta() {
             if(response.ok){
                 navigate("/homepage");
             }else{
-                throw new Error("Impossibile completare l'ordine")
+                const error = await response.json();
+                const errori = Array.isArray(error) ? error: [error.error || error.message || "Credenziali non valide"];
+
+                setFeedback({ show: true, type: "error", errori:errori });
+                setCampiInErrore(nuoviErrori);
+                setTuttiValidi(false);
             }
 
         } else {
@@ -178,7 +182,7 @@ export default function RegistrazioneConFacolta() {
                         {feedback.show && (
                             <div className={`alert mt-4 ${feedback.type === "ok" ? "alert-success" : "alert-danger"}`} role="alert">
                                 {feedback.type === "ok" ? (
-                                    "Login eseguito con successo. Benvenuto in AstraNote."
+                                    "Tutti i campi sono corretti, verifica in corso..."
                                 ) : (
                                     <>
                                         <strong className="d-block mb-2">Impossibile accedere all'account:</strong>
