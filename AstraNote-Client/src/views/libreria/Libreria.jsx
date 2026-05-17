@@ -27,11 +27,13 @@ export default function Libreria(){
 
             setAppuntiPreferiti(ris1)
             setAppuntiCaricati(ris2)
-        } catch (error) {
+        }catch (error) {
             console.log("Errore nella chiamata")
             console.error(error)
         }
     }
+
+   
     
     
 
