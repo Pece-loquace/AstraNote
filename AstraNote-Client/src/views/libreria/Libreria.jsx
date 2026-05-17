@@ -33,6 +33,8 @@ export default function Libreria(){
         }
     }
 
+    
+
    
     
     
@@ -67,7 +69,7 @@ export default function Libreria(){
                         appuntiCaricati.length === 0 ? <p>Nessun appunto caricato</p>: 
                         <div className="row g-4"> 
                         {   
-                                appuntiCaricati.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
+                                appuntiCaricati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={caricaLibreria}/>))
                         }
                         </div>
                     )
@@ -78,7 +80,7 @@ export default function Libreria(){
                        (appuntiPreferiti.length === 0 ? <p>Nessun appunto scaricato</p>: 
                         <div className="row g-4"> 
                         {
-                            appuntiPreferiti.map((a) =>(<CardAppunto key={a.id} appunto={a} />))
+                            appuntiPreferiti.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={caricaLibreria}/>))
                         }
                         </div>)
                    }

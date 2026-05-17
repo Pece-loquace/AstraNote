@@ -8,7 +8,7 @@ import '../style/CardAppunto.css'
 import StelleValutazioni from "./StelleValutazioni";
 
 
-export default function  CardAppunto({appunto}){
+export default function  CardAppunto({appunto,onSave}){
     const [stelle, setStelle] = useState("");
     const[loading,setLoading] = useState(false);
     const[utente,setUtente] = useState([])
@@ -180,6 +180,7 @@ export default function  CardAppunto({appunto}){
                     if(!bookMark){saveCard();}
                     else{deleteSavedCard();}
                     setBookMark(!bookMark);
+                    onSave();
                 }}
             />
            
