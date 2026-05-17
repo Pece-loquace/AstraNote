@@ -319,15 +319,15 @@ app.delete('/api/segnalazioni/:id',async(req,res)=>{
 
 /*********************CRUD Recesioni************/
 app.post('/api/recensioni',async(req,res)=>{
-    const {appunti_id,utente_valutante,valutazione} = req.body;
+    const {appunto_id,stelle} = req.body;
 
     const {data,error} = await supabase 
         .from ('recensioni')
         .insert([
             {   
-                appunti_id:appunti_id,
+                appunto_id:appunto_id,
                 utente_valutante: req.session.user.id,
-                valutazione: valutazione
+                valutazione: stelle
             }
         ])
         .select()
@@ -369,22 +369,17 @@ app.get('/api/recensioni/:id' ,async(req,res)=>{
     res.json(data);
 })
 
-app.put('/api/recensioni/:id',async(req,res)=>{
-    const recensioneId = req.params.id;
-    const{valutazione,appunti_id,utente_valutante} = req.body;
+app.put('/api/recensioni',async(req,res)=>{
+    const{stelle,appunto_id} = req.body;
 
     const {data,error} = await supabase
         .from('recensioni')
-        .update([
-            {
-                valutazione:valutazione,
-            }
-        ])
-        .eq('id',recensioneId)
-        .eq('utente_valutante', utente_valutante)
-        .select('*')
-        .single()
+        .update({valutazione:stelle})
+        .eq('appunto_id',appunto_id)
+        .eq('utente_valutante', req.session.user.id)
 
+    console.log(data)
+    console.log(error)
     if(error){
         return res.status(500).json({error:"Errore nell'ottenere la recension"})
     }
@@ -491,7 +486,7 @@ app.delete('/api/preferiti', async(req,res)=>{
         return res.status(500).json({error:"Impossibile eliminare il preferito"})
     }
 
-    return res.status(200).json({message:"Preferito eliminato"})
+    return res.status(200).json({message:"Preferito eliminato con successo"})
 })
 
 //---------------------------------------------

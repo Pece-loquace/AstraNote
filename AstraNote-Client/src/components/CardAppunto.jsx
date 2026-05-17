@@ -6,22 +6,21 @@ import Segnala from "./Segnala";
 import BookMark from "../assets/bookMark.png"
 import BookMarkSelected from "../assets/bookmarkSelected.png"
 import '../style/CardAppunto.css'
+import StelleValutazioni from "./StelleValutazioni";
 
 
 export default function  CardAppunto({appunto}){
-    const[appunti,setAppunti] = useState([]);
     const [stelle, setStelle] = useState("");
     const[loading,setLoading] = useState(false);
     const[utente,setUtente] = useState([])
     const [showSegnala, setShowSegnala] = useState(false);
-    const [scaricato,setScaricato] = useState(false)
     const [bookMark,setBookMark] = useState(false)
-    const [saved,setSaved] = useState(false)
     const[errore,setErrore] = useState(false)
 
-    const[numSalvato,setNumSalvato] = useState(0);
+    const [valutazioneUtente,setValutazioneUtente] = useState(0) 
 
-    //const [cardState,setCardState] = useState({titolo:"",descrizione:"",utente:""})
+    const[numSalvato,setNumSalvato] = useState(0);
+    const[recensioni,setRecensioni] = useState([]);
 
     /*Controlla se l'URL corrente è libreria */
     const location = useLocation(); 
@@ -34,25 +33,28 @@ export default function  CardAppunto({appunto}){
     const fetchCard = async() => { 
         const appuntoId = appunto.id;
         try {
-            const[res1, res2, res3] = await Promise.all([
+            const[res1, res2, res3, res4] = await Promise.all([
                fetch(`/api/appunti/${appuntoId}/preferiti`), 
                fetch(`/api/recensioni/${appuntoId}`),
-               fetch(`/api/utenti/${appunto.id_autore}`)   /*Per caricare nome e cognome dell'utente*/
+               fetch(`/api/utenti/${appunto.id_autore}`),   /*Per caricare nome e cognome dell'utente*/
+               fetch('/api/me')
             ])
 
 
-            if(!res1.ok || !res2.ok || !res3.ok){
+            if(!res1.ok || !res2.ok || !res3.ok || !res4.ok){
                 throw new Error("Errore nel recupero dati");
             }
 
-            const [preferiti,recensioni,utente] = await Promise.all([res1.json(),res2.json(),res3.json()])
+            const [preferiti,recensioni,autore,utente] = await Promise.all([res1.json(),res2.json(),res3.json(),res4.json()])
             /*Setta l'utente */
-            setUtente(utente)
+            setUtente(autore)
             /*Setta il numero di volte che è stato salvato */
             setNumSalvato(preferiti.length)
             /* Controllo se l'utente corrente ha salvato l'appunto*/
             const isPresente = preferiti.some(p => String(p.user_id) === String(utente.id));
             setBookMark(isPresente);
+
+            setRecensioni(recensioni);
 
             /*Setta le stelle */
             if(recensioni.length == 0){
@@ -64,6 +66,9 @@ export default function  CardAppunto({appunto}){
                 const stringaStelle = "⭐".repeat(valutazioneMedia) + "☆".repeat(5-valutazioneMedia);
                 setStelle (stringaStelle)
             }
+
+            const recensioneUtente = recensioni.find(r => r.utente_valutante === utente.id );
+            setValutazioneUtente(recensioneUtente ? recensioneUtente.valutazione : 0);
 
         } catch (error) {
             alert(error.message)
@@ -88,6 +93,7 @@ export default function  CardAppunto({appunto}){
         }
     }
 
+
     const deleteSavedCard = async() =>{
         console.log("elimina")
         try{
@@ -105,6 +111,52 @@ export default function  CardAppunto({appunto}){
             setLoading(false);
         }
     }
+
+    const ricalcolaStelle = (recensioniAggiornate) => {
+    if (recensioniAggiornate.length === 0) {
+        setStelle("☆".repeat(5));
+    } else {
+        const somma = recensioniAggiornate.reduce((acc, curr) => acc + curr.punteggio, 0);
+        const media = Math.round(somma / recensioniAggiornate.length);
+        setStelle("⭐".repeat(media) + "☆".repeat(5 - media));
+        }
+    };
+
+
+    const changeRecensioni = async(stelle) =>{
+        console.log("Cambiando la recensione")
+        try{
+            let response;
+            let recensioniAggiornate = [];
+            if(valutazioneUtente === 0){
+                console.log("La creo una")
+                response = await fetch('/api/recensioni',{
+                    method:'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body:JSON.stringify({stelle,appunto_id: appunto.id})
+                });
+                if(!response.ok) throw new Error("Errore nel creare la recensione");
+                
+                recensioniAggiornate = [...recensioni, { punteggio: stelle }];
+            }else{
+                console.log("La modifico una")
+                response = await fetch('/api/recensioni',{
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({stelle,appunto_id: appunto.id})
+                })
+                if(!response.ok) throw new Error("Errore nel modificare la recensione");
+                recensioniAggiornate = recensioni.map(r =>
+                r.utente_valutante === utente.id ? { ...r, punteggio: stelle } : r);
+            }
+
+            setRecensioni(recensioniAggiornate);
+            ricalcolaStelle(recensioniAggiornate)
+            setValutazioneUtente(stelle)
+        }catch(error){
+            alert(error.message)
+        }
+    }   
 
     return (
         <div className = "col-lg-3  col-md-6 col-12">
@@ -167,6 +219,8 @@ export default function  CardAppunto({appunto}){
                                 <p>(di {utente.nome} {utente.cognome})</p>
                                 <p>{appunto.anno}</p>
                                 <p>({numSalvato}) {stelle}</p>
+                                <p>Recensione personale</p>
+                                <StelleValutazioni stelleAttuali={valutazioneUtente} onChange = {changeRecensioni}/>
                             </div>
                         </div>
                         
@@ -179,7 +233,7 @@ export default function  CardAppunto({appunto}){
                                 }
                             </div>
                             <div className="col-auto">
-                                    <button className="btn  btn-warning"  onClick={()  => { console.log("ID CHE STO MANDANDO:", appunto.id);setShowSegnala(true)}}>
+                                    <button className="btn  btn-warning"  onClick={()  => {setShowSegnala(true)}}>
                                             Segnala
                                     </button>
                             </div>
