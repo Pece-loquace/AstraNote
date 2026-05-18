@@ -71,7 +71,6 @@ const initialFormState = {
 };
 
 export default function RegistrazioneConFacolta() {
-    const{}
     const [formData, setFormData] = useState(initialFormState);
     const [showPassword, setShowPassword] = useState(false);
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());

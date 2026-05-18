@@ -19,8 +19,8 @@ export default function Libreria(){
         console.log("Aggiorno preferiti")
         try {
             const [res1,res2] = await Promise.all([
-                fetch('/api/preferiti'),
-                fetch('/api/appunti') 
+                fetch('/api/preferiti_utente'),
+                fetch('/api/appunti_caricati') 
             ])
             
             if(!res1.ok || !res2.ok ) throw new Error("Impossibile caricare i dati")

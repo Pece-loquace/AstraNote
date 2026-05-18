@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
-export default function RedirectIfLoggedIn({ children }) { 
 
+
+export default function RedirectIfLoggedIn({ children }) { 
     const navigate = useNavigate();                 
     const [loading, setLoading] = useState(true);   
+    const [utente,setUtente] = useState(null)
 
     useEffect(() => {
         fetchUser();
@@ -16,7 +18,6 @@ export default function RedirectIfLoggedIn({ children }) {
             if (response.ok) {
                 navigate("/homepage");            
             }
-           
         } catch (error) {
             console.log(error.message);
         } finally {
@@ -25,6 +26,5 @@ export default function RedirectIfLoggedIn({ children }) {
     };
 
     if (loading) return null;                    
-
     return children;                                
 }
