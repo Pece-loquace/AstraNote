@@ -71,6 +71,7 @@ const initialFormState = {
 };
 
 export default function RegistrazioneConFacolta() {
+    const{}
     const [formData, setFormData] = useState(initialFormState);
     const [showPassword, setShowPassword] = useState(false);
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
@@ -113,8 +114,10 @@ export default function RegistrazioneConFacolta() {
                     password: formData.password,
                 })
             });
+            const data = await response.json();
 
             if(response.ok){
+                const data = await response.json();
                 navigate("/homepage");
             }else{
                 const error = await response.json();
