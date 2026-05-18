@@ -85,6 +85,7 @@ export default function  CardAppunto({appunto,onSave}){
                 body: JSON.stringify({appunto_id: appunto.id})
             })
             if(!response.ok) throw new Error("Errore nel recupero dati");
+
             console.log("Appunto aggiunto")
         }catch(error){
             setErrore("Errore nel salvare la card")
@@ -138,7 +139,7 @@ export default function  CardAppunto({appunto,onSave}){
                 });
                 if(!response.ok) throw new Error("Errore nel creare la recensione");
                 
-                recensioniAggiornate = [...recensioni, { valutazione: stelle }];
+                recensioniAggiornate = [...recensioni, { valutazione: stelle, utente_valutante: utente.id }];
             }else{
                 console.log("La modifico una")
                 response = await fetch('/api/recensioni',{
@@ -154,6 +155,19 @@ export default function  CardAppunto({appunto,onSave}){
             setRecensioni(recensioniAggiornate);
             ricalcolaStelle(recensioniAggiornate)
             setValutazioneUtente(stelle)
+
+            /*Aggiorna campo Valutazione :serve per filtrare*/
+            const somma = recensioniAggiornate.reduce((acc, rec) => acc + rec.valutazione, 0);
+            const  media  = somma / recensioniAggiornate.length;
+            const valutazioneMedia = Math.round(media);
+
+            response = await fetch(`/api/appunti/${appunto.id}`,{
+                method:'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({valutazione:valutazioneMedia})
+            })
+            if(!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
+
         }catch(error){
             alert(error.message)
         }
@@ -180,7 +194,7 @@ export default function  CardAppunto({appunto,onSave}){
                     if(!bookMark){saveCard();}
                     else{deleteSavedCard();}
                     setBookMark(!bookMark);
-                    onSave();
+                    if(isLibreria){onSave();}
                 }}
             />
            

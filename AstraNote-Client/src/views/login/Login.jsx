@@ -116,7 +116,6 @@ export default function RegistrazioneConFacolta() {
             const data = await response.json();
 
             if(response.ok){
-                const data = await response.json();
                 navigate("/homepage");
             }else{
                 const error = await response.json();

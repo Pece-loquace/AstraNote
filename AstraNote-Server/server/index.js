@@ -209,7 +209,7 @@ app.delete('/api/appunti/:id',async(req,res) => {
     }    
 })
 
-app.get('api/appunti_caricati', async(req,res)=>{
+app.get('/api/appunti_caricati', async(req,res)=>{
 
     const {data,error} = await supabase 
         .from('appunti')
@@ -364,7 +364,7 @@ app.get('/api/recensioni/:id' ,async(req,res)=>{
         .eq('appunto_id',appuntoId)
 
     if(error){
-        return res.status(500).json({error:"Errore nell'ottenere la recension"})
+        return res.status(500).json({error:"Errore nell'ottenere la recensioni"})
     }
     res.json(data);
 })
@@ -377,6 +377,7 @@ app.put('/api/recensioni',async(req,res)=>{
         .update({valutazione:stelle})
         .eq('appunto_id',appunto_id)
         .eq('utente_valutante', req.session.user.id)
+        .select()
 
     console.log(data)
     console.log(error)

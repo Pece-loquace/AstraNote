@@ -67,11 +67,6 @@ const Homepage = () =>{
                 <Filters filters={filters} setFilters={setFilters} />
             </div>
 
-            {
-                
-            }
-
-
             <div className="row g-4 m-3">
                 {
                     appuntiFiltrati.map((a) => (

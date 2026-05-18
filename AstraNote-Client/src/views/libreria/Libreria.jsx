@@ -7,7 +7,7 @@ import CardAppunto from "../../components/CardAppunto"
 export default function Libreria(){
     /*Devo accedere da localStorage */
     const [appuntiCaricati,setAppuntiCaricati] = useState([])
-    const [appuntiPreferiti,setAppuntiPreferiti] = useState([])
+    const [appuntiSalvati,setAppuntiSalvati] = useState([])
     const [filters,setFilters] = useState({facolta:"",corso:"",anno:"",stelle:""})
     const [sezioneAttiva,setSezioneAttiva] = useState("caricati")
 
@@ -27,7 +27,7 @@ export default function Libreria(){
             
             const[ris1,ris2] = await Promise.all([res1.json(),res2.json()])
 
-            setAppuntiPreferiti(ris1)
+            setAppuntiSalvati(ris1)
             setAppuntiCaricati(ris2)
             console.log(" preferiti aggiornati")
         }catch (error) {
@@ -38,7 +38,22 @@ export default function Libreria(){
 
     const Reload = () => {
         window.location.reload();
-    }
+    }   
+    const appuntiCaricatiFiltrati = appuntiCaricati.filter(a => {
+        if(filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false;
+        if(filters.corso !== "" && (a.corso.nome) !== filters.corso) return false;
+        if(filters.anno !== "" && String(a.anno_riferimento) !== String(filters.anno)) return false;
+        if(filters.stelle !== "" && String(a.valutazione) !== String(filters.stelle)) return false;
+        return true;
+    });
+    
+    const appuntiSalvatiFiltrati = appuntiSalvati.filter(a => {
+        if(filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false;
+        if(filters.corso !== "" && (a.corso.nome) !== filters.corso) return false;
+        if(filters.anno !== "" && String(a.anno_riferimento) !== String(filters.anno)) return false;
+        if(filters.stelle !== "" && String(a.valutazione) !== String(filters.stelle)) return false;
+        return true;
+    });
     
     return(
        <div className="container my-5 flex-grow-1">
@@ -48,7 +63,7 @@ export default function Libreria(){
                                 className={`nav-link ${sezioneAttiva === "caricati" ? "active" : ""}`}
                                 onClick={() => setSezioneAttiva("caricati")}  
                             >
-                                Appunti Caricati ({appuntiCaricati.length})
+                                Appunti Caricati ({appuntiCaricatiFiltrati.length})
                             </button>
                             </li>
                             <li className="nav-item">
@@ -56,7 +71,7 @@ export default function Libreria(){
                                 className={`nav-link ${sezioneAttiva === "scaricati" ? "active" : ""}`}
                                 onClick={() => setSezioneAttiva("scaricati")}  
                             >
-                                Appunti Salvati ({appuntiPreferiti.length})
+                                Appunti Salvati ({appuntiSalvatiFiltrati.length})
                             </button>
                             </li>
                         </ul>
@@ -67,10 +82,10 @@ export default function Libreria(){
 
                    {
                     (sezioneAttiva === "caricati") && ( 
-                        appuntiCaricati.length === 0 ? <p>Nessun appunto caricato</p>: 
+                        appuntiCaricatiFiltrati.length === 0 ? <p>Nessun appunto caricato</p>: 
                         <div className="row g-4"> 
                         {   
-                                appuntiCaricati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload}/>))
+                                appuntiCaricatiFiltrati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload}/>))
                         }
                         </div>
                     )
@@ -78,10 +93,10 @@ export default function Libreria(){
 
                    {
                     (sezioneAttiva === "scaricati") &&  
-                       (appuntiPreferiti.length === 0 ? <p>Nessun appunto scaricato</p>: 
+                       (appuntiSalvatiFiltrati.length === 0 ? <p>Nessun appunto scaricato</p>: 
                         <div className="row g-4"> 
                         {
-                            appuntiPreferiti.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload}/>))
+                            appuntiSalvatiFiltrati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload}/>))
                         }
                         </div>)
                    }

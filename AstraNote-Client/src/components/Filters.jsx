@@ -88,7 +88,7 @@ export default function  Filters({filters,setFilters}){
                 <div className="col-12 col-md-3 d-flex flex-column align-items-start">
                     <label className="form-label fw-bold mb-1" htmlFor = "stelle">Valutazione: </label>
                     <select  className="form-select" name = "stelle" id= "anno" onChange={(e) => setFilters(prev => ({...prev, stelle: e.target.value}))}>
-                        <option value = "0">----------</option>
+                        <option value = "">----------</option>
                         <option value="1">⭐</option>
                         <option value="2">⭐⭐</option>
                         <option value="3">⭐⭐⭐</option>
