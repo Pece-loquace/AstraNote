@@ -19,7 +19,8 @@ export default function RedirectIfLoggedIn({ children }) {
                 navigate("/homepage");            
             }
         } catch (error) {
-            console.log(error.message);
+            alert("Operazione non consentita")
+            navigate("/")
         } finally {
             setLoading(false);                      
         }

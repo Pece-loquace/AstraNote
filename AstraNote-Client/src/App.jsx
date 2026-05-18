@@ -19,14 +19,18 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
 
 
 export default function App() {
-  return (
+  const[authenticated,setAuthenticated]  = useState(false);
+
+  return (  
     <BrowserRouter>
       <Routes>
-       <Route path = "/" element = {<RedirectIfLoggedIn><Frontpage/></RedirectIfLoggedIn>}/>
-        <Route element={<AuthLayout/>}>
-          <Route path = "/upload" element = {<UploadNota/>}/>
-        </Route>
+       <Route path = "/" element = {<Frontpage setAuthenticated={setAuthenticated}/>}/>
 
+
+        <Route>
+          
+        </Route>
+        <Route path = "/upload" element = {<UploadNota/>}/>
         <Route element={<DefaultLayout/>}>
           <Route path = "/homepage" element = {<Homepage/>}/>
           <Route path = "/appunto_specifico" element = {<AppuntoSpecifico/>}/>

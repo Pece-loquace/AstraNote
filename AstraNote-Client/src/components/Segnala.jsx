@@ -46,8 +46,6 @@ export default function Segnala({ appuntoId, onClose }) {
             >
                 <h5>Segnala Appunto</h5>
 
-                <p>ID: {appuntoId}</p>
-
                 <textarea
                     className="form-control"
                     placeholder="Scrivi il motivo della segnalazione..."
