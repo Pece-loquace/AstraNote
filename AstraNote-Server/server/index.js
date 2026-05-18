@@ -743,20 +743,13 @@ const redirectIfLoggedIn = (req, res, next) => {
 
     if (req.session.user) {
         
-        return res.redirect('/'); 
+        return res.redirect('/homepage'); 
     }
     
     
     next();
 };
 
-
-const autenticato = (req, res, next) => {
-    if (!req.session.user) {
-        return res.status(401).json({ error: "Non sei loggato" });
-    }
-    next();
-};
 
 //Login 
 app.get("/accedi/login", redirectIfLoggedIn, (req, res)=>{
