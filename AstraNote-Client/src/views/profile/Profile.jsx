@@ -8,11 +8,9 @@ export default function Profile(){
     const [facolta,setFacolta] = useState("")
     const [user, setUser] = useState("")
 
-
     useEffect(()=>{
         fetchProfile()
     },[])
-
 
     const fetchProfile = async () => {
         try {

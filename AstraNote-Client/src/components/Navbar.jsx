@@ -51,7 +51,7 @@ function Navbar({children}) {
    
     return (
         <>
-          <nav className="navbarCnt">
+          <nav className="navbarCnt  navbar-expand-lg navbar-expand-md navbar-expand-sm">
             <div className="logoCnt">
                 <Link to="/homepage">
                     <img src={AstraLogo} className="logo" alt="React logo" ></img>

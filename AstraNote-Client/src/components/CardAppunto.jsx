@@ -242,12 +242,21 @@ export default function  CardAppunto({appunto,onSave}){
                         
                         <div className="row d-flex justify-content-between">
                             <div className="col-auto">
-                                {/*Leggo se scaricato */
-                                    <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} >
+                                
+                                {
+                                    <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} onClick={ ()=> window.open(appunto.url_file, '_blank')}>
                                         Leggi 
                                     </button>
                                 }
+                              
+                                {
+                                    <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} >
+                                        Scarica 
+                                    </button>
+                                } 
                             </div>
+        
+
                             <div className="col-auto">
                                     <button className="btn  btn-warning"  onClick={()  => {setShowSegnala(true)}}>
                                             Segnala

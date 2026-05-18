@@ -1,7 +1,6 @@
 import { useState ,useEffect } from "react";
 import {Link} from "react-router-dom"
 //import Filter from "../../components/Filters";
-import Gatto from "./origini-del-gatto.jpg";
 import CardAppunto from "../../components/CardAppunto";
 import Filters from "../../components/Filters";
 const Homepage = () =>{
