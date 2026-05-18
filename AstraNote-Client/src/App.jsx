@@ -15,17 +15,15 @@ import { BrowserRouter, Routes, Route, Link, Outlet, useNavigate } from 'react-r
 import UploadNota from "./views/uploadnota/UploadNota"
 import Searchpage from "./views/searchpage/searchpage"
 import Libreria from "./views/libreria/Libreria"
+import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
 
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path = "/" element = {<Frontpage/>}/>
-
+       <Route path = "/" element = {<RedirectIfLoggedIn><Frontpage/></RedirectIfLoggedIn>}/>
         <Route element={<AuthLayout/>}>
-          <Route path = "/login" element = {<Login/>}/>
-          <Route path = "/register" element = {<Register/>}/>
           <Route path = "/upload" element = {<UploadNota/>}/>
         </Route>
 
