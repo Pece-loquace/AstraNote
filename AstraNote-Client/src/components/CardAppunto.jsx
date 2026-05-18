@@ -221,7 +221,6 @@ export default function  CardAppunto({appunto,onSave}){
                                 <p>(di {utente.nome} {utente.cognome})</p>
                                 <p>{appunto.anno}</p>
                                 <p>({recensioni.length}) {stelle}</p>
-                                <p>({numSalvato})-{stelle}</p>
                                 <p>Recensione personale</p>
                                 <StelleValutazioni stelleAttuali={valutazioneUtente} onChange = {changeRecensioni}/>
                             </div>

@@ -209,12 +209,12 @@ app.delete('/api/appunti/:id',async(req,res) => {
     }    
 })
 
-app.get('api/file_caricati', async(req,res)=>{
+app.get('api/appunti_caricati', async(req,res)=>{
 
     const {data,error} = await supabase 
         .from('appunti')
         .select('*')
-        .eq('id_autore',req.session.user)
+        .eq('id_autore',req.session.user.id)
     
 
      if(error) {
@@ -459,7 +459,7 @@ app.get('/api/appunti/:appuntoId/preferiti', async(req,res)=>{
 
 /*Usato in libreria >Appunti salvati : 
 restituisce tutti gli appunti salvati */
-app.get('/api/preferiti', async (req,res)=>{
+app.get('/api/preferiti_utente', async (req,res)=>{
     const { data, error } = await supabase
         .from("preferiti")
         .select(`appunti (*)`)
