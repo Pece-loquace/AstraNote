@@ -9,7 +9,7 @@ import "../../style/buttons.css"
 const DOMINIO = "studenti.uniroma1.it";
 const MATRICOLA_LEN = 7;
 const PASSWORD_MIN = 8;
-const EMAIL_REGEX = /^([a-z]+)\.(\d+)@studenti\.uniroma1\.it$/;
+const EMAIL_REGEX = /^([a-z]+)\.(\d{7})@studenti\.uniroma1\.it$/;
 const MINUSCOLA_REGEX = /[a-z]/;
 const MAIUSCOLA_REGEX = /[A-Z]/;
 const SIMBOLO_REGEX = /[^A-Za-z0-9]/;
@@ -181,9 +181,9 @@ export default function RegistrazioneConFacolta() {
                 navigate("/homepage");
             } else {
                 const error = await response.json();
-                const errori = Array.isArray(error) ? error: [error.error || error.message || "Credenziali non valide"];
+                const errori = Array.isArray(error) ? error : [error.error || error.message || "Credenziali non valide"];
 
-                setFeedback({ show: true, type: "error", errori:errori });
+                setFeedback({ show: true, type: "error", errori: errori });
                 setCampiInErrore(nuoviErrori);
                 setTuttiValidi(false);
             }
@@ -223,17 +223,17 @@ export default function RegistrazioneConFacolta() {
                     </p>
 
                     <form id="registrationForm" onSubmit={handleSubmit} noValidate>
-                        <div className="row">
-                            <div className="mb-3">
-                                <label htmlFor="nome" className="form-label custom-label">Nome</label>
-                                <input type="text" id="nome" name="nome" required value={formData.nome} onChange={handleChange} className={`form-control ${classFor("nome")}`} />
-                            </div>
 
-                            <div className="mb-3">
-                                <label htmlFor="cognome" className="form-label custom-label">Cognome</label>
-                                <input type="text" id="cognome" name="cognome" required value={formData.cognome} onChange={handleChange} className={`form-control ${classFor("cognome")}`} />
-                            </div>
+                        <div className="mb-3">
+                            <label htmlFor="nome" className="form-label custom-label">Nome</label>
+                            <input type="text" id="nome" name="nome" required value={formData.nome} onChange={handleChange} className={`form-control ${classFor("nome")}`} />
                         </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="cognome" className="form-label custom-label">Cognome</label>
+                            <input type="text" id="cognome" name="cognome" required value={formData.cognome} onChange={handleChange} className={`form-control ${classFor("cognome")}`} />
+                        </div>
+
 
                         <div className="mb-3">
                             <label htmlFor="matricola" className="form-label custom-label">Matricola</label>
