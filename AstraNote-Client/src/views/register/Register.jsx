@@ -105,7 +105,7 @@ const initialFormState = {
     nome: "", cognome: "", matricola: "", email: "", facolta: "", password: "", confermaPassword: "",
 };
 
-export default function RegistrazioneConFacolta() {
+export default function RegistrazioneConFacolta({setSection}) {
     const [formData, setFormData] = useState(initialFormState);
     const [showPassword, setShowPassword] = useState(false);
     const [showConferma, setShowConferma] = useState(false);
@@ -279,6 +279,7 @@ export default function RegistrazioneConFacolta() {
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Crea account</button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
+                            <button type="button" className="btn-back btn-outline-secondary"  onClick={()=>setSection('frontpage')}>Indietro</button>
                         </div>
 
                         {feedback.show && (

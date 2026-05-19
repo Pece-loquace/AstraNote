@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
+import "../../style/back_buttons.css";
 import eye from "../../assets/eye-line.svg"
 import eyeoff from "../../assets/eye-off-line.svg"
+
 
 // REGISTRAZIONE STUDENTE SAPIENZA
 const DOMINIO = "studenti.uniroma1.it";
@@ -17,7 +19,7 @@ const NUMBER_REGEX = /[0-9]/;
 const API_BASE_URL = "http://localhost:3000/api/facolta"
 
 
-function validazioneLogin({ email, password }) {
+function validazioneLogin({email, password }) {
     const errori = [];
     const campiInErrore = new Set();
 
@@ -31,7 +33,7 @@ function validazioneLogin({ email, password }) {
         const match = emailLower.match(EMAIL_REGEX);
         if (!match) {
             errori.push("Il formato dell'email non è valido. Usa: cognome.matricola@studenti.uniroma1.it"); campiInErrore.add("email");
-        }
+        } 
     }
 
 
@@ -61,10 +63,10 @@ function EyeOffIcon() {
 }
 
 const initialFormState = {
-    email: "", password: "",
+     email: "", password: "",
 };
 
-export default function RegistrazioneConFacolta() {
+export default function RegistrazioneConFacolta({setSection}) {
     const [formData, setFormData] = useState(initialFormState);
     const [showPassword, setShowPassword] = useState(false);
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
@@ -88,9 +90,9 @@ export default function RegistrazioneConFacolta() {
         setFeedback((prev) => (prev.show ? { ...prev, show: false } : prev));
     };
 
+    
 
-
-    const handleSubmit = async (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault();
         const { ok, errori, campiInErrore: nuoviErrori } = validazioneLogin({ ...formData, conferma: formData.confermaPassword });
 
@@ -99,8 +101,8 @@ export default function RegistrazioneConFacolta() {
             setTuttiValidi(true);
             setCampiInErrore(new Set());
 
-            const response = await fetch('/api/login', {
-                method: 'POST',
+            const response = await fetch('/api/login',{
+                method:'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: formData.email,
@@ -109,13 +111,13 @@ export default function RegistrazioneConFacolta() {
             });
             const data = await response.json();
 
-            if (response.ok) {
+            if(response.ok){
                 navigate("/homepage");
-            } else {
+            }else{
                 const error = await response.json();
-                const errori = Array.isArray(error) ? error : [error.error || error.message || "Credenziali non valide"];
+                const errori = Array.isArray(error) ? error: [error.error || error.message || "Credenziali non valide"];
 
-                setFeedback({ show: true, type: "error", errori: errori });
+                setFeedback({ show: true, type: "error", errori:errori });
                 setCampiInErrore(nuoviErrori);
                 setTuttiValidi(false);
             }
@@ -127,7 +129,7 @@ export default function RegistrazioneConFacolta() {
         }
     };
 
-
+   
     const classFor = (field) => {
         if (campiInErrore.has(field)) return "is-invalid";
         if (tuttiValidi) return "is-valid";
@@ -156,7 +158,7 @@ export default function RegistrazioneConFacolta() {
                             }
                         </div>
 
-
+        
 
                         <div className="mb-3">
                             <label htmlFor="password" className="form-label custom-label">Password</label>
@@ -172,8 +174,9 @@ export default function RegistrazioneConFacolta() {
 
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Login</button>
+                            <button type="button" className="btn-back btn-outline-secondary" onClick={()=>setSection('frontpage')}>Indietro</button>
                         </div>
-
+                        
                         {feedback.show && (
                             <div className={`alert mt-4 ${feedback.type === "ok" ? "alert-success" : "alert-danger"}`} role="alert">
                                 {feedback.type === "ok" ? (
