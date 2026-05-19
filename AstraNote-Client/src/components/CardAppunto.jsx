@@ -172,6 +172,19 @@ export default function  CardAppunto({appunto,onSave}){
             alert(error.message)
         }
     }   
+    const handleDownload = async () => {
+        const response = await fetch(appunto.url_file);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "appunto.pdf"; 
+        a.click();
+
+        window.URL.revokeObjectURL(url); // libera memoria
+    };
+
 
     return (
         <div className = "col-lg-3  col-md-6 col-12">
@@ -245,12 +258,12 @@ export default function  CardAppunto({appunto,onSave}){
                                 
                                 {
                                     <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} onClick={ ()=> window.open(appunto.url_file, '_blank')}>
-                                        Leggi 
+                                        Visualizza 
                                     </button>
                                 }
                               
                                 {
-                                    <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} >
+                                    <button type="button" className="btn btn-primary"  onClick={handleDownload}>
                                         Scarica 
                                     </button>
                                 } 
