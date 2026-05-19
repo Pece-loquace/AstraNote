@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import RegistrazioneConFacolta from '../register/Register';
 import Login from '../login/Login';
 import '../../style/sfondo.css';
@@ -9,6 +9,14 @@ import logo from "../../assets/AstraNote_Banner_IT_720.png";
 const Frontpage = () => {
     const [view, setView] = useState('frontpage');
 
+    const rightPanelRef = useRef(null);
+
+    useEffect(() => {
+        if (rightPanelRef.current) {
+            rightPanelRef.current.scrollTop = 0;
+        }
+    }, [view]);
+
     return (
         <>
             <div className="sfondo"></div>
@@ -18,7 +26,7 @@ const Frontpage = () => {
 
                 {/* Pannello sinistro — Login */}
                 <div className={`panel left col-12 col-md-5 col-lg-4 ${view === 'login' ? 'd-flex' : 'd-none d-md-flex'} align-items-center justify-content-center`}>
-                    <Login className="form-box w-100 px-3 px-md-4" />
+                    <Login className="form-box w-100 px-3 px-md-4" setSection={setView}/>
                 </div>
 
                 {/* Centro — Frontpage */}
@@ -43,15 +51,6 @@ const Frontpage = () => {
                                     >
                                         Accedi
                                     </button>
-                                    {view !== 'frontpage' && (
-                                        <button
-                                            className="btn-back w-100 w-sm-auto"
-                                            style={{ maxWidth: '260px', height: '70px', fontSize: 'clamp(20px, 2.5vw, 32px)' }}
-                                            onClick={() => setView('frontpage')}
-                                        >
-                                            Indietro
-                                        </button>
-                                    )}
                                 </>
                             )}
 
@@ -64,15 +63,6 @@ const Frontpage = () => {
                                     >
                                         Registrati
                                     </button>
-                                    {view !== 'frontpage' && (
-                                        <button
-                                            className="btn-back w-100 w-sm-auto"
-                                            style={{ maxWidth: '260px', height: '70px', fontSize: 'clamp(20px, 2.5vw, 32px)' }}
-                                            onClick={() => setView('frontpage')}
-                                        >
-                                            Indietro
-                                        </button>
-                                    )}
                                 </>
                             )}
                         </div>
@@ -80,8 +70,9 @@ const Frontpage = () => {
                 </div>
 
                 {/* Pannello destro — Registrazione */}
-                <div className={`panel right col-12 col-md-5 col-lg-4 ${view === 'register' ? 'd-flex' : 'd-none d-md-flex'} align-items-center justify-content-center`}>
-                    <RegistrazioneConFacolta className="form-box w-100 px-3 px-md-4" />
+                <div className={`panel right col-12 col-md-5 col-lg-4 ${view === 'register' ? '' : 'd-none d-md-flex'} align-items-center justify-content-center`}
+                     ref={rightPanelRef}>
+                    <RegistrazioneConFacolta className="form-box w-100 px-3 px-md-4" setSection={setView}/>
                 </div>
 
             </div>

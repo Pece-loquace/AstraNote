@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import flagIT from "../assets/flag-italy.svg"
-import flagUK from "../assets/flag-uk.svg"
-//import themeIcon from "../assets/dark-theme.svg"
 import searchIcon from "../assets/search.svg"
 import libraryIcon from "../assets/library-1.svg"
 import profileIcon from "../assets/profile.svg"
@@ -9,29 +6,6 @@ import settingsIcon from "../assets/settings.svg"
 import AstraLogo from "../assets/AstraNote_Logo.svg"
 import "../style/Navbar.css"
 import { Link, useNavigate } from 'react-router-dom'
-
-const translations = {
-            it: {
-                login: "Accedi",
-                register: "Registrati",
-                settings: "Impostazioni",
-                profile: "Profilo",
-                library: "La tua Libreria",
-                search: "Cerca degli appunti...",
-                terms: "Termini e Condizioni",
-                footer: "AstraNote 2026 - Tutti i diritti riservati"
-            },
-            en: {
-                login: "Login",
-                register: "Create Account",
-                settings: "Settings",
-                profile: "Profile",
-                library: "Your Library",
-                search: "Look for some notes...",
-                terms: "Terms and Conditions",
-                footer: "AstraNote 2026 - All rights reserved"
-              }
-        };
 
 function Navbar({children}) {
     const [lang, setLang] = useState('it');
@@ -51,33 +25,29 @@ function Navbar({children}) {
    
     return (
         <>
-          <nav className="navbarCnt  navbar-expand-lg navbar-expand-md navbar-expand-sm">
+          <nav className="navbarCnt navbar-expand-lg navbar-expand-md navbar-expand-sm">
             <div className="logoCnt">
                 <Link to="/homepage">
                     <img src={AstraLogo} className="logo" alt="React logo" ></img>
                 </Link>
             </div>
-            <div className="flagCnt">
-                <img src={lang == 'it' ? flagIT : flagUK} alt="change lang" className="flag" onClick={cambiaLingua}></img>
-            </div>
             
             <div className="searchCnt flex-grow-1">
                 <img src={searchIcon} className="searchIcon" alt="searchIcon" />
-                <input className="search" placeholder={translations[lang].search} 
+                <input className="search" placeholder="Cerca degli appunti..." 
                  onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
             </div>
             <div className="libraryCnt">
                 <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
-                <Link className="library" to="/libreria">{translations[lang].library}</Link>
+                <Link className="library" to="/libreria">La tua libreria</Link>
 
             </div>
             <div className="profileCnt">
                 <img src={profileIcon} alt="profile" className="profileIcon"></img>
-                <a href="#" className="profile">{translations[lang].profile}</a>
+                <a href="#" className="profile">Profilo</a>
             </div>
             <div className="settingsCnt">
                 <img src={settingsIcon} alt="settings" className="settingsIcon"></img>
-                <a href="#" className="settings">{translations[lang].settings}</a>
             </div>
           </nav>
         </>

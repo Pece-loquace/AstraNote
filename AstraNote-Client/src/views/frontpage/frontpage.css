@@ -97,3 +97,26 @@
     transform: translateY(1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.612) !important;
 }
+
+@media (max-width: 768px) {
+    
+    .cnt {
+        flex-direction: column;
+    }
+
+    .cnt.frontpage .frontpage {
+        width: 100%;
+        height: auto;
+        padding: 20px;
+    }
+
+    .cnt.login .panel.left,
+    .cnt.register .panel.right {
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10;
+    }
+}

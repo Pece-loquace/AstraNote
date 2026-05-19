@@ -8,7 +8,7 @@ export default function DefaultLayout(){
         <>
         <div className="d-flex flex-column min-vh-100">
            <Navbar/>
-            <main style={{ flex: 1, position: 'relative' }}>
+            <main className="flex-grow-1" style={{ flex: 1, position: 'relative' }}>
                 {/*React sostituisce automaticamente con il componente della route figlia attiva*/}
                 <Outlet/>
                 <AddButton/>
