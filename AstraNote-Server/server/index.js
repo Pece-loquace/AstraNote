@@ -225,7 +225,7 @@ app.get('/api/appunti_caricati', async(req,res)=>{
 })
 
 /*********************CRUD Segnalazioni ************/
-app.post("/api/segnalazioni", async(req,res) => {
+app.post('/api/segnalazioni', async(req,res) => {
     const {messaggio,appuntoId} = req.body;
     const data_creazione = new Date().toISOString();
     console.log("Body ricevuto:", req.body) 
@@ -235,7 +235,7 @@ app.post("/api/segnalazioni", async(req,res) => {
         .from('segnalazioni')
         .insert([
             {
-                utente_id: req.session.user.id,
+                utente_segnalante: req.session.user.id,
                 messaggio: messaggio,
                 created_at: data_creazione,
                 appunto_id: appuntoId,
@@ -267,18 +267,19 @@ app.get('/api/segnalazioni', async(req,res) =>{
 })
 
 
-app.get('/api/segnalazioni/:id' , async(req,res)=>{
+app.get('/api/segnalazioni_utente' , async(req,res)=>{
     const idSegnalazione = req.params.id;
 
     const{data,error} = await supabase
         .from('segnalazioni')
         .select('*')
-        .eq('id',idSegnalazione)
+        .eq('utente_segnalante',req.session.user.id)
     
     if(error){
         return res.status(500).json({error:"Errore nel"})
     }
 
+    res.json(data);
 })
 
 app.put('/api/segnalazioni/:id',async (req,res)=>{
