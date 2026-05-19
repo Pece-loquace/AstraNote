@@ -6,7 +6,7 @@ import Frontpage from "./views/frontpage/frontpage"
 import Homepage from "./views/homepage/Homepage"
 import Login from "./views/login/Login"
 import DefaultLayout from "./views/Layout/DefaultLayout"
-import AuthLayout  from './views/layout/AuthLayout'
+import AuthLayout from './views/layout/AuthLayout'
 
 import AppuntoSpecifico from './components/AppuntoSpecifico'
 
@@ -19,21 +19,21 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
 
 
 export default function App() {
-    
 
-  return (  
+
+  return (
     <BrowserRouter>
       <Routes>
-       <Route path = "/" element = {<RedirectIfLoggedIn><Frontpage/></RedirectIfLoggedIn>}/>
-        <Route element={<AuthLayout/>}>
-          <Route path = "/upload" element = {<UploadNota/>}/>
+        <Route path="/" element={<RedirectIfLoggedIn><Frontpage /></RedirectIfLoggedIn>} />
+        <Route element={<AuthLayout />}>
         </Route>
 
-        <Route element={<DefaultLayout/>}>
-          <Route path = "/homepage" element = {<Homepage/>}/>
-          <Route path = "/appunto_specifico" element = {<AppuntoSpecifico/>}/>
-          <Route path = "/search" element = {<Searchpage/>}/>
-          <Route path = "/libreria" element = {<Libreria/>}/>
+        <Route element={<DefaultLayout />}>
+          <Route path="/homepage" element={<Homepage />} />
+          <Route path="/appunto_specifico" element={<AppuntoSpecifico />} />
+          <Route path="/search" element={<Searchpage />} />
+          <Route path="/libreria" element={<Libreria />} />
+          <Route path="/upload" element={<UploadNota />} />
         </Route>
       </Routes>
     </BrowserRouter>
