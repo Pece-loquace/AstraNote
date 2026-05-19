@@ -1,7 +1,9 @@
 :root {
-    --bordeaux: #782F40;
-    --bordeaux-dark: #5a212f;
-    --paper: #f6f1e7;
+    --bordeaux: #782d41;
+    --bordeaux-dark: #5a232d;
+    --paper: #faf5eb;
+    --shadow: #81314540;
+    --border: #ccaa6680;
 }
 
 body {
@@ -17,7 +19,7 @@ body {
     left: 12px;
     right: 12px;
     bottom: 12px;
-    border: 1px solid rgba(201, 169, 97, 0.4);
+    border: 1px solid var(--border);
     pointer-events: none;
 }
 
@@ -48,5 +50,5 @@ body {
 .form-control:focus,
 .form-select:focus {
     border-color: var(--bordeaux);
-    box-shadow: 0 0 0 0.25rem rgba(120, 47, 64, 0.25);
+    box-shadow: 0 0 0 0.25rem var(--shadow);
 }
