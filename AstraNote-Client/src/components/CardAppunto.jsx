@@ -172,6 +172,7 @@ export default function  CardAppunto({appunto,onSave}){
             alert(error.message)
         }
     }   
+    
 
     return (
         <div className = "col-lg-3  col-md-6 col-12">
@@ -245,14 +246,14 @@ export default function  CardAppunto({appunto,onSave}){
                                 
                                 {
                                     <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} onClick={ ()=> window.open(appunto.url_file, '_blank')}>
-                                        Leggi 
+                                        Visualizza 
                                     </button>
                                 }
                               
                                 {
-                                    <button type="button" className="btn btn-primary"  data-bs-target={`#modal-${appunto.id}`} >
+                                    <a type="button" className="btn btn-primary"  href={`${appunto.url_file}?download=`}>
                                         Scarica 
-                                    </button>
+                                    </a>
                                 } 
                             </div>
         
