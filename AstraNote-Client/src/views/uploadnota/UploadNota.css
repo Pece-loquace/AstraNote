@@ -2,12 +2,13 @@
     --bordeaux: #782F40;
     --bordeaux-dark: #5a212f;
     --paper: #f6f1e7;
+    --border: #c8aa6480;
 }
 
 body {
     background:
-        radial-gradient(ellipse at top left, #efe5d2 0%, transparent 50%),
-        radial-gradient(ellipse at bottom right, #e8dcc1 0%, transparent 50%),
+        radial-gradient(ellipse at top left, #f0e6d2 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, #e6dcc3 0%, transparent 50%),
         var(--paper);
 }
 
@@ -17,15 +18,8 @@ body {
     left: 12px;
     right: 12px;
     bottom: 12px;
-    border: 1px solid rgba(201, 169, 97, 0.4);
+    border: 1px solid var(--border);
     pointer-events: none;
-}
-
-.crest-text {
-    color: var(--bordeaux);
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 0.75rem;
-    letter-spacing: 0.4em;
 }
 
 .custom-title {

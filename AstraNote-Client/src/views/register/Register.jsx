@@ -6,7 +6,6 @@ import "../../style/buttons.css";
 import eye from "../../assets/eye-line.svg";
 import eyeoff from "../../assets/eye-off-line.svg";
 
-
 // REGISTRAZIONE STUDENTE SAPIENZA
 const DOMINIO = "studenti.uniroma1.it";
 const MATRICOLA_LEN = 7;
@@ -16,9 +15,7 @@ const MINUSCOLA_REGEX = /[a-z]/;
 const MAIUSCOLA_REGEX = /[A-Z]/;
 const SIMBOLO_REGEX = /[^A-Za-z0-9]/;
 const NUMBER_REGEX = /[0-9]/;
-const API_BASE_URL = "http://localhost:3000/api/facolta"
-
-
+const API_BASE_URL = "http://localhost:3000/api/facolta";
 
 function normalizzaCognome(cognome) {
     return cognome
@@ -105,7 +102,7 @@ const initialFormState = {
     nome: "", cognome: "", matricola: "", email: "", facolta: "", password: "", confermaPassword: "",
 };
 
-export default function RegistrazioneConFacolta({setSection}) {
+export default function RegistrazioneConFacolta({ setSection }) {
     const [formData, setFormData] = useState(initialFormState);
     const [showPassword, setShowPassword] = useState(false);
     const [showConferma, setShowConferma] = useState(false);
@@ -114,8 +111,6 @@ export default function RegistrazioneConFacolta({setSection}) {
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] });
     const [facolta, setFacolta] = useState([]);
     const navigate = useNavigate();
-
-
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -135,18 +130,17 @@ export default function RegistrazioneConFacolta({setSection}) {
         caricaFacolta()
     }, [])
 
-
     const caricaFacolta = async () => {
         try {
             const response = await fetch(API_BASE_URL);
             if (!response.ok) throw new Error('Errore nel caricamento dei corsi')
 
-            const facolta = await response.json()
-            console.log(facolta)
+            const facolta = await response.json();
+            console.log(facolta);
 
-            setFacolta(facolta)
+            setFacolta(facolta);
         } catch (error) {
-            console.error(error)
+            console.error(error);
         }
     }
 
@@ -279,7 +273,7 @@ export default function RegistrazioneConFacolta({setSection}) {
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Crea account</button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
-                            <button type="button" className="btn-back btn-outline-secondary"  onClick={()=>setSection('frontpage')}>Indietro</button>
+                            <button type="button" className="btn-back btn-outline-secondary" onClick={() => setSection('frontpage')}>Indietro</button>
                         </div>
 
                         {feedback.show && (
