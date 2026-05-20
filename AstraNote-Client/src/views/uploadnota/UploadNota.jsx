@@ -172,7 +172,7 @@ export default function UploadNota() {
                     setFeedback({ show: true, type: "ok", errori: [] });
                     setTuttiValidi(true);
                     setCampiInErrore(new Set());
-                    navigate("/upload");
+                    navigate("/homepage");
 
                 } else {
                     throw new Error("Impossibile caricare la nota");
