@@ -4,6 +4,7 @@ import libraryIcon from "../assets/library-1.svg"
 import profileIcon from "../assets/profile.svg"
 import settingsIcon from "../assets/settings.svg"
 import AstraLogo from "../assets/AstraNote_Logo.svg"
+import ReturnButton from "../assets/return-button.svg"
 import "../style/Navbar.css"
 import { Link, useNavigate } from 'react-router-dom'
 
@@ -34,7 +35,6 @@ function Navbar({children}) {
             } else {
                 alert("Errore durante il logout");
             }
-            
         } catch (error) {
              console.error("Errore di rete:", error);
         }
@@ -61,14 +61,14 @@ function Navbar({children}) {
             </div>
 
             <div class="dropdown">
-                <button class=" profileCnt dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button className=" profileCnt dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {/*<img src={profileIcon} alt="profile" className="profileIcon"></img>*/}
                     Profilo
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="/libreria">Action</a>
                     <a class="dropdown-item" href="#">Another action</a>
-                    <button className="btn btn-danger" onClick={()=>(Logout())}>Logout</button>
+                    <a class="dropdown-item" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
                 </div>
             </div>
 

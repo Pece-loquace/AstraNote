@@ -649,27 +649,6 @@ app.post("/api/register", upload.single('file'), async (req, res) =>{
     }
 
     console.log("Tutti i campi sono stati riempiti")
-    /*
-    //Upload dell'immagine
-    const response = await supabase.storage
-        .from('Appunti')
-        .upload(`${Date.now()}_${file.originalname}`,file.buffer,{
-            contentType: file.mimetype
-        });
-    
-    if(response.error){
-        console.error(error);
-        return res.status(200).json({error:"Errore nell'upload del file"})
-    }
-    console.log("Immagine caricata con successo")
-
-     //Ottengo l'URL pubblico
-    const imageUrl = supabase.storage
-        .from('Immagini')
-        .getPublicUrl(filePath)
-        .data;
-    const publicUrl = urlData.publicUrl; 
-    */
 
     if (password.length < 8) {
         return res.status(400).json({ error: "La password deve avere almeno 8 caratteri" });
@@ -741,27 +720,6 @@ app.post('/api/logout', (req, res) => {
 
 
 
-const redirectIfLoggedIn = (req, res, next) => {
-
-    if (req.session.user) {
-        
-        return res.redirect('/homepage'); 
-    }
-    
-    
-    next();
-};
-
-
-//Login 
-app.get("/accedi/login", redirectIfLoggedIn, (req, res)=>{
-    res.sendFile(path.join(ROOT, 'auth','login','index.html'))
-})
-
-//Registrazione
-app.get("/accedi/registrazione", redirectIfLoggedIn, (req, res)=>{
-    res.sendFile(path.join(ROOT, 'auth','registrazione','index.html'))
-})
 
 app.use((req,res) => {
  res.sendFile(path.join(ROOT,'index.html'));

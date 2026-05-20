@@ -107,6 +107,12 @@
     display: none;
 }
 
+.dropdown-item:hover {
+    background-color: #782d41 !important; 
+    color: white !important;             
+    cursor: pointer;                      
+}
+
 @media (max-width: 768px) {
     .logo {
         width: 60px;
