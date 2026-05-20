@@ -43,6 +43,16 @@
     transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
 }
 
+.cnt.register .frontpage {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
+}
+
+
 .cnt.login .panel.left {
     width: 40%;
     opacity: 1;
@@ -58,14 +68,6 @@
     overflow-y: auto;
 }
 
-.cnt.register .frontpage {
-    display: flex;
-    flex-grow: 1;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
-}
 
 
 .form-box {
