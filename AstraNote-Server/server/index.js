@@ -216,12 +216,26 @@ app.get('/api/appunti_caricati', async(req,res)=>{
         .from('appunti')
         .select('*')
         .eq('id_autore',req.session.user.id)
-    
 
      if(error) {
         return res.status(500).json({error: "Errore durante l'eliminazione dell'appunto"})
     }  
-    console.log("Caricati " + data )
+    res.json(data)
+})
+
+app.get('/api/appunti_caricati/:idUtente',async(req,res)=>{
+    console.log(req.params.idUtente)
+     const {data,error} = await supabase 
+        .from('appunti')
+        .select('*')
+        .eq('id_autore',req.params.idUtente)
+
+        console.log(data)
+        console.log(error)
+
+     if(error) {
+        return res.status(500).json({error: "Errore durante l'eliminazione dell'appunto"})
+    }  
     res.json(data)
 })
 
@@ -494,6 +508,24 @@ app.delete('/api/preferiti', async(req,res)=>{
 
 //---------------------------------------------
 
+/*Carica le faocltà nel momento della registrazione*/
+app.get('/api/facolta/:idFacolta', async(req,res)=>{
+
+    const {data,error} = await supabase
+        .from('facolta')
+        .select('nome')
+        .eq('id',req.params.idFacolta)
+        .single()
+
+
+    if(error){
+        return res.status(500).json({error:"Errore nella query al database"})
+    }
+    res.json(data)
+})
+
+
+
 /*Endpoint per restituire i corsi della facoltà nel momento del login */
 app.get('/api/facolta/:id/corsi', async(req,res)=>{
     const idFacoltà = req.params.id;
@@ -541,7 +573,7 @@ app.get('/api/utenti/:id', async(req,res)=>{
     res.json(data)
 })
 
-//-----Funzione per fetch_card
+//-----Funzione per fetch_card---------
 app.get('/api/appunti/:id/fetch_card', async(req,res)=>{
     const appuntoId = req.params.id;
     
@@ -550,15 +582,48 @@ app.get('/api/appunti/:id/fetch_card', async(req,res)=>{
             p_appunto_id: appuntoId,
             p_utente_loggato_id: req.session.user.id
         });
-
+        console.log(data)
+        console.log(error)
     if(error) {
         return res.status(500).json({error:"Errore nella query al database"});
     }
 
     res.json(data);
-
 })
 
+
+app.get('/api/user_ratings/:idUtente', async (req, res) => {
+    const { data, error } = await supabase
+        .from('user_ratings')
+        .select('*')
+        .eq('id', req.params.idUtente)
+        .single();
+
+    if (error) {
+        return res.status(500).json({ error: "Errore query user_ratings" });
+    }
+
+    res.json(data);
+});
+
+//Restituisce l'entry utente_loggato
+app.get('/api/utente_loggato', async(req,res)=>{
+
+    const{data,error} = await supabase 
+        .from('utenti')
+        .select('*')
+        .eq('id',req.session.user.id)
+        .single()
+    
+    console.log(data)
+    console.log(error)
+
+    if(error){
+        return res.status(500).json({error:"Errore nella query al database"});
+    }
+
+    res.json(data)
+})
 
 //---------------------SESSIONI---------------------
 

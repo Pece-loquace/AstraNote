@@ -16,6 +16,7 @@ import UploadNota from "./views/uploadnota/UploadNota"
 import Searchpage from "./views/searchpage/searchpage"
 import Libreria from "./views/libreria/Libreria"
 import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
+import Profile from "./views/profile/Profile"
 
 
 export default function App() {
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/search" element={<Searchpage />} />
           <Route path="/libreria" element={<Libreria />} />
           <Route path="/upload" element={<UploadNota />} />
+          <Route path="/profilo" element ={<Profile/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

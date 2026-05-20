@@ -61,7 +61,7 @@ function Navbar({children}) {
                         Profilo
                     </button>
                     <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a className="dropdown-item" href="/libreria">Action</a>
+                        <a className="dropdown-item" href="/profilo">Action</a>
                         <a className="dropdown-item" href="#">Another action</a>
                         <a className="dropdown-item" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
                     </div>

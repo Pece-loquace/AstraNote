@@ -10,15 +10,17 @@
     --border: #faf5eb;
 }
 
+/*
 body {
     background:
         var(--paper);
 }
+*/
 
 .custom-background {
     background: var(--paper);
 }
 
 .custom-border {
-    border: 1px solid var(--bordeaux);
+    border: 3px solid var(--bordeaux) !important;
 }

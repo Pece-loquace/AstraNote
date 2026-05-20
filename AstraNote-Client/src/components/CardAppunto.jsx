@@ -146,6 +146,7 @@ export default function  CardAppunto({appunto,onSave}){
                     body: JSON.stringify({stelle,appunto_id: appunto.id})
                 })
                 if(!response.ok) throw new Error("Errore nel modificare la recensione");
+                const 
                 recensioniAggiornate = recensioni.map(r =>
                 r.utente_valutante === utente.id ? { ...r, valutazione: stelle } : r);
             }
