@@ -32,44 +32,42 @@ export default function  CardAppunto({appunto,onSave}){
     const fetchCard = async() => { 
         const appuntoId = appunto.id;
         try {
-            const[res1, res2, res3, res4] = await Promise.all([
-               fetch(`/api/appunti/${appuntoId}/preferiti`), 
-               fetch(`/api/recensioni/${appuntoId}`),
-               fetch(`/api/utenti/${appunto.id_autore}`),   /*Per caricare nome e cognome dell'utente*/
-               fetch('/api/me')
-            ])
+            const res = await fetch(`/api/appunti/${appuntoId}/fetch_card`)
+            if (!res.ok) throw new Error("Errore nel recupero dati della card");
 
+            const data = await res.json();
+            console.log(data);
 
-            if(!res1.ok || !res2.ok || !res3.ok || !res4.ok){
-                throw new Error("Errore nel recupero dati");
-            }
+            /*Setta l'utente autore della card*/
+            setUtente(data.autore)
 
-            const [preferiti,recensioni,autore,utente] = await Promise.all([res1.json(),res2.json(),res3.json(),res4.json()])
-            /*Setta l'utente */
-            setUtente(autore)
             /*Setta il numero di volte che è stato salvato */
-            setNumSalvato(preferiti.length)
-            /* Controllo se l'utente corrente ha salvato l'appunto*/
-            const isPresente = preferiti.some(p => String(p.user_id) === String(utente.id));
-            setBookMark(isPresente);
+            setNumSalvato(data.num_preferiti)
 
-            setRecensioni(recensioni);
+            /* Controllo se l'utente corrente ha salvato l'appunto*/
+            setBookMark(data.is_preferito);
+            
+            setRecensioni(data.recensioni);
+
+            setValutazioneUtente(data.valutazione_utente);
+
+
+            const listaRecensioni = data.recensioni || [];
+            
+            console.log("Recensiuoni " + listaRecensioni.map(r => r.valutazione))
 
             /*Setta le stelle */
-            if(recensioni.length == 0){
+            if(listaRecensioni.length == 0){
                 setStelle("☆".repeat(5))
             }else{
-                const somma = recensioni.reduce((acc, rec) => acc + rec.valutazione, 0);
-                const  media  = somma / recensioni.length;
+                const somma = listaRecensioni.reduce((acc, rec) => acc + rec.valutazione, 0);
+                const  media  = somma / listaRecensioni.length;
                 const valutazioneMedia = Math.round(media);
                 console.log("Somma " + somma + "media " + media + "val media " + valutazioneMedia) 
                 const stringaStelle = "⭐".repeat(valutazioneMedia) + "☆".repeat(5-valutazioneMedia);
                 console.log(stringaStelle)
                 setStelle (stringaStelle)
             }
-
-            const recensioneUtente = recensioni.find(r => r.utente_valutante === utente.id );
-            setValutazioneUtente(recensioneUtente ? recensioneUtente.valutazione : 0);
 
         } catch (error) {
             alert(error.message)
@@ -168,6 +166,7 @@ export default function  CardAppunto({appunto,onSave}){
             })
             if(!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
 
+            await fetchCard();
         }catch(error){
             alert(error.message)
         }
