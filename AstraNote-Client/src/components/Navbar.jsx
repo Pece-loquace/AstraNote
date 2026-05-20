@@ -22,6 +22,23 @@ function Navbar({children}) {
             navigate(`/search?q=${encodeURIComponent(query)}`);
         }
     }
+
+    const Logout = async() =>{
+        try {
+            const response = await fetch('/api/logout',{method:'POST'});
+            const data = await response.json();
+
+            if (response.ok) {
+                navigate('/');
+                alert(data.message)
+            } else {
+                alert("Errore durante il logout");
+            }
+            
+        } catch (error) {
+             console.error("Errore di rete:", error);
+        }
+    }
    
     return (
         <>
@@ -42,10 +59,21 @@ function Navbar({children}) {
                 <Link className="library" to="/libreria">La tua libreria</Link>
 
             </div>
-            <div className="profileCnt">
-                <img src={profileIcon} alt="profile" className="profileIcon"></img>
-                <a href="#" className="profile">Profilo</a>
+
+            <div class="dropdown">
+                <button class=" profileCnt dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {/*<img src={profileIcon} alt="profile" className="profileIcon"></img>*/}
+                    Profilo
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#">Action</a>
+                    <a class="dropdown-item" href="#">Another action</a>
+                    <button className="btn btn-danger" onClick={()=>(Logout())}>Logout</button>
+                </div>
             </div>
+
+    
+
             <div className="settingsCnt">
                 <img src={settingsIcon} alt="settings" className="settingsIcon"></img>
             </div>
