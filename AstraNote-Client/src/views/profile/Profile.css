@@ -1,0 +1,24 @@
+.container-personalizzato {
+    background-clip: padding-box;
+    box-shadow: 0 0 0 1px var(--paper);
+}
+
+:root {
+    --bordeaux: #782d41;
+    --bordeaux-dark: #5a232d;
+    --paper: #faf5eb;
+    --border: #faf5eb;
+}
+
+body {
+    background:
+        var(--paper);
+}
+
+.custom-background {
+    background: var(--paper);
+}
+
+.custom-border {
+    border: 1px solid var(--bordeaux);
+}
