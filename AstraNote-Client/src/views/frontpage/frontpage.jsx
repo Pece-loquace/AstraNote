@@ -25,14 +25,12 @@ const Frontpage = () => {
             <div className={`cnt ${view} container-fluid px-0`}>
 
                 {/* Pannello sinistro — Login */}
-                <div className={`panel left col-12 col-md-5 col-lg-4 ${view === 'login' ? 'd-flex' : 'd-none d-md-flex'} align-items-center justify-content-center`}>
+                <div className={`panel left ${view === 'login' ? 'd-flex' : 'd-none d-md-flex'} align-items-center justify-content-center`}>
                     <Login className="form-box w-100 px-3 px-md-4" setSection={setView}/>
                 </div>
 
                 {/* Centro — Frontpage */}
-                <div className={`frontpage d-flex flex-column align-items-center justify-content-center
-                                 col-12 col-md-2 col-lg-4
-                                 ${view !== 'frontpage' ? 'd-none d-md-flex' : ''}`}>
+                <div className={`frontpage d-flex flex-column align-items-center justify-content-center ${view !== 'frontpage' ? 'd-none d-md-flex' : ''}`}>
                     <img
                         src={logo}
                         alt="logo"
@@ -70,7 +68,7 @@ const Frontpage = () => {
                 </div>
 
                 {/* Pannello destro — Registrazione */}
-                <div className={`panel right col-12 col-md-5 col-lg-4 ${view === 'register' ? '' : 'd-none d-md-flex'} align-items-center justify-content-center`}
+                <div className={`panel right ${view === 'register' ? '' : 'd-none d-md-flex'} align-items-center justify-content-center`}
                      ref={rightPanelRef}>
                     <RegistrazioneConFacolta className="form-box w-100 px-3 px-md-4" setSection={setView}/>
                 </div>
