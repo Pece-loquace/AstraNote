@@ -188,7 +188,8 @@ app.put('/api/appunti/:id', async(req,res) => {
         .update(newData)
         .eq("id",idAppunto)
         .select()
-    
+    console.log(response.error)
+    console.log(response.data)
     if(response.error){
         return res.status(400).json({error: "Errore nell'update dei dati"})
     }
@@ -538,6 +539,24 @@ app.get('/api/utenti/:id', async(req,res)=>{
     }
 
     res.json(data)
+})
+
+//-----Funzione per fetch_card
+app.get('/api/appunti/:id/fetch_card', async(req,res)=>{
+    const appuntoId = req.params.id;
+    
+    const{data,error} = await supabase 
+        .rpc('get_card_appunto_dettagli',{
+            p_appunto_id: appuntoId,
+            p_utente_loggato_id: req.session.user.id
+        });
+
+    if(error) {
+        return res.status(500).json({error:"Errore nella query al database"});
+    }
+
+    res.json(data);
+
 })
 
 
