@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import searchIcon from "../assets/search.svg"
 import libraryIcon from "../assets/library-1.svg"
 import profileIcon from "../assets/profile.svg"
@@ -9,15 +9,10 @@ import "../style/Navbar.css"
 import { Link, useNavigate } from 'react-router-dom'
 
 function Navbar({children}) {
-    const [lang, setLang] = useState('it');
     const [query,setQuery] = useState('');
+    const [menu, setMenu] = useState(false);
     const navigate = useNavigate();
 
-    const cambiaLingua = () => {setLang(lang === 'it' ? 'en' : 'it')};
-
-    /*<div className="temaCnt">
-                <img src={themeIcon} alt="tema" className="tema"></img>
-            </div>*/
       const handleKeyDown = (e) => {    
          if (e.key === "Enter" && query.trim() !== " ") {
             navigate(`/search?q=${encodeURIComponent(query)}`);
@@ -42,42 +37,60 @@ function Navbar({children}) {
    
     return (
         <>
-          <nav className="navbarCnt navbar-expand-lg navbar-expand-md navbar-expand-sm">
-            <div className="logoCnt">
-                <Link to="/homepage">
-                    <img src={AstraLogo} className="logo" alt="React logo" ></img>
-                </Link>
-            </div>
+            <nav className="navbarCnt navbar-expand-lg navbar-expand-md navbar-expand-sm">
+                <div className="logoCnt">
+                    <Link to="/homepage">
+                        <img src={AstraLogo} className="logo" alt="React logo" ></img>
+                    </Link>
+                </div>
             
-            <div className="searchCnt flex-grow-1">
-                <img src={searchIcon} className="searchIcon" alt="searchIcon" />
-                <input className="search" placeholder="Cerca degli appunti..." 
-                 onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
-            </div>
-            <div className="libraryCnt">
-                <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
-                <Link className="library" to="/libreria">La tua libreria</Link>
+                <div className="searchCnt flex-grow-1">
+                    <img src={searchIcon} className="searchIcon" alt="searchIcon" />
+                    <input className="search" placeholder="Cerca degli appunti..." 
+                           onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
+                </div>
 
-            </div>
+                <div className="libraryCnt">
+                    <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
+                    <Link className="library" to="/libreria">La tua libreria</Link>
+                </div>
 
-            <div class="dropdown">
-                <button className=" profileCnt dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {/*<img src={profileIcon} alt="profile" className="profileIcon"></img>*/}
-                    Profilo
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="/libreria">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <a class="dropdown-item" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
+                <div className="dropdown">
+                    <img src={profileIcon} alt="profile" className="profileIcon"></img>
+                    <button className="profile dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Profilo
+                    </button>
+                    <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a className="dropdown-item" href="/libreria">Action</a>
+                        <a className="dropdown-item" href="#">Another action</a>
+                        <a className="dropdown-item" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
+                    </div>
+                </div>
+
+                <div className="settingsCnt_mobile">
+                    <img src={settingsIcon} alt="settings" className="settingsIcon"
+                         onClick={() => setMenu(!menu)}></img>
+                </div>
+            </nav>
+                    
+            <div className={`menu ${menu === true ? 'd-flex' : 'd-none d-md-flex'}`}>
+                <div className="libraryCnt">
+                    <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
+                    <Link className="library" to="/libreria">La tua libreria</Link>
+                </div>
+
+                <div className="dropdown_mobile">
+                    <img src={profileIcon} alt="profile" className="profileIcon"></img>
+                    <button className="profile dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Profilo
+                    </button>
+                    <div className="dropdown-menu_mobile" aria-labelledby="dropdownMenuButton">
+                        <a className="dropdown-item action" href="/libreria">Action</a>
+                        <a className="dropdown-item" href="#">Another action</a>
+                        <a className="dropdown-item logout" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
+                    </div>
                 </div>
             </div>
-
-    
-
-            <div className="settingsCnt">
-                <img src={settingsIcon} alt="settings" className="settingsIcon"></img>
-            </div>
-          </nav>
         </>
     )
 }
