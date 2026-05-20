@@ -9,18 +9,3 @@
     --paper: #faf5eb;
     --border: #faf5eb;
 }
-
-/*
-body {
-    background:
-        var(--paper);
-}
-*/
-
-.custom-background {
-    background: var(--paper);
-}
-
-.custom-border {
-    border: 3px solid var(--bordeaux) !important;
-}
