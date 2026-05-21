@@ -178,6 +178,28 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
         }
     }
 
+    const eliminaAppunto = async () => {
+        const conferma = window.confirm(
+            "Sei sicuro di voler eliminare questo appunto? L'operazione non si può annullare."
+        );
+        if (!conferma) return;
+        try {
+            const response = await fetch(`/api/appunti/${appunto.id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    url_thumbnail: appunto.url_thumbnail,
+                    url_file: appunto.url_file,
+                }),
+            });
+            console.log("Errore elimina " + response.error)
+            if (!response.ok) throw new Error("Errore nell'eliminazione");
+            onSave(); // ricarica lista
+        } catch (error) {
+            alert(error.message);
+        }
+    };
+
 
     return (
         <div className="col-lg-4  col-md-6 col-12">
@@ -269,7 +291,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                         {
                                             (isLibreria && sectionActivate === 'caricati') && 
                                              
-                                                <button className="btn  btn-danger " onClick={() => { setShowSegnala(true) }}>
+                                                <button className="btn  btn-danger " onClick={() => {eliminaAppunto();}}>
                                                     Elimina
                                                 </button>
                                             

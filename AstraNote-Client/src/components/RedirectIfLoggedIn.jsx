@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 export default function RedirectIfLoggedIn({ children }) { 
     const navigate = useNavigate();                 
     const [loading, setLoading] = useState(true);   
-    const [utente,setUtente] = useState(null)
 
     useEffect(() => {
         fetchUser();
