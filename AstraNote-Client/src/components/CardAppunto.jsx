@@ -8,7 +8,7 @@ import '../style/CardAppunto.css'
 import StelleValutazioni from "./StelleValutazioni";
 
 
-export default function CardAppunto({ appunto, onSave }) {
+export default function CardAppunto({ appunto, onSave , sectionActivate}) {
     const [stelle, setStelle] = useState("");
     const [loading, setLoading] = useState(false);
     const [utente, setUtente] = useState([])
@@ -229,51 +229,50 @@ export default function CardAppunto({ appunto, onSave }) {
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h1 className="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                                <h1 className="modal-title fs-5" id="exampleModalLabel">{appunto.titolo}</h1>
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
                                 <div className="d-flex">
                                     <img className="col-4 object-fit-cover rounded border border-info border border-3" src={appunto.url_thumbnail} alt="Card image cap" />
-                                    <div className="d-flex flex-column ms-2">
+                                    <div className="col-8 d-flex flex-column ms-2">
                                         <h5>{appunto.titolo}</h5>
-                                        <p>Descrizione: {appunto.descrizione}</p>
-                                        <p>(di {autore.nome} {autore.cognome})</p>
+                                        <span>({recensioni.length}) {stelle}</span>
+                                        <span>(di {autore.nome} {autore.cognome})</span>
+                                        <span><strong>Descrizione:</strong> {appunto.descrizione}</span>
                                         <p>{appunto.anno}</p>
-                                        <p>({recensioni.length}) {stelle}</p>
-                                        <p>Recensione personale</p>
-                                        <StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} />
+                                        <span>(Recensione personale)<StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} /></span>
+                                        <div className="row justify-content-between">
+                                            <div className="col">
+                                                    <button type="button" className="btn btn-primary" data-bs-target={`#modal-${appunto.id}`} onClick={() => window.open(appunto.url_file, '_blank')}>
+                                                        Visualizza
+                                                    </button>
+                                            </div> 
+                                            <div className="col">
+                                                    <a type="button" className="btn btn-primary" href={`${appunto.url_file}?download=`}>
+                                                        Scarica
+                                                    </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="row d-flex justify-content-between">
-                                    <div className="col-auto">
-
-                                        {
-                                            <button type="button" className="btn btn-primary" data-bs-target={`#modal-${appunto.id}`} onClick={() => window.open(appunto.url_file, '_blank')}>
-                                                Visualizza
-                                            </button>
-                                        }
-
-                                        {
-                                            <a type="button" className="btn btn-primary" href={`${appunto.url_file}?download=`}>
-                                                Scarica
-                                            </a>
-                                        }
-                                    </div>
-
-
-                                    <div className="col-auto">
-                                        <button className="btn  btn-warning" onClick={() => { setShowSegnala(true) }}>
-                                            Segnala
-                                        </button>
-                                    </div>
-                                </div>
 
 
                                 {showSegnala && (<Segnala appuntoId={appunto.id} onClose={() => setShowSegnala(false)} />)}
                             </div>
                             <div className="modal-footer">
+                                <button className="btn btn-warning me-auto" onClick={() => setShowSegnala(true)}>
+                                    Segnala
+                                </button>
+                                        {
+                                            (isLibreria && sectionActivate === 'caricati') && 
+                                             <div className="col-auto">
+                                                <button className="btn  btn-danger" onClick={() => { setShowSegnala(true) }}>
+                                                    Elimina
+                                                </button>
+                                            </div>
+                                        }
                                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>

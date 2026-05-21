@@ -85,7 +85,7 @@ export default function Libreria(){
                         appuntiCaricatiFiltrati.length === 0 ? <p>Nessun appunto caricato</p>: 
                         <div className="row g-4"> 
                         {   
-                                appuntiCaricatiFiltrati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload}/>))
+                                appuntiCaricatiFiltrati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload} sectionActivate={sezioneAttiva}/>))
                         }
                         </div>
                     )
