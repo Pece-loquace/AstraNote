@@ -21,12 +21,11 @@ const Homepage = () =>{
 
     const caricaAppunti = async () =>{
         try {
-            const response = await fetch('/api/appunti')
-            
+            const response = await fetch('/api/appunti') 
             if(!response.ok) throw new Error('Errore nel caricamento')
 
             const appunti = await response.json()
-            console.log("Appunti " + appunti) 
+            console.log(appunti.map(a => ({ id: a.id, valutazione: a.valutazione })));
             setAppunti (appunti)
         } catch (error) {
             setErrore(error.message)
@@ -34,18 +33,6 @@ const Homepage = () =>{
         }
     }
 
-    const loadAppunto = async(idAppunto) =>{
-        try{
-            const response = await fetch(`api/appunti/${idAppunto}`)
-
-            if(!response.ok) throw new Error("Impossibile ottenere l'ordine")
-
-            const risultato = await response.json();
-        }catch(err){
-            setErrore(err.message)
-            console.log(err)
-        } 
-    }   
     const appuntiFiltrati = appuntiFacolta.filter(a => {
         if(filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false;
         if(filters.corso !== "" && (a.corso.nome) !== filters.corso) return false;
@@ -69,7 +56,7 @@ const Homepage = () =>{
             <div className="row g-4 m-3">
                 {
                     appuntiFiltrati.map((a) => (
-                <CardAppunto key = {a.id}  appunto={a} />))
+                <CardAppunto key = {a.id}  appunto={a} onSave = {caricaAppunti}/>))
                 }    
             </div>
             

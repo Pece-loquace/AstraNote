@@ -52,8 +52,10 @@ export default function  Filters({filters,setFilters}){
                 <div className="col-12 col-md-3 d-flex flex-column align-items-start">
                    <label htmlFor ="facolta" className="form-label fw-bold mb-1">Facoltà:</label>
                    <select className="form-select" name = "facolta" id= "facolta" onChange={(e) => {
-                        loadCorsi(e.target.value); 
-                        setFilters(prev => ({...prev, facolta: e.target.value}));
+                        if(e.target.value !== ""){
+                            loadCorsi(e.target.value); 
+                            setFilters(prev => ({...prev, facolta: e.target.value}));
+                        }else{setCorsi([]);}
                     }}>
                     <option value={""}>---Seleziona una facoltà---</option>
                     {
@@ -65,8 +67,8 @@ export default function  Filters({filters,setFilters}){
                 <div className="col-12 col-md-3 d-flex flex-column align-items-start">
                     <label htmlFor ="corsi" className="form-label fw-bold mb-1">Corso:</label>
                     <select  className="form-select" name = "corsi" id= "corsi"  onChange={(e)=>{
-                        setFilters(prev => ({...prev, corso: e.target.value}
-                        ))}}>
+                        setFilters(prev => ({...prev, corso: e.target.value}));
+                        }}>
                         <option value={""}>---Seleziona un corso----</option>
                         {
                             corsi.map((corso) => (<option value = {corso.nome} key={corso.id} >{corso.nome}</option>))

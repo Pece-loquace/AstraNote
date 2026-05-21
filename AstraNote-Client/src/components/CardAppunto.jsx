@@ -12,6 +12,7 @@ export default function CardAppunto({ appunto, onSave }) {
     const [stelle, setStelle] = useState("");
     const [loading, setLoading] = useState(false);
     const [utente, setUtente] = useState([])
+    const[autore,setAutore] = useState([])
     const [showSegnala, setShowSegnala] = useState(false);
     const [bookMark, setBookMark] = useState(false)
     const [errore, setErrore] = useState(false)
@@ -39,14 +40,14 @@ export default function CardAppunto({ appunto, onSave }) {
                 fetch('/api/me')
             ])
 
-
             if (!res1.ok || !res2.ok || !res3.ok || !res4.ok) {
                 throw new Error("Errore nel recupero dati");
             }
 
             const [preferiti, recensioni, autore, utente] = await Promise.all([res1.json(), res2.json(), res3.json(), res4.json()])
+            setAutore(autore);
             /*Setta l'utente */
-            setUtente(autore)
+            setUtente(utente);
             /*Setta il numero di volte che è stato salvato */
             setNumSalvato(preferiti.length)
             /* Controllo se l'utente corrente ha salvato l'appunto*/
@@ -62,9 +63,7 @@ export default function CardAppunto({ appunto, onSave }) {
                 const somma = recensioni.reduce((acc, rec) => acc + rec.valutazione, 0);
                 const media = somma / recensioni.length;
                 const valutazioneMedia = Math.round(media);
-                console.log("Somma " + somma + "media " + media + "val media " + valutazioneMedia)
                 const stringaStelle = "⭐".repeat(valutazioneMedia) + "☆".repeat(5 - valutazioneMedia);
-                console.log(stringaStelle)
                 setStelle(stringaStelle)
             }
 
@@ -154,12 +153,16 @@ export default function CardAppunto({ appunto, onSave }) {
 
             setRecensioni(recensioniAggiornate);
             ricalcolaStelle(recensioniAggiornate)
+            console.log("Recensioni" + recensioniAggiornate.forEach(r => console.log(r)) + " finite")
+            console.log("Appunto" + appunto.id + " " + "Stellle nuove" + + stelle)
             setValutazioneUtente(stelle)
 
             /*Aggiorna campo Valutazione :serve per filtrare*/
             const somma = recensioniAggiornate.reduce((acc, rec) => acc + rec.valutazione, 0);
+            console.log(somma);
             const media = somma / recensioniAggiornate.length;
             const valutazioneMedia = Math.round(media);
+            console.log("Quindi valutazione media " + valutazioneMedia)
 
             response = await fetch(`/api/appunti/${appunto.id}`, {
                 method: 'PUT',
@@ -168,6 +171,8 @@ export default function CardAppunto({ appunto, onSave }) {
             })
             if (!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
 
+            /*Ricarica gli appunti nell'homepage */
+            onSave();
         } catch (error) {
             alert(error.message)
         }
@@ -233,7 +238,7 @@ export default function CardAppunto({ appunto, onSave }) {
                                     <div className="d-flex flex-column ms-2">
                                         <h5>{appunto.titolo}</h5>
                                         <p>Descrizione: {appunto.descrizione}</p>
-                                        <p>(di {utente.nome} {utente.cognome})</p>
+                                        <p>(di {autore.nome} {autore.cognome})</p>
                                         <p>{appunto.anno}</p>
                                         <p>({recensioni.length}) {stelle}</p>
                                         <p>Recensione personale</p>
