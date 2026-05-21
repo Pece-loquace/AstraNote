@@ -267,11 +267,11 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                 </button>
                                         {
                                             (isLibreria && sectionActivate === 'caricati') && 
-                                             <div className="col-auto">
-                                                <button className="btn  btn-danger" onClick={() => { setShowSegnala(true) }}>
+                                             
+                                                <button className="btn  btn-danger " onClick={() => { setShowSegnala(true) }}>
                                                     Elimina
                                                 </button>
-                                            </div>
+                                            
                                         }
                                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
