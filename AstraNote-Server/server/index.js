@@ -71,102 +71,172 @@ const multer = require ('multer')
 const upload = multer({storage: multer.memoryStorage()}) // Carica il file temporaneamente in RAM
 const { fromBuffer } = require('pdf2pic');
 /*********************CRUD Appunti************/
-app.post('/api/appunti', upload.single('file'), async(req,res) => {
-    const file = req.file;
-    const {titolo,descrizione,corso,anno_riferimento} = req.body;
-    const data_creazione = new Date().toISOString();
-    const id_autore = req.session.user.id;
+
+// app.post('/api/appunti', upload.single('file'), async(req,res) => {
+//     const file = req.file;
+//     const {titolo,descrizione,corso,anno_riferimento} = req.body;
+//     const data_creazione = new Date().toISOString();
+//     const id_autore = req.session.user.id;
    
-    if(!titolo || !corso ){
-        console.log("Non sono presenti tutti i campi")
-        return res.status(400).json({error: "Tutti i campi sono obbligatori"});
-    }
+//     if(!titolo || !corso ){
+//         console.log("Non sono presenti tutti i campi")
+//         return res.status(400).json({error: "Tutti i campi sono obbligatori"});
+//     }
 
-    const fileName = `${Date.now()}_${file.originalname}`;
-    //Upload del file su supabase
-    const responseUpload = await supabase.storage
-        .from('AstraNote-files')
-        .upload(`${Date.now()}_${file.originalname}`,file.buffer,{
-            contentType: file.mimetype
-        });
+//     const fileName = `${Date.now()}_${file.originalname}`;
+//     //Upload del file su supabase
+//     const responseUpload = await supabase.storage
+//         .from('AstraNote-files')
+//         .upload(`${Date.now()}_${file.originalname}`,file.buffer,{
+//             contentType: file.mimetype
+//         });
     
-    if(responseUpload.error){
-        console.error(responseUpload.error);
-        return res.status(200).json({error:"Errore nell'upload del file"})
-    }
+//     if(responseUpload.error){
+//         console.error(responseUpload.error);
+//         return res.status(200).json({error:"Errore nell'upload del file"})
+//     }
 
-    //Ottengo l'URL pubblico
-    const urlData = supabase.storage
-        .from('AstraNote-files')
-        .getPublicUrl(fileName)
-        .data;
-    const publicUrl = urlData.publicUrl; 
+//     //Ottengo l'URL pubblico
+//     const urlData = supabase.storage
+//         .from('AstraNote-files')
+//         .getPublicUrl(fileName)
+//         .data;
+//     const publicUrl = urlData.publicUrl; 
 
      
-    // 2. Genera la thumbnail dalla prima pagina
-    let url_thumbnail = null;
-    try {
-        const converter = fromBuffer(file.buffer, {
-            density: 100,
-            format: "jpg",
-            width: 400,
-            height: 600,
-        });
+//     // 2. Genera la thumbnail dalla prima pagina
+//     let url_thumbnail = null;
+//     try {
+//         const converter = fromBuffer(file.buffer, {
+//             density: 100,
+//             format: "jpg",
+//             width: 400,
+//             height: 600,
+//         });
 
-        console.log("Dimensione buffer PDF:", file.buffer.length);
+//         console.log("Dimensione buffer PDF:", file.buffer.length);
 
-        // FIX: Aggiungi l'oggetto opzioni come secondo parametro qui!
-        const risultato = await converter(1, { responseType: "buffer" }); 
+//         // FIX: Aggiungi l'oggetto opzioni come secondo parametro qui!
+//         const risultato = await converter(1, { responseType: "buffer" }); 
 
-        if (risultato && risultato.buffer) {
-            console.log("Dimensione buffer Thumbnail:", risultato.buffer.length);
-            const thumbBuffer = risultato.buffer;
+//         if (risultato && risultato.buffer) {
+//             console.log("Dimensione buffer Thumbnail:", risultato.buffer.length);
+//             const thumbBuffer = risultato.buffer;
 
-            const thumbName = `${Date.now()}_thumb.jpg`;
-            const { data: thumbData, error: thumbError } = await supabase.storage
-                .from('thumbnails')
-                .upload(thumbName, thumbBuffer, {
-                    contentType: 'image/jpeg'
-                });
+//             const thumbName = `${Date.now()}_thumb.jpg`;
+//             const { data: thumbData, error: thumbError } = await supabase.storage
+//                 .from('thumbnails')
+//                 .upload(thumbName, thumbBuffer, {
+//                     contentType: 'image/jpeg'
+//                 });
 
-            if (!thumbError) {
-                url_thumbnail = supabase.storage.from('thumbnails').getPublicUrl(thumbName).data.publicUrl;
-            } else {
-                console.error("Errore upload thumbnail su Supabase:", thumbError);
-            }
-        } else {
-            console.error("Il convertitore non ha restituito un buffer valido.");
-        }
-    } catch (err) {
-        console.error("Errore generazione thumbnail:", err);
+//             if (!thumbError) {
+//                 url_thumbnail = supabase.storage.from('thumbnails').getPublicUrl(thumbName).data.publicUrl;
+//             } else {
+//                 console.error("Errore upload thumbnail su Supabase:", thumbError);
+//             }
+//         } else {
+//             console.error("Il convertitore non ha restituito un buffer valido.");
+//         }
+//     } catch (err) {
+//         console.error("Errore generazione thumbnail:", err);
+//     }
+
+//     const { data, error: dbError } = await supabase 
+//         .from('appunti')
+//         .insert([
+//             {
+//                 titolo:titolo,
+//                 data_creazione:data_creazione,
+//                 id_autore: id_autore,
+//                 url_file: publicUrl,
+//                 descrizione:descrizione,
+//                 corso:corso,
+//                 url_thumbnail: url_thumbnail,
+//                 anno_riferimento: anno_riferimento
+//             }    
+//         ])
+//         .select();
+
+//     if(dbError){
+//              console.error("ERRORE DATABASE DETTAGLIATO:", dbError);
+//              return res.status(500).json({error:"Errore nell'inserimento dei dati"})
+//     }
+//     //Invio i dati in formato JSON
+//     res.status(201).json({
+//         message: "Appunto aggiunto con successo!",
+//         recensione: data[0]
+//     })
+// })
+
+app.post('/api/appunti', upload.single('file'), async (req, res) => {
+    const file = req.file;
+    const { titolo, descrizione, corso, anno_riferimento } = req.body;
+
+    if (!titolo || !corso || !file) {
+        return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
     }
 
-    const { data, error: dbError } = await supabase 
+    const id_autore = req.session.user.id;
+    const data_creazione = new Date().toISOString();
+    const fileName = `${Date.now()}_${file.originalname}`;
+
+    // Genera thumbnail e upload file in parallelo
+    const [responseUpload, thumbBuffer] = await Promise.all([
+        supabase.storage
+            .from('AstraNote-files')
+            .upload(fileName, file.buffer, { contentType: file.mimetype }),
+        generaThumbnail(file.buffer)  // funzione estratta sotto
+    ]);
+
+    if (responseUpload.error) {
+        return res.status(500).json({ error: "Errore nell'upload del file" });
+    }
+
+    // Upload thumbnail e URL file in parallelo
+    const publicUrl = supabase.storage.from('AstraNote-files').getPublicUrl(fileName).data.publicUrl;
+
+    let url_thumbnail = null;
+    if (thumbBuffer) {
+        const thumbName = `${Date.now()}_thumb.jpg`;
+        const { error: thumbError } = await supabase.storage
+            .from('thumbnails')
+            .upload(thumbName, thumbBuffer, { contentType: 'image/jpeg' });
+
+        if (!thumbError) {
+            url_thumbnail = supabase.storage.from('thumbnails').getPublicUrl(thumbName).data.publicUrl;
+        }
+    }
+
+    const { data, error: dbError } = await supabase
         .from('appunti')
-        .insert([
-            {
-                titolo:titolo,
-                data_creazione:data_creazione,
-                id_autore: id_autore,
-                url_file: publicUrl,
-                descrizione:descrizione,
-                corso:corso,
-                url_thumbnail: url_thumbnail,
-                anno_riferimento: anno_riferimento
-            }    
-        ])
+        .insert([{
+            titolo, data_creazione, id_autore,
+            url_file: publicUrl, descrizione,
+            corso, url_thumbnail, anno_riferimento
+        }])
         .select();
 
-    if(dbError){
-             console.error("ERRORE DATABASE DETTAGLIATO:", dbError);
-             return res.status(500).json({error:"Errore nell'inserimento dei dati"})
+    if (dbError) {
+        return res.status(500).json({ error: "Errore nell'inserimento dei dati" });
     }
-    //Invio i dati in formato JSON
-    res.status(201).json({
-        message: "Appunto aggiunto con successo!",
-        recensione: data[0]
-    })
-})
+
+    res.status(201).json({ message: "Appunto aggiunto con successo!", appunto: data[0] });
+});
+
+
+const generaThumbnail = async (buffer) => {
+    try {
+        const converter = fromBuffer(buffer, {
+            density: 100, format: "jpg", width: 400, height: 600
+        });
+        const risultato = await converter(1, { responseType: "buffer" });
+        return risultato?.buffer ?? null;
+    } catch (err) {
+        console.error("Errore generazione thumbnail:", err);
+        return null;
+    }
+};
 
 app.get('/api/appunti', async(req,res) => {
     const {error,data} = await supabase

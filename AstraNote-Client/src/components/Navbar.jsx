@@ -46,18 +46,18 @@ function Navbar({children}) {
             
                 <div className="searchCnt flex-grow-1">
                     <img src={searchIcon} className="searchIcon" alt="searchIcon" />
-                    <input className="search" placeholder="Cerca degli appunti..." 
+                    <input className="search text-white" placeholder="Cerca degli appunti..." 
                            onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
                 </div>
 
                 <div className="libraryCnt">
                     <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
-                    <Link className="library" to="/libreria">La tua libreria</Link>
+                    <Link className="library text-white"  to="/libreria">La tua libreria</Link>
                 </div>
 
                 <div className="dropdown">
                     <img src={profileIcon} alt="profile" className="profileIcon"></img>
-                    <button className="profile dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button className="profile dropdown-toggle text-white" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Profilo
                     </button>
                     <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">

@@ -180,7 +180,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
 
 
     return (
-        <div className="col-lg-3  col-md-6 col-12">
+        <div className="col-lg-4  col-md-6 col-12">
             <div className="border rounded p-3 h-100 shadow-sm position-relative">
                 {loading && (
                     <div style={{
@@ -213,12 +213,13 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                 }
 
 
-                <div className="d-flex w-100 position-relative" >
+                <div className="d-flex w-100 position-relative h-100" >
                     <img className="col-4 object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
-                    <div className="d-flex flex-column ms-2">
+                    <div className="d-flex flex-column ms-2 h-100 w-100">
                         <h5>{appunto.titolo}</h5>
-                        <p>{recensioni.length}{stelle}</p>
-                        <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
+                        <span>{stelle}</span>
+                        <span>( {recensioni.length} recensioni)</span>
+                        <button type="button" className="btn btn-primary mt-auto " data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
                             Mostra
                         </button>
                     </div>
