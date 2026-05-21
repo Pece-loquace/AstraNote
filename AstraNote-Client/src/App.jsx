@@ -17,7 +17,7 @@ import Searchpage from "./views/searchpage/searchpage"
 import Libreria from "./views/libreria/Libreria"
 import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
 import Profile from "./views/profile/Profile"
-
+import Impostazioni from "./views/impostazioni/Impostazioni"
 
 export default function App() {
 
@@ -36,6 +36,7 @@ export default function App() {
           <Route path="/libreria" element={<Libreria />} />
           <Route path="/upload" element={<UploadNota />} />
           <Route path="/profilo" element ={<Profile/>}/>
+          <Route path="/impostazioni" element={<Impostazioni/>}/>
         </Route>
       </Routes>
     </BrowserRouter>
