@@ -61,8 +61,11 @@ function Navbar({children}) {
                         Profilo
                     </button>
                     <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a className="dropdown-item" href="/profilo">Action</a>
-                        <a className="dropdown-item" href="#">Another action</a>
+                        <a className="dropdown-item" href="/homepage">Home</a>
+                        <a className="dropdown-item" href="/profilo">Profilo</a>
+                        <a className="dropdown-item" href="#">Caricati</a>
+                        <a className="dropdown-item" href="#">Preferiti</a>
+                        <a className="dropdown-item" href="/impostazioni">Impostazioni Account</a>
                         <a className="dropdown-item" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
                     </div>
                 </div>
@@ -72,6 +75,25 @@ function Navbar({children}) {
                          onClick={() => setMenu(!menu)}></img>
                 </div>
             </nav>
+
+            <div className={`menu ${menu === true ? 'd-flex' : 'd-none d-md-flex'}`}>
+                <div className="libraryCnt">
+                    <img src={libraryIcon} className="libraryIcon" alt="libraryIcon"></img>
+                    <Link className="library" to="/libreria">La tua libreria</Link>
+                </div>
+
+                <div className="dropdown_mobile">
+                    <img src={profileIcon} alt="profile" className="profileIcon"></img>
+                    <button className="profile dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Profilo
+                    </button>
+                    <div className="dropdown-menu_mobile" aria-labelledby="dropdownMenuButton">
+                        <a className="dropdown-item action" href="/libreria">Action</a>
+                        <a className="dropdown-item" href="#">Another action</a>
+                        <a className="dropdown-item logout" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
+                    </div>
+                </div>
+            </div>
         </>
     )
 }
