@@ -276,7 +276,7 @@ export default function RegistrazioneConFacolta({ setSection }) {
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Crea account</button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
-                            <button type="button" className="btn-back btn-outline-secondary" onClick={() => setSection('frontpage')}>Indietro</button>
+                            <button type="button" className="btn-back btn-outline-secondary" onClick={() => { setSection('frontpage'); handleReset(); }}>Indietro</button>
                         </div>
 
                         {feedback.show && (
@@ -297,7 +297,7 @@ export default function RegistrazioneConFacolta({ setSection }) {
                         )}
                     </form>
                 </div>
-            </div>
-        </main>
+            </div >
+        </main >
     );
 }

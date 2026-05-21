@@ -125,6 +125,14 @@ export default function RegistrazioneConFacolta({ setSection }) {
         }
     };
 
+    const handleReset = () => {
+        setFormData(initialFormState);
+        setShowPassword(false);
+        setCampiInErrore(new Set());
+        setTuttiValidi(false);
+        setFeedback({ show: false, type: "", errori: [] });
+    };
+
     const classFor = (field) => {
         if (campiInErrore.has(field)) return "is-invalid";
         if (tuttiValidi) return "is-valid";
@@ -163,7 +171,7 @@ export default function RegistrazioneConFacolta({ setSection }) {
 
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Login</button>
-                            <button type="button" className="btn-back btn-outline-secondary" onClick={() => {setSection('frontpage');}}>Indietro</button>
+                            <button type="button" className="btn-back btn-outline-secondary" onClick={() => setSection('frontpage')}>Indietro</button>
                         </div>
 
                         {feedback.show && (
