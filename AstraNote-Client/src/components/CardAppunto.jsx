@@ -2,14 +2,13 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import Segnala from "./Segnala";
-import PdfDocumentViewer from "./PdfDocumentViewer";
 import BookMark from "../assets/bookMark.png"
 import BookMarkSelected from "../assets/bookmarkSelected.png"
 import '../style/CardAppunto.css'
 import StelleValutazioni from "./StelleValutazioni";
 
 
-export default function CardAppunto({ appunto, onSave , sectionActivate, onModifica}) {
+export default function CardAppunto({ appunto, onSave , sectionActivate}) {
     const [stelle, setStelle] = useState("");
     const [loading, setLoading] = useState(false);
     const [utente, setUtente] = useState([])
@@ -22,7 +21,6 @@ export default function CardAppunto({ appunto, onSave , sectionActivate, onModif
 
     const [numSalvato, setNumSalvato] = useState(0);
     const [recensioni, setRecensioni] = useState([]);
-    const [showPdfViewer, setShowPdfViewer] = useState(false);
 
     /*Controlla se l'URL corrente è libreria */
     const location = useLocation();
@@ -251,59 +249,38 @@ export default function CardAppunto({ appunto, onSave , sectionActivate, onModif
 
                 {/*Modal */}
                 <div className="modal fade" id={`modal-${appunto.id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div className={`modal-dialog ${showPdfViewer ? "modal-xl" : ""}`}>
+                    <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h1 className="modal-title fs-5" id="exampleModalLabel">{appunto.titolo}</h1>
-                                <button
-                                    type="button"
-                                    className="btn-close"
-                                    data-bs-dismiss="modal"
-                                    aria-label="Close"
-                                    onClick={() => setShowPdfViewer(false)}
-                                ></button>
+                                <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
-                                {showPdfViewer ? (
-                                    <>
-                                        <button
-                                            type="button"
-                                            className="btn btn-link ps-0 mb-2"
-                                            onClick={() => setShowPdfViewer(false)}
-                                        >
-                                            ← Torna ai dettagli
-                                        </button>
-                                        <PdfDocumentViewer fileUrl={appunto.url_file} />
-                                    </>
-                                ) : (
-                                    <div className="d-flex">
-                                        <img className="col-4 object-fit-cover rounded border border-info border-3" src={appunto.url_thumbnail} alt="Card image cap" />
-                                        <div className="col-8 d-flex flex-column ms-2">
-                                            <h5>{appunto.titolo}</h5>
-                                            <span>({recensioni.length}) {stelle}</span>
-                                            <span>(di {autore.nome} {autore.cognome})</span>
-                                            <span><strong>Descrizione:</strong> {appunto.descrizione}</span>
-                                            <p>{appunto.anno}</p>
-                                            <span>(Recensione personale)<StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} /></span>
-                                            <div className="row justify-content-between">
-                                                <div className="col">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-primary"
-                                                        onClick={() => setShowPdfViewer(true)}
-                                                    >
+                                <div className="d-flex">
+                                    <img className="col-4 object-fit-cover rounded border border-info border border-3" src={appunto.url_thumbnail} alt="Card image cap" />
+                                    <div className="col-8 d-flex flex-column ms-2">
+                                        <h5>{appunto.titolo}</h5>
+                                        <span>({recensioni.length}) {stelle}</span>
+                                        <span>(di {autore.nome} {autore.cognome})</span>
+                                        <span><strong>Descrizione:</strong> {appunto.descrizione}</span>
+                                        <p>{appunto.anno}</p>
+                                        <span>(Recensione personale)<StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} /></span>
+                                        <div className="row justify-content-between">
+                                            <div className="col">
+                                                    <button type="button" className="btn btn-primary" data-bs-target={`#modal-${appunto.id}`} onClick={() => window.open(appunto.url_file, '_blank')}>
                                                         Visualizza
                                                     </button>
-                                                </div>
-                                                <div className="col">
-                                                    <a className="btn btn-primary" href={`${appunto.url_file}?download=`}>
+                                            </div> 
+                                            <div className="col">
+                                                    <a type="button" className="btn btn-primary" href={`${appunto.url_file}?download=`}>
                                                         Scarica
                                                     </a>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                )}
+                                </div>
+
+
 
                                 {showSegnala && (<Segnala appuntoId={appunto.id} onClose={() => setShowSegnala(false)} />)}
                             </div>
@@ -319,14 +296,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate, onModif
                                                 </button>
                                             
                                         }
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    data-bs-dismiss="modal"
-                                    onClick={() => setShowPdfViewer(false)}
-                                >
-                                    Close
-                                </button>
+                                <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>

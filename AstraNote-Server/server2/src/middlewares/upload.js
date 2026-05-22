@@ -1,12 +1,6 @@
 const multer = require("multer");
 
-const storage = multer.memoryStorage();
-
-const upload = multer({ storage });
-const uploadAppunto = multer({ storage }).fields([
-  { name: "file", maxCount: 1 },
-  { name: "thumbnail", maxCount: 1 },
-]);
+//Uso multer
+const upload = multer({ storage: multer.memoryStorage() }); // Carica il file temporaneamente in RAM
 
 module.exports = upload;
-module.exports.uploadAppunto = uploadAppunto;

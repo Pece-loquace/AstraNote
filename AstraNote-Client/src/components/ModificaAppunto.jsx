@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { thumbnailFromPdf } from "../utils/pdfThumbnail";
+import PdfUploadPreview from "../../components/PdfUploadPreview";
+import { thumbnailFromPdf } from "../../utils/pdfThumbnail";
 import "./UploadNota.css";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
@@ -76,10 +78,10 @@ function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) 
 }
 
 const initialFormState = {
-    upload: null, nome: "", facolta: "", corso: "", anno: "", descrizione: "",
+     nome: "", facolta: "", corso: "", anno: "", descrizione: "",
 };
 
-export default function EditNotes() {
+export default function ModificaNote() {
     const [formData, setFormData] = useState(initialFormState);
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
@@ -88,8 +90,13 @@ export default function EditNotes() {
     const [corso, setCorso] = useState([]);
     const [materia, setMateria] = useState([]);
     const [invioInCorso, setInvioInCorso] = useState(false);
+    const [thumbBlob, setThumbBlob] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+
+    const handleThumbnailReady = useCallback((blob) => {
+        setThumbBlob(blob);
+    }, []);
 
 
 
@@ -98,6 +105,7 @@ export default function EditNotes() {
         const nextValue = type === "file" ? (files[0] ?? null) : value;
 
         setFormData((prev) => ({ ...prev, [name]: nextValue }));
+        if (name === "upload") setThumbBlob(null);
         setCampiInErrore((prev) => {
             if (!prev.has(name)) return prev;
             const next = new Set(prev);
@@ -157,11 +165,12 @@ export default function EditNotes() {
         if (ok) {
             setInvioInCorso(true);
             try {
-                const thumbBlob = await thumbnailFromPdf(formData.upload);
+                const thumbnail =
+                    thumbBlob ?? (await thumbnailFromPdf(formData.upload));
 
                 const payload = new FormData();
                 payload.append("file", formData.upload);
-                payload.append("thumbnail", thumbBlob, "thumb.jpg");
+                payload.append("thumbnail", thumbnail, "thumb.jpg");
                 payload.append("titolo", formData.nome.trim());
                 payload.append("corso", formData.corso);
                 payload.append("anno_riferimento", formData.anno)
@@ -206,6 +215,7 @@ export default function EditNotes() {
         setCampiInErrore(new Set());
         setTuttiValidi(false);
         setFeedback({ show: false, type: "", errori: [] });
+        setThumbBlob(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
@@ -232,6 +242,12 @@ export default function EditNotes() {
                             <label htmlFor="upload" className="form-label custom-label">Scegli un file da caricare</label>
                             <input type="file" id="upload" name="upload" accept=".pdf,application/pdf" ref={fileInputRef} required onChange={handleChange} className={`form-control ${classFor("upload")}`} />
                             <div className="form-text">Solo file in formato .pdf (max 100 MB)</div>
+                            {formData.upload?.type === EXTENSION && (
+                                <PdfUploadPreview
+                                    file={formData.upload}
+                                    onThumbnailReady={handleThumbnailReady}
+                                />
+                            )}
                         </div>
 
                         <div className="mb-3">
@@ -286,7 +302,7 @@ export default function EditNotes() {
 
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom" disabled={invioInCorso}>
-                                {invioInCorso ? "Generazione anteprima e caricamento…" : "Carica nota"}
+                                {invioInCorso ? "Caricamento in corso…" : "Carica nota"}
                             </button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
                         </div>
@@ -312,6 +328,4 @@ export default function EditNotes() {
             </div>
         </main>
     );
-}
-
 }

@@ -1,17 +1,7 @@
-.bookmark {
-    cursor: pointer;
-}
 
-.pdf-document-viewer {
-    max-height: 70vh;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.pdf-document-viewer .react-pdf__Page {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.bookmark{
+    cursor:pointer;
+    
 }
 
 

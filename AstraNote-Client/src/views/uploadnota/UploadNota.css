@@ -22,14 +22,6 @@ body {
     pointer-events: none;
 }
 
-.pdf-upload-preview {
-    overflow: hidden;
-}
-
-.pdf-upload-preview .react-pdf__Page {
-    margin: 0 auto;
-}
-
 .custom-title {
     font-family: 'Cormorant Garamond', serif;
     font-weight: 600;

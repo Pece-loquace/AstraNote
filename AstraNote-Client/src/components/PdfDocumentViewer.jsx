@@ -8,7 +8,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString();
 
-const PAGE_WIDTH = 520;
+const PAGE_WIDTH = 800;
 
 export default function PdfDocumentViewer({ fileUrl }) {
   const [numPages, setNumPages] = useState(null);
@@ -16,12 +16,9 @@ export default function PdfDocumentViewer({ fileUrl }) {
 
   const onDocumentLoadSuccess = ({ numPages: total }) => {
     setNumPages(total);
-    setPageNumber(1);
   };
 
-  const goPrev = () => setPageNumber((p) => Math.max(1, p - 1));
-  const goNext = () =>
-    setPageNumber((p) => (numPages ? Math.min(numPages, p + 1) : p));
+
 
   return (
     <div className="pdf-document-viewer">
@@ -38,38 +35,18 @@ export default function PdfDocumentViewer({ fileUrl }) {
           </div>
         }
       >
-        <Page
-          pageNumber={pageNumber}
-          width={PAGE_WIDTH}
-          loading={
-            <div className="text-center py-3 text-muted">Caricamento pagina…</div>
-          }
-        />
+        {
+          Array.from({ length: numPages ?? 0 }, (_, i) => (
+            <Page
+              key={i + 1}
+              pageNumber={i + 1}
+              width={PAGE_WIDTH}
+              loading={null}
+              className="pdf-page"
+            />
+          ))
+        }
       </Document>
-
-      {numPages != null && numPages > 0 && (
-        <div className="d-flex justify-content-between align-items-center mt-3 gap-2 flex-wrap">
-          <button
-            type="button"
-            className="btn btn-outline-primary btn-sm"
-            onClick={goPrev}
-            disabled={pageNumber <= 1}
-          >
-            ← Precedente
-          </button>
-          <span className="text-muted small">
-            Pagina {pageNumber} di {numPages}
-          </span>
-          <button
-            type="button"
-            className="btn btn-outline-primary btn-sm"
-            onClick={goNext}
-            disabled={pageNumber >= numPages}
-          >
-            Successiva →
-          </button>
-        </div>
-      )}
     </div>
   );
 }
