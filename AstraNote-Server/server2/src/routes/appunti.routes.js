@@ -1,8 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const supabase = require("../config/supabase");
-const upload = require("../middlewares/upload");
+const { uploadAppunto } = require("../middlewares/upload");
 const generaThumbnail = require("../lib/thumbnail");
+
+const THUMB_MIMES = new Set(["image/jpeg", "image/jpg", "image/png"]);
+const MAX_THUMB_BYTES = 2 * 1024 * 1024;
+
+function thumbnailBufferFromUpload(thumbnailFile) {
+  if (
+    !thumbnailFile?.buffer?.length ||
+    !THUMB_MIMES.has(thumbnailFile.mimetype) ||
+    thumbnailFile.size > MAX_THUMB_BYTES
+  ) {
+    return null;
+  }
+  return thumbnailFile.buffer;
+}
 
 /*********************CRUD Appunti************/
 
@@ -103,8 +117,9 @@ const generaThumbnail = require("../lib/thumbnail");
 //     })
 // })
 
-router.post("/api/appunti", upload.single("file"), async (req, res) => {
-  const file = req.file;
+router.post("/api/appunti", uploadAppunto, async (req, res) => {
+  const file = req.files?.file?.[0];
+  const thumbnailFile = req.files?.thumbnail?.[0];
   const { titolo, descrizione, corso, anno_riferimento } = req.body;
 
   if (!titolo || !corso || !file) {
@@ -115,12 +130,13 @@ router.post("/api/appunti", upload.single("file"), async (req, res) => {
   const data_creazione = new Date().toISOString();
   const fileName = `${Date.now()}_${file.originalname}`;
 
-  // Genera thumbnail e upload file in parallelo
+  const clientThumb = thumbnailBufferFromUpload(thumbnailFile);
+
   const [responseUpload, thumbBuffer] = await Promise.all([
     supabase.storage
       .from("AstraNote-files")
       .upload(fileName, file.buffer, { contentType: file.mimetype }),
-    generaThumbnail(file.buffer), // funzione estratta sotto
+    clientThumb ? Promise.resolve(clientThumb) : generaThumbnail(file.buffer),
   ]);
 
   if (responseUpload.error) {

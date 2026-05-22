@@ -171,7 +171,7 @@ export default function RegistrazioneConFacolta({ setSection }) {
 
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Login</button>
-                            <button type="button" className="btn-back btn-outline-secondary" onClick={() => setSection('frontpage')}>Indietro</button>
+                            <button type="button" className="btn-back btn-outline-secondary" onClick={() => {setFormData(initialFormState);setSection('frontpage');}}>Indietro</button>
                         </div>
 
                         {feedback.show && (

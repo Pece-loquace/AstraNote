@@ -10,6 +10,7 @@ export default function Libreria(){
     const [appuntiSalvati,setAppuntiSalvati] = useState([])
     const [filters,setFilters] = useState({facolta:"",corso:"",anno:"",stelle:""})
     const [sezioneAttiva,setSezioneAttiva] = useState("caricati")
+    const[modificaAppunto,setModfica] = useState(0)/*Setta l'id dell'appunto da modificare */
 
     useEffect(()=>{
         caricaLibreria()
@@ -39,6 +40,9 @@ export default function Libreria(){
     const Reload = () => {
         window.location.reload();
     }   
+
+
+
     const appuntiCaricatiFiltrati = appuntiCaricati.filter(a => {
         if(filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false;
         if(filters.corso !== "" && (a.corso.nome) !== filters.corso) return false;
@@ -96,9 +100,14 @@ export default function Libreria(){
                        (appuntiSalvatiFiltrati.length === 0 ? <p>Nessun appunto scaricato</p>: 
                         <div className="row g-4"> 
                         {
-                            appuntiSalvatiFiltrati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload}/>))
+                            appuntiSalvatiFiltrati.map((a) =>(<CardAppunto key={a.id} appunto={a} onSave={Reload} onModifica={()=>setAppuntoDaModificare(a)}/>))
                         }
                         </div>)
+                   }
+
+                   {    
+                        modificaAppunto
+
                    }
         </div>
     );
