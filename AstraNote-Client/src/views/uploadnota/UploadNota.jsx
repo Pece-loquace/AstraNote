@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import "./UploadNota.css";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
@@ -7,7 +7,7 @@ import "../../style/buttons.css";
 // CARICAMENTO NOTA
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 const EXTENSION = "application/pdf";
-const TITOLO_MIN = 10;
+const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
 const DESCRIZIONE_MAX = 500;
 
@@ -206,7 +206,7 @@ export default function UploadNota() {
 
     return (
         <main className="container min-vh-100 d-flex align-items-center justify-content-center py-4">
-            <div className="card shadow-lg w-100" style={{ maxWidth: "520px" }}>
+            <div className="card shadow-lg w-100" style={{ maxWidth: "850px" }}>
                 <div className="card-body p-4 p-md-5 position-relative">
                     <div className="custom-border"></div>
 
@@ -276,6 +276,7 @@ export default function UploadNota() {
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom">Carica nota</button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
+                            <Link to="/homepage" className="btn btn-outline-secondary">Indietro</Link>
                         </div>
 
                         {feedback.show && (

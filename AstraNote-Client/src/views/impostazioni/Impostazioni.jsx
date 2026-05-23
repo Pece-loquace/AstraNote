@@ -4,11 +4,10 @@ import "../../style/bootstrap.css";
 import "../../style/buttons.css";
 
 import {
-    Avatar,
     AVATAR_ICONE,
     AVATAR_COLORI,
     COLORI,
-} from "../profile/Avatar.jsx";
+} from "../profile/Avatar";
 // importare anche la funzione di valutazione con le stelle
 
 // Modifica Profilo

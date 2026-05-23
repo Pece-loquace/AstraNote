@@ -6,7 +6,7 @@ import "../../style/buttons.css";
 import { useState } from 'react';
 import { useEffect } from 'react';
 import CardAppunto from "../../components/CardAppunto";
-import { Avatar } from './Avatar';
+import Avatar from './Avatar';
 
 export default function Profilo() {
     const [utente, setUtente] = useState({});
@@ -58,16 +58,16 @@ export default function Profilo() {
 
                             <div className="col-12 col-md-auto text-center">
                                 {/* Test Avatar */}
-                                <img src={profile} alt="Avatar utente" width={300} height={300} />
+                                {/* <img src={profile} alt="Avatar utente" width={300} height={300} /> */}
 
-                                {/* <div className="col-12 col-md-auto text-center">
+                                <div className="col-12 col-md-auto text-center">
                                     <Avatar
-                                        iconaId={avatar.iconaId}
-                                        iconaColore={avatar.iconaColore}
-                                        bgColore={avatar.bgColore}
-                                        size={170}
+                                        iconaId={Avatar.iconaId}
+                                        iconaColore={Avatar.iconaColore}
+                                        bgColore={Avatar.sfondoColore}
+                                        size={Avatar.size}
                                     />
-                                </div> */}
+                                </div>
 
                             </div>
 
@@ -130,7 +130,7 @@ export default function Profilo() {
                     ) : (
                         <div className="row g-3">
                             {appunti.map((appunto) => (
-                                <CardAppunto key={appunto.id} appunto={appunto} onSave={fetchUtente}/>
+                                <CardAppunto key={appunto.id} appunto={appunto} onSave={fetchUtente} />
 
                             ))}
                         </div>
