@@ -174,7 +174,7 @@ export const AVATAR_ICONE = [
 //  - sfondoColore: colore sfondo
 //  - size:         diametro
 
-export function Avatar({ iconaId, iconaColore, sfondoColore, size = 300 }) {
+export default function Avatar({ iconaId, iconaColore, sfondoColore, size = 230 }) {
     const entry = AVATAR_ICONE.find((icona) => icona.id === iconaId) || AVATAR_ICONE[0];
     const Icona = entry.Component;
     const sfondo = AVATAR_COLORI[sfondoColore] || AVATAR_COLORI.rosso;

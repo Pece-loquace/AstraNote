@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import "../style/bootstrap.css";
 import "../style/buttons.css";
 
-const TITOLO_MIN = 10;
+const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
 const DESCRIZIONE_MAX = 500;
 
@@ -59,12 +59,12 @@ function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) 
 }
 
 const initialFormState = {
-    upload:"",titolo: "", facolta: "", corso: "", anno: "", descrizione: "",
+    upload: "", titolo: "", facolta: "", corso: "", anno: "", descrizione: "",
 };
 
-export default function ModificaNote({appunto:appuntoProp,onSave}) { 
-    const {id} = useParams();
-    const[ appunto,setAppunto] = useState(null);
+export default function ModificaNote({ appunto: appuntoProp, onSave }) {
+    const { id } = useParams();
+    const [appunto, setAppunto] = useState(null);
     const [formData, setFormData] = useState(initialFormState);
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
@@ -100,28 +100,28 @@ export default function ModificaNote({appunto:appuntoProp,onSave}) {
     };
 
 
-    useEffect( () => {
+    useEffect(() => {
         fetchFormData()
-    },[])
+    }, [])
 
-    const fetchFormData = async() =>{
+    const fetchFormData = async () => {
         try {
             let response = await fetch(`/api/appunti/${id}`)
-            if(!response.ok) throw new Error("Errore nel reperire l'appunto");
+            if (!response.ok) throw new Error("Errore nel reperire l'appunto");
 
             const nota = await response.json();
             console.log(nota);
             setFormData({
-                    upload: nota.url_file,
-                    titolo: nota.titolo,
-                    facolta: nota.corso.facolta.id,
-                    corso: nota.corso.id,
-                    anno: nota.anno_riferimento,
-                    descrizione: nota.descrizione,
+                upload: nota.url_file,
+                titolo: nota.titolo,
+                facolta: nota.corso.facolta.id,
+                corso: nota.corso.id,
+                anno: nota.anno_riferimento,
+                descrizione: nota.descrizione,
             });
             setAppunto(nota);
 
-            
+
             response = await fetch('/api/facolta')
             if (!response.ok) throw new Error("Errore nel caricamento delle materie");
 
@@ -139,7 +139,7 @@ export default function ModificaNote({appunto:appuntoProp,onSave}) {
     }, [formData.facolta])
 
     const caricaCorsi = async () => {
-        if(!formData.facolta) return;
+        if (!formData.facolta) return;
         try {
             console.log(appunto);
             const response = await fetch(`/api/corsi?facolta_id=${formData.facolta}`)
@@ -172,10 +172,10 @@ export default function ModificaNote({appunto:appuntoProp,onSave}) {
                     method: "PUT",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        "titolo" : formData.titolo,
-                        "corso" :formData.corso,
-                        "anno_riferimento" : formData.anno,
-                        "descrizione" : formData.descrizione
+                        "titolo": formData.titolo,
+                        "corso": formData.corso,
+                        "anno_riferimento": formData.anno,
+                        "descrizione": formData.descrizione
                     })
                 });
 
@@ -237,7 +237,7 @@ export default function ModificaNote({appunto:appuntoProp,onSave}) {
 
                         <div className="mb-3">
                             <label htmlFor="upload" className="form-label custom-label">Scegli un file da caricare</label>
-                            <input type="file" id="upload" name="upload"   disabled  className="form-control" />
+                            <input type="file" id="upload" name="upload" disabled className="form-control" />
                         </div>
 
                         <div className="mb-3">
@@ -258,7 +258,7 @@ export default function ModificaNote({appunto:appuntoProp,onSave}) {
 
                         <div className="mb-3">
                             <label htmlFor="corso" className="form-label custom-label">Corso</label>
-                            <select id="corso" name="corso"   value={formData.corso} onChange={handleChange} className={`form-select ${classFor("corso")}`}>
+                            <select id="corso" name="corso" value={formData.corso} onChange={handleChange} className={`form-select ${classFor("corso")}`}>
                                 <option value="" disabled>- Seleziona un corso per la tua nota -</option>
 
                                 {corso.map(c => (
