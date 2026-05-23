@@ -58,7 +58,6 @@ export default function Profilo() {
 
                             <div className="col-12 col-md-auto text-center">
                                 {/* Test Avatar */}
-                                {/* <img src={profile} alt="Avatar utente" width={300} height={300} /> */}
 
                                 <div className="col-12 col-md-auto text-center">
                                     <Avatar
