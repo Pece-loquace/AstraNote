@@ -81,7 +81,7 @@ function Navbar({children}) {
                     </Link>
                 </div>
             
-                <div className="searchCnt flex-grow-1">
+                <div className="searchCnt flex-grow-1"> 
                     <img src={searchIcon} className="searchIcon" alt="searchIcon" />
                     <input className="search text-white" placeholder="Cerca degli appunti..." 
                            onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
@@ -94,7 +94,7 @@ function Navbar({children}) {
 
                 <div className="dropdown">
                     <img src={profileIcon} alt="profile" className="profileIcon"></img>
-                    <button className="profile dropdown-toggle text-white" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button className="profile dropdown-toggle text-white " type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Profilo
                     </button>
                     <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
