@@ -42,7 +42,7 @@ router.post("/api/login", async (req, res) => {
 
     res.json({ message: "Login !", user: req.session.user });
   } else {
-    res.status(401).json({ error: "password" });
+    res.status(401).json({ error: "Password non corretta" });
   }
 });
 

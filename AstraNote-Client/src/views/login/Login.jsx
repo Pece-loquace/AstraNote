@@ -105,7 +105,6 @@ export default function RegistrazioneConFacolta({ setSection }) {
                     password: formData.password,
                 })
             });
-            const data = await response.json();
 
             if (response.ok) {
                 navigate("/homepage");
