@@ -1,0 +1,118 @@
+[33mf82bdd7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Revert "Aggiunto react-pdf"
+[33mbce7ba6[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Aggiunto react-pdf
+[33m1d0097f[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m5525d11[m Tasto Elimina aggiunto
+[33mcd3797a[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m35d691f[m hamburger 1.0
+[33mba54978[m fix tasto indietro
+[33m184e176[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m44aef19[m Modifiche card
+[33m7ed00a5[m fix minori login+register
+[33m82c2547[m Modifica footer cardAppunto
+[33md434b61[m Estetica CardAppunto
+[33m1638d75[m Riaggiunto pezzo navbar
+[33m7c300a0[m Fix navbar
+[33mf844d9b[m Fix Filtri + fix Card
+[33mf776269[m minor fix Register.css
+[33mf9874ce[m fix Profile per mobile
+[33md24a781[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33mc0ae970[m Profilo fatto
+[33md9b64f3[m fix CardAppunto
+[33mb0c9746[m Struttura per Profilo
+[33m9008e2d[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m45b1020[m Dopo upload a homepage
+[33mad37bfa[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33md674a7b[m fix Navbar
+[33me7d888a[m Fix chiamata fetch_card con aggiunta di vista su supabase
+[33me377124[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33mcbfec49[m fix device mobile
+[33mb38b382[m Tolto ibottone da upload
+[33m6a0fd4c[m Modifiche varie
+[33m22b3f9d[m Aggiunto logout
+[33ma0c27b5[m fix in titolo Upload e altri
+[33m9978ec9[m fix frontpage 2.0
+[33m30ff089[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m2097cad[m fix frontpage 1.0
+[33mab59bb7[m fix login+register
+[33mbdb7ba4[m Fix Scarica
+[33m3f66228[m Visualizza /Scarica nel sito
+[33me7c2b11[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33mcab1ccd[m navbar+footer in UploadNota
+[33me0cf346[m Aggiunte segnalazioni
+[33maded886[m Aggiunto Leggi
+[33meff86ea[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m238cb3c[m Cambiato segnala
+[33ma743cb8[m dist
+[33m1ffc55c[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m2fc9be1[m Fix cose
+[33m9d76130[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33mffb94db[m modifica register
+[33m7a79786[m Libreria funzionante
+[33m4626a71[m Libreria si aggiorna
+[33mce5d42f[m Cambiata icona generale e pagina
+[33m8ad5c94[m Aggiunta redirezione per utenti loggati
+[33m2cb92f5[m Frontpage adattamento schermo
+[33m98d60a5[m Libreria savings funzionante
+[33mec96686[m Risolti bug 2
+[33m5f640a7[m Risolti bug
+[33m0918c41[m Fix errori Login e Register
+[33m72aeccc[m Fix valutazione media
+[33m79cbf63[m Aggiunte Recensioni
+[33m8c7c9d9[m Reimpostata libreria
+[33m6dacf32[m[33m ([m[1;31morigin/fix-bookmark[m[33m)[m Bookmark funzionante
+[33ma808088[m Filtri facoltà e Corso funzionanti
+[33mc99fdc1[m Url thumbnail funzionanti
+[33ma4ca02d[m Fix errore cardAppunti doppie
+[33m25f8854[m Libreria quasi funzionante (devo fixare i duplicati key)
+[33ma08e48c[m Aggiunti Filtri
+[33m4d6f9e9[m searchPage funzionante
+[33mbf8766d[m Segnalazioni funzionante
+[33m2dc1490[m build in vite.config
+[33m1d7fe41[m Spaziatura tra Card
+[33m93da481[m fix errore navbar
+[33m37497ad[m ScaricaFile funzionante
+[33m8477e16[m Bug frontpage.css risolto
+[33mfd763b4[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m152baeb[m Fix navbar
+[33mf990d33[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m693cc6e[m Card Appunto + Modal
+[33m03f32f2[m immagini da public a src
+[33m277b523[m modifiche dist server
+[33md530d50[m frontpage 3.0
+[33m00da08a[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m0b7531b[m frontpage 2.0
+[33m720e2e2[m Banner dimensioni ridotte
+[33m86192ea[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m0a807de[m Register -> Homepage
+[33m222a035[m frontpage unico
+[33m228f41c[m Endpoint upload funzionante
+[33m76159a5[m Aggiunto il caricamento nota
+[33m4055059[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m768d3ef[m Login funzionante
+[33m734c33c[m modifiche register e aggiunta svg
+[33mc1a3741[m Modifica Register
+[33mdde762b[m Commit index
+[33m07a11fd[m Registrazione funzionante
+[33mbc404c9[m Nuovo form per registrarsi con mail sapienza
+[33mf81c665[m Sfondo quadretti
+[33m1d6a481[m modifiche login e register
+[33m13e54e4[m Modifiche frontpage
+[33m0eafe30[m Fixed Navbar e Footer
+[33mb1655be[m Added files
+[33m7ed9c5e[m Footer,CardAppunto,Layouts
+[33ma65d1cf[m Navbar
+[33m07acd56[m endpoint corsi + modifiche
+[33m31582d1[m Endpoint
+[33m935e141[m Delete return jxs
+[33m59667dc[m Delete-file
+[33m73b9995[m Merge branch 'main' of https://github.com/Pece-loquace/AstraNote
+[33m3618e77[m React + Node
+[33md237f48[m Modifiche ai file html
+[33mcf1fdbb[m Modifica frontpage.html
+[33ma7bd83a[m Aggiunti logo e banner png con trasparenza e upscale
+[33md0f4edc[m Modifiche varie
+[33m92ef798[m Modific a homepage.html e aggiunta immagini in assets/img
+[33m773d68f[m Aggiunta nuovi files
+[33m6ac4d21[m Aggiunta struttura del progetto
+[33mdecfcdf[m Aggiunto file index
+[33m91ac7a0[m Initial commit

@@ -10,6 +10,7 @@ import Libreria from "./views/libreria/Libreria"
 import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
 import Profile from "./views/profile/Profile"
 import Impostazioni from "./views/impostazioni/Impostazioni"
+import ModificaAppunto from "./components/ModificaAppunto";
 
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/upload" element={<UploadNota />} />
           <Route path="/profilo" element ={<Profile/>}/>
           <Route path="/impostazioni" element={<Impostazioni/>}/>
+          <Route path="/modifica/:id" element = {<ModificaAppunto/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

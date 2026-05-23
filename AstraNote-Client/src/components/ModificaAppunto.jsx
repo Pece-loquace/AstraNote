@@ -1,15 +1,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import PdfUploadPreview from "../../components/PdfUploadPreview";
-import { thumbnailFromPdf } from "../../utils/pdfThumbnail";
-import "./UploadNota.css";
-import "../../style/bootstrap.css";
-import "../../style/buttons.css";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import "../style/bootstrap.css";
+import "../style/buttons.css";
 
-// CARICAMENTO NOTA
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
-const EXTENSION = "application/pdf";
 const TITOLO_MIN = 10;
 const TITOLO_MAX = 25;
 const DESCRIZIONE_MAX = 500;
@@ -23,19 +17,6 @@ function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) 
     const errori = [];
     const campiInErrore = new Set();
 
-    if (!file) {
-        errori.push("Devi selezionare un file da caricare.");
-        campiInErrore.add("upload");
-    } else {
-        if (file.type !== EXTENSION) {
-            errori.push("Il file deve essere in formato PDF.");
-            campiInErrore.add("upload");
-        }
-        if (file.size > MAX_FILE_SIZE) {
-            errori.push("Il file non può superare i " + (MAX_FILE_SIZE / 1024 / 1024) + " MB.");
-            campiInErrore.add("upload");
-        }
-    }
 
     if (!titolo.trim()) {
         errori.push("Il campo titolo è obbligatorio.");
@@ -78,10 +59,12 @@ function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) 
 }
 
 const initialFormState = {
-     nome: "", facolta: "", corso: "", anno: "", descrizione: "",
+    upload:"",titolo: "", facolta: "", corso: "", anno: "", descrizione: "",
 };
 
-export default function ModificaNote() {
+export default function ModificaNote({appunto:appuntoProp,onSave}) { 
+    const {id} = useParams();
+    const[ appunto,setAppunto] = useState(null);
     const [formData, setFormData] = useState(initialFormState);
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
@@ -90,7 +73,6 @@ export default function ModificaNote() {
     const [corso, setCorso] = useState([]);
     const [materia, setMateria] = useState([]);
     const [invioInCorso, setInvioInCorso] = useState(false);
-    const [thumbBlob, setThumbBlob] = useState(null);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -117,31 +99,53 @@ export default function ModificaNote() {
         setFeedback((prev) => (prev.show ? { ...prev, show: false } : prev));
     };
 
-    useEffect(() => {
-        caricaFacolta();
-    }, []);
 
+    useEffect( () => {
+        fetchFormData()
+    },[])
 
-    const caricaFacolta = async () => {
+    const fetchFormData = async() =>{
         try {
-            const response = await fetch('/api/facolta')
+            let response = await fetch(`/api/appunti/${id}`)
+            if(!response.ok) throw new Error("Errore nel reperire l'appunto");
+
+            const nota = await response.json();
+            console.log(nota);
+            setFormData({
+                    upload: nota.url_file,
+                    titolo: nota.titolo,
+                    facolta: nota.corso.facolta.id,
+                    corso: nota.corso.id,
+                    anno: nota.anno_riferimento,
+                    descrizione: nota.descrizione,
+            });
+            setAppunto(nota);
+
+            
+            response = await fetch('/api/facolta')
             if (!response.ok) throw new Error("Errore nel caricamento delle materie");
 
             const facoltaData = await response.json();
             setFacolta(facoltaData);
-            console.log(facolta)
+
         } catch (error) {
-            console.error(error);
+            console.error(error.message);
         }
-    };
+    }
 
     useEffect(() => {
-        if (formData.facolta) caricaCorsi();
+        if (!formData.facolta) return;
+        caricaCorsi();
     }, [formData.facolta])
 
     const caricaCorsi = async () => {
+        if(!formData.facolta) return;
         try {
+            console.log(appunto);
             const response = await fetch(`/api/corsi?facolta_id=${formData.facolta}`)
+
+            console.log("Status:", response.status);
+            console.log("Content-Type:", response.headers.get("content-type"));
             if (!response.ok) throw new Error("Impossibile caricare i corsi")
 
             const corsi = await response.json()
@@ -154,8 +158,7 @@ export default function ModificaNote() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const { ok, errori, campiInErrore: listaErrori } = validaCaricamento({
-            file: formData.upload,
-            titolo: formData.nome,
+            titolo: formData.titolo,
             facolta: formData.facolta,
             corso: formData.corso,
             anno: formData.anno,
@@ -165,28 +168,22 @@ export default function ModificaNote() {
         if (ok) {
             setInvioInCorso(true);
             try {
-                const thumbnail =
-                    thumbBlob ?? (await thumbnailFromPdf(formData.upload));
-
-                const payload = new FormData();
-                payload.append("file", formData.upload);
-                payload.append("thumbnail", thumbnail, "thumb.jpg");
-                payload.append("titolo", formData.nome.trim());
-                payload.append("corso", formData.corso);
-                payload.append("anno_riferimento", formData.anno)
-                payload.append("descrizione", formData.descrizione.trim());
-
-                const response = await fetch(API_UPLOAD_URL, {
-                    method: "POST",
-                    credentials: 'include',
-                    body: payload
+                const response = await fetch(`/api/appunti/${appunto.id}`, {
+                    method: "PUT",
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        "titolo" : formData.titolo,
+                        "corso" :formData.corso,
+                        "anno_riferimento" : formData.anno,
+                        "descrizione" : formData.descrizione
+                    })
                 });
 
                 if (response.ok) {
                     setFeedback({ show: true, type: "ok", errori: [] });
                     setTuttiValidi(true);
                     setCampiInErrore(new Set());
-                    navigate("/homepage");
+                    navigate("/libreria");
 
                 } else {
                     throw new Error("Impossibile caricare la nota");
@@ -231,7 +228,7 @@ export default function ModificaNote() {
                 <div className="card-body p-4 p-md-5 position-relative">
                     <div className="custom-border"></div>
 
-                    <h1 className="text-center custom-title mb-1">Carica la tua nota</h1>
+                    <h1 className="text-center custom-title mb-1">Modifica la tua nota</h1>
                     <p className="text-center text-muted fst-italic mb-4" style={{ fontSize: "0.875rem" }}>
                         Condividi le tue note con gli altri studenti
                     </p>
@@ -240,19 +237,12 @@ export default function ModificaNote() {
 
                         <div className="mb-3">
                             <label htmlFor="upload" className="form-label custom-label">Scegli un file da caricare</label>
-                            <input type="file" id="upload" name="upload" accept=".pdf,application/pdf" ref={fileInputRef} required onChange={handleChange} className={`form-control ${classFor("upload")}`} />
-                            <div className="form-text">Solo file in formato .pdf (max 100 MB)</div>
-                            {formData.upload?.type === EXTENSION && (
-                                <PdfUploadPreview
-                                    file={formData.upload}
-                                    onThumbnailReady={handleThumbnailReady}
-                                />
-                            )}
+                            <input type="file" id="upload" name="upload"   disabled  className="form-control" />
                         </div>
 
                         <div className="mb-3">
                             <label htmlFor="nome" className="form-label custom-label">Titolo nota</label>
-                            <input type="text" id="nome" name="nome" required maxLength={TITOLO_MAX} value={formData.nome} onChange={handleChange} className={`form-control ${classFor("nome")}`} />
+                            <input type="text" id="nome" name="nome" required maxLength={TITOLO_MAX} value={formData.titolo} onChange={handleChange} className={`form-control ${classFor("nome")}`} />
                             <div className="form-text">Il titolo sarà visibile a tutti gli studenti</div>
                         </div>
 
@@ -268,7 +258,7 @@ export default function ModificaNote() {
 
                         <div className="mb-3">
                             <label htmlFor="corso" className="form-label custom-label">Corso</label>
-                            <select id="corso" name="corso" value={formData.corso} onChange={handleChange} className={`form-select ${classFor("corso")}`}>
+                            <select id="corso" name="corso"   value={formData.corso} onChange={handleChange} className={`form-select ${classFor("corso")}`}>
                                 <option value="" disabled>- Seleziona un corso per la tua nota -</option>
 
                                 {corso.map(c => (
@@ -302,9 +292,10 @@ export default function ModificaNote() {
 
                         <div className="d-grid gap-2">
                             <button type="submit" className="btn-custom" disabled={invioInCorso}>
-                                {invioInCorso ? "Caricamento in corso…" : "Carica nota"}
+                                {invioInCorso ? "Caricamento in corso…" : "Modifica nota"}
                             </button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
+                            <Link to="/libreria" className="btn btn-outline-secondary">Indietro</Link>
                         </div>
 
                         {feedback.show && (

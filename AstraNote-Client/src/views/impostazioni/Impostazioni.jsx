@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
 
@@ -9,7 +8,7 @@ import {
     AVATAR_ICONE,
     AVATAR_COLORI,
     COLORI,
-} from "./Avatar";
+} from "../profile/Avatar.jsx";
 // importare anche la funzione di valutazione con le stelle
 
 // Modifica Profilo

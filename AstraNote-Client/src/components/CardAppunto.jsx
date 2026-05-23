@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useEffect } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import Segnala from "./Segnala";
 import BookMark from "../assets/bookMark.png"
 import BookMarkSelected from "../assets/bookmarkSelected.png"
 import '../style/CardAppunto.css'
 import StelleValutazioni from "./StelleValutazioni";
+import ModificaNote from "./ModificaAppunto";
 
 
 export default function CardAppunto({ appunto, onSave , sectionActivate}) {
@@ -14,6 +15,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
     const [utente, setUtente] = useState([])
     const[autore,setAutore] = useState([])
     const [showSegnala, setShowSegnala] = useState(false);
+    const[showModifica,setShowModifica] = useState(false);
     const [bookMark, setBookMark] = useState(false)
     const [errore, setErrore] = useState(false)
 
@@ -25,6 +27,8 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
     /*Controlla se l'URL corrente è libreria */
     const location = useLocation();
     const isLibreria = location.pathname === "/libreria";
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchCard()
@@ -200,6 +204,20 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
         }
     };
 
+    const modificaAppunto = () => {
+        // Rimuove il backdrop del modal manualmente
+        document.body.classList.remove("modal-open");
+        document.body.style.removeProperty("overflow");
+        document.body.style.removeProperty("padding-right");
+        const backdrop = document.querySelector(".modal-backdrop");
+        if (backdrop) backdrop.remove();
+
+        setTimeout(() => {
+            navigate(`/modifica/${appunto.id}`);
+        }, 300);
+    };
+    
+
 
     return (
         <div className="col-lg-4  col-md-6 col-12">
@@ -283,18 +301,30 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
 
 
                                 {showSegnala && (<Segnala appuntoId={appunto.id} onClose={() => setShowSegnala(false)} />)}
+
                             </div>
                             <div className="modal-footer">
-                                <button className="btn btn-warning me-auto" onClick={() => setShowSegnala(true)}>
-                                    Segnala
-                                </button>
+
+                                {   (!isLibreria || (isLibreria && sectionActivate ==='salvati'))  && 
+                                    <button className="btn btn-warning me-auto" onClick={() => setShowSegnala(true)}>
+                                        Segnala
+                                    </button>
+
+                                }
+            
                                         {
                                             (isLibreria && sectionActivate === 'caricati') && 
-                                             
-                                                <button className="btn  btn-danger " onClick={() => {eliminaAppunto();}}>
-                                                    Elimina
-                                                </button>
-                                            
+                                                <>
+                                                    <button className="btn btn-success me-auto" onClick={() => {modificaAppunto();}}>
+                                                        Modifica
+                                                    </button>
+                                                    
+                                                
+                                                
+                                                    <button className="btn  btn-danger " onClick={() => {eliminaAppunto();}}>
+                                                        Elimina
+                                                    </button>
+                                                </>
                                         }
                                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>
