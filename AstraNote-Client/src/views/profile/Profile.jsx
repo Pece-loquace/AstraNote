@@ -130,7 +130,7 @@ export default function Profilo() {
                     ) : (
                         <div className="row g-3">
                             {appunti.map((appunto) => (
-                                <CardAppunto key={appunto.id} appunto={appunto} />
+                                <CardAppunto key={appunto.id} appunto={appunto} onSave={fetchUtente}/>
 
                             ))}
                         </div>
