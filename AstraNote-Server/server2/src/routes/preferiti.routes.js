@@ -48,7 +48,7 @@ restituisce tutti gli appunti salvati */
 router.get("/api/preferiti_utente", async (req, res) => {
   const { data, error } = await supabase
     .from("preferiti")
-    .select(`appunti (*)`)
+    .select(`appunti(*,corso(*,facolta(*)))`)
     .eq("user_id", req.session.user.id);
 
   if (error) {

@@ -22,14 +22,11 @@ export default function Libreria(){
                 fetch('/api/preferiti_utente'),
                 fetch('/api/appunti_caricati') 
             ])
-            
             if(!res1.ok || !res2.ok ) throw new Error("Impossibile caricare i dati")
             
             const[ris1,ris2] = await Promise.all([res1.json(),res2.json()])
-
             setAppuntiSalvati(ris1)
             setAppuntiCaricati(ris2)
-            console.log(" preferiti aggiornati")
         }catch (error) {
             console.log("Errore nella chiamata")
             console.error(error)

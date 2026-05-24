@@ -12,23 +12,9 @@ router.post("/api/appunti", upload.single("file"), async (req, res) => {
   if (!titolo || !corso || !file) {
     return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
   }
+e4r
 
-  const id_autore = req.session.user.id;
-  const data_creazione = new Date().toISOString();
-  const fileName = `${Date.now()}_${file.originalname}`;
-
-  // Genera thumbnail e upload file in parallelo
-  const [responseUpload, thumbBuffer] = await Promise.all([
-    supabase.storage
-      .from("AstraNote-files")
-      .upload(fileName, file.buffer, { contentType: file.mimetype }),
-    generaThumbnail(file.buffer), // funzione estratta sotto
-  ]);
-
-  if (responseUpload.error) {
-    return res.status(500).json({ error: "Errore nell'upload del file" });
-  }
-
+  console.log("Upload thumbnail")
   // Upload thumbnail e URL file in parallelo
   const publicUrl = supabase.storage
     .from("AstraNote-files")
@@ -63,7 +49,7 @@ router.post("/api/appunti", upload.single("file"), async (req, res) => {
       },
     ])
     .select();
-
+    console.log("Appunto caricato")
   if (dbError) {
     return res.status(500).json({ error: "Errore nell'inserimento dei dati" });
   }
@@ -191,7 +177,7 @@ router.delete("/api/appunti/:id", async (req, res) => {
 router.get("/api/appunti_caricati", async (req, res) => {
   const { data, error } = await supabase
     .from("appunti")
-    .select("*")
+    .select(`*,corso(*,facolta(*))`)
     .eq("id_autore", req.session.user.id);
 
   if (error) {

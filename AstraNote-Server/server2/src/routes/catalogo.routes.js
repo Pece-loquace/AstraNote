@@ -6,11 +6,13 @@ const supabase = require("../config/supabase");
 /*Quando faccio il login nel mio sito devo vedere tutti i corsi che ho nella mia facoltà */
 router.get("/api/corsi", async (req, res) => {
   const { facolta_id } = req.query;
+  console.log("Facoltà in ingresso " + facolta_id)
+
 
   const { data, error } = await supabase
     .from("corsi")
     .select("*")
-    .eq("facoltà", facolta_id);
+    .eq("facolta", facolta_id);
 
   console.log(data);
   console.log(error);
