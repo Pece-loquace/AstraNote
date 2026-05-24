@@ -1,0 +1,11 @@
+.missionLogo {
+    width: 350px;
+    height: 200px;
+}
+
+@media (max-width: 768px) {
+    .missionLogo {
+        width: 300px;
+        height: 170px;
+    }
+}

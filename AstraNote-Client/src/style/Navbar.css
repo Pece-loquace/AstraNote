@@ -16,7 +16,7 @@
 
 .logo {
     padding-left: 15px;
-    width: 80px;
+    width: 100px;
     gap: 10px;
     cursor: pointer;
     transition: 0.2s;
@@ -26,11 +26,38 @@
     filter: invert(15%);
 }
 
+.uploadCnt {
+    display: flex;
+    padding: 15px;
+    gap: 10px;
+    color: #620821;
+    border: 2px solid transparent;
+
+    &:hover {
+        border-color: white;
+    }
+    &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+.uploadIcon {
+    width: 40px;
+    color: white;
+    border-radius: 4px;
+}
+
+.upload {
+    padding: 10px;
+    text-decoration: none;
+}
+
 .libraryCnt {
     display: flex;
     padding: 15px;
     gap: 10px;
-    color: rgb(77, 19, 5);
+    color: #620821;
     border: 2px solid transparent;
 
     &:hover {
@@ -44,11 +71,13 @@
 
 .libraryIcon {
     width: 40px;
+    color: white;
     border-radius: 4px;
 }
 
 .library {
-    padding: 12px;
+    padding: 10px;
+    text-decoration: none;
 }
 
 .searchCnt {
@@ -81,7 +110,23 @@
     display: flex;
     padding: 15px;
     gap: 10px;
-    color: rgb(77, 19, 5);
+    color: #620821;
+    border: 2px solid transparent;
+
+    &:hover {
+        border-color: white;
+    }
+    &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+.profileCnt {
+    display: flex;
+    padding: 15px;
+    gap: 10px;
+    color: #620821;
     border: 2px solid transparent;
 
     &:hover {
@@ -95,35 +140,64 @@
 
 .profileIcon {
     width: 40px;
-    filter: invert(100%);
+    color: white;
     border-radius: 4px;
 }
 
 .profile {
-    background-color: rgb(77, 19, 5);
-    padding: 12px;
+    background-color: #620821;
+    padding: 10px;
+    color: white;
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background-color: #620821 !important; 
+    color: white !important;             
+    cursor: pointer;                      
+}
+
+.hamburger {
+    z-index: 150;
+    display: flex;
+    height: 100dvh;
+    width: 0;
+    max-width: 100vw;
+    opacity: 0;
+    top: 0px;
+    right: 0px;
+    background-color: rgb(255, 255, 255);
+    position: fixed;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
+}
+
+.hamburger.open {
+    width: 40%;
+    opacity: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .settingsCntMobile {
     display: none;
 }
 
-.dropdown-item:hover {
 .menuCnt {
     display:none;
 }
 
-    background-color: #782d41 !important; 
-    color: white !important;             
-    cursor: pointer;                      
-}
-
-@media (max-width: 431px) {
+@media (max-width: 768px) {
     .logo {
         width: 85px;
     }
 
     .libraryCnt {
+        display: none;
+    }
+
+    .uploadCnt {
         display: none;
     }
 
@@ -189,7 +263,7 @@
         min-width: 100%;
         min-height: 100vh;
         margin: 0px;
-        background-color: #620821;
+        background-color: #f7f3f4;
     }
 
     .menuHeaderCnt {
@@ -218,52 +292,106 @@
 
     .menuLogo {
         z-index: 200px;
-        width: 190px;
-        height: 140px;
+        width: 150px;
+        height: 80px;
     }
 
     .menuClose {
         position: absolute;
-        top: 0px;
-        right: 0px;
+        top: 12px;
+        right: 4px;
     }
 
-    .menuCloseBtn {
-        display: flex;
-        -webkit-box-align: center;
-        align-items: center;
-        -webkit-box-pack: center;
-        justify-content: center;
-        border-radius: 0.25rem;
-        text-decoration: none;
-        cursor: pointer;
-        background-color: transparent;
-        color: rgb(255, 255, 255);
-        transition-duration: 0.5s;
-        transition-property: color;
-        width: 1.5rem;
-        height: 1.5rem;
-        font-size: 0.75rem;
-        line-height: 0;
-        font-weight: 600;
-        text-transform: none;
-        letter-spacing: 0.04em;
-    }
     .menuCloseSvg {
-        width: 1rem;
-        height: 1rem;
+        width: 36px;
+        height: 36px;
         display: inline-flex;
     }
 
     .menuCnt.open {
-        transform: translateY(9px);
+        transform: translateY(0px);
+    }
+
+    .menuOptionsCnt {
+        overflow: hidden;
+    }
+
+    .clickCnt {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .menuOptions_2 {
+        width: 100%;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .optionCnt {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .optionChild {
+        padding: 0px;
+        display: flex;
+        align-items: flex-start;
+        align-content: flex-start;
+        border-radius: 0.25rem;
+    }
+
+    .optionSvgCnt {
+        margin-right: 1.5rem;
+    }
+
+    .optionSvg {
+        width: 36px;
+        height: 36px;
+    }
+
+    .optionContent {
+        display: flex;
+        -webkit-box-align: center;
+        align-items: center;
+        flex-direction: row;
+        gap: 1rem;
+    }
+
+    .optionTitle {
+        margin: 0px;
+        color: rgb(0, 0, 0);
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0px;
+    }
+
+    .optionSubtitle {
+        margin: 0px;
+        color: inherit;
+        font-size: 0.688rem;
+        line-height: 1rem;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0.02em;
     }
 }
 
 @media (min-width: 768) and (max-width: 1024) {
+    .uploadCnt {
+        display: none;
+    }
+
     .logo {
         padding-left: 25px;
-        width: 90px;
+        width: 100px;
         gap: 20px;
     }
 
