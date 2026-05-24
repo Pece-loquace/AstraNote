@@ -1,12 +1,13 @@
 import React from 'react';
-import "./Profile.css";
-import profile from "../../assets/profile.svg";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
-import { useState } from 'react';
-import { useEffect } from 'react';
+import "./Profile.css";
+
+import profile from "../../assets/profile.svg";
 import CardAppunto from "../../components/CardAppunto";
-import Avatar from './Avatar';
+import Avatar from "../../components/Avatar";
 
 export default function Profilo() {
     const [utente, setUtente] = useState({});
@@ -50,10 +51,10 @@ export default function Profilo() {
 
 
     return (
-        <main className="min-vh-100 d-flex align-items-center justify-content-center py-1">
+        <main className="min-vh-100 d-flex align-items-center justify-content-center py-3">
             <div className="container align-items-center py-2">
                 <div className="card border-primary-subtle shadow-sm mb-4">
-                    <div className="card-body align-items-center py-4">
+                    <div className="card-body align-items-center py-5">
                         <div className="row align-items-center g-1">
 
                             <div className="col-12 col-md-auto text-center">
@@ -88,18 +89,9 @@ export default function Profilo() {
                                 <div className="h5 mb-3">{mediaUtente}</div>
 
                                 {/* Modifica */}
-
-                                {/* modifica={() => setVista('modifica')} */}
-
                                 <hr className="my-4" />
                                 <div className="justify-content-end">
-                                    <button
-                                        type="button"
-                                        className="btn btn-primary"
-                                    // onClick={modifica}
-                                    >
-                                        Modifica profilo
-                                    </button>
+                                    <Link to="/impostazioni" className="btn btn-primary">Modifica profilo</Link>
                                 </div>
                             </div>
                         </div>
@@ -137,6 +129,6 @@ export default function Profilo() {
                 }
 
             </div>
-        </main>
+        </main >
     );
 }
