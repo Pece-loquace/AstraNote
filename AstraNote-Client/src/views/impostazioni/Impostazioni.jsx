@@ -56,8 +56,8 @@ export default function Impostazioni() {
                 setListaFacolta(facolta);
 
                 // sincronizza il form con i dati dell'utente
-                setForm((prev) => ({
-                    ...prev,
+                setForm((statoPrecendete) => ({
+                    ...statoPrecendete,
                     nome: user.nome || "",
                     cognome: user.cognome || "",
                     matricola: user.matricola || "",
@@ -81,10 +81,10 @@ export default function Impostazioni() {
 
     // helper
     const setField = (key, value) =>
-        setForm((prev) => ({ ...prev, [key]: value }));
+        setForm((statoPrecendete) => ({ ...statoPrecendete, [key]: value }));
 
     const setAvatar = (key, value) =>
-        setForm((prev) => ({ ...prev, avatar: { ...prev.avatar, [key]: value } }));
+        setForm((statoPrecendete) => ({ ...statoPrecendete, avatar: { ...statoPrecendete.avatar, [key]: value } }));
 
     // salvataggio
     const handleSubmit = async (evento) => {
@@ -104,7 +104,7 @@ export default function Impostazioni() {
             // ⚠️ IMPORTANTE! ⚠️
             // sostituire con l'endpoint reale di aggiornamento profilo
             // verifica il metodo che ha il backend sia PUT o POST
-            const res = await fetch(`/api/utente/${utente.id}`, {
+            const risposta = await fetch(`/api/utente/${utente.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 // adatta il payload ai nomi che il backend si aspetta.
@@ -119,7 +119,7 @@ export default function Impostazioni() {
                 }),
             });
 
-            if (!res.ok) {
+            if (!risposta.ok) {
                 // se il backend restituisce un messaggio JSON tipo { errore: "..." },
                 // puoi estrarlo qui e mostrarlo all'utente
                 throw new Error("Errore durante il salvataggio del profilo");
@@ -128,7 +128,7 @@ export default function Impostazioni() {
             setSuccesso("Modifiche salvate correttamente!");
 
             // decidi se reindirizzare subito o lasciare il messaggio visibile.
-            // Adesso il sito aspetta 1 secondo per far leggere il messaggio, poi torna al profilo.
+            // adesso il sito aspetta 1 secondo per far leggere il messaggio, poi torna al profilo.
             setTimeout(() => navigate("/profilo"), 1000);
         } catch (err) {
             console.error(err);
@@ -245,7 +245,7 @@ export default function Impostazioni() {
                                             type="text"
                                             className="form-control"
                                             value={form.nome}
-                                            onChange={(e) => setField("nome", e.target.value)}
+                                            onChange={(evento) => setField("nome", evento.target.value)}
                                             required
                                         />
                                     </div>
@@ -259,7 +259,7 @@ export default function Impostazioni() {
                                             type="text"
                                             className="form-control"
                                             value={form.cognome}
-                                            onChange={(e) => setField("cognome", e.target.value)}
+                                            onChange={(evento) => setField("cognome", evento.target.value)}
                                             disabled
                                         />
                                     </div>
@@ -273,7 +273,7 @@ export default function Impostazioni() {
                                             type="text"
                                             className="form-control"
                                             value={form.matricola}
-                                            onChange={(e) => setField("matricola", e.target.value)}
+                                            onChange={(evento) => setField("matricola", evento.target.value)}
                                             disabled
                                         />
                                     </div>
@@ -284,21 +284,21 @@ export default function Impostazioni() {
                                             Facoltà
                                         </label>
                                         {/* se il backend restituisce campi con nomi diversi,
-                                            modifica `f.id` e `f.nome` qui sotto.
-                                            Esempi alternativi: f.codice / f.denominazione */}
+                                            modifica `facoltà.id` e `facoltà.nome` qui sotto
+                                         */}
                                         <select
                                             id="facolta"
                                             className="form-select"
                                             value={form.facolta}
-                                            onChange={(e) => setField("facolta", e.target.value)}
+                                            onChange={(evento) => setField("facolta", evento.target.value)}
                                             required
                                         >
                                             <option value="" disabled>
                                                 Seleziona una facoltà
                                             </option>
-                                            {listaFacolta.map((f) => (
-                                                <option key={f.id} value={f.id}>
-                                                    {f.nome}
+                                            {listaFacolta.map((facoltà) => (
+                                                <option key={facoltà.id} value={facoltà.id}>
+                                                    {facoltà.nome}
                                                 </option>
                                             ))}
                                         </select>
@@ -313,7 +313,7 @@ export default function Impostazioni() {
                                             type="password"
                                             className="form-control"
                                             value={form.password}
-                                            onChange={(e) => setField("password", e.target.value)}
+                                            onChange={(evento) => setField("password", evento.target.value)}
                                             autoComplete="current-password"
                                             required
                                         />
@@ -331,8 +331,8 @@ export default function Impostazioni() {
                                             type="password"
                                             className="form-control"
                                             value={form.nuovaPassword}
-                                            onChange={(e) =>
-                                                setField("nuovaPassword", e.target.value)
+                                            onChange={(evento) =>
+                                                setField("nuovaPassword", evento.target.value)
                                             }
                                             autoComplete="new-password"
                                         />
@@ -350,8 +350,8 @@ export default function Impostazioni() {
                                             type="password"
                                             className="form-control"
                                             value={form.confermaPassword}
-                                            onChange={(e) =>
-                                                setField("confermaPassword", e.target.value)
+                                            onChange={(evento) =>
+                                                setField("confermaPassword", evento.target.value)
                                             }
                                             autoComplete="new-password"
                                         />
