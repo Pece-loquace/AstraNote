@@ -159,7 +159,6 @@
 
 .hamburger {
     z-index: 150;
-    display: flex;
     height: 100dvh;
     width: 0;
     max-width: 100vw;
@@ -173,11 +172,146 @@
     transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
 }
 
+.hamburger_child_1 {
+    display: flex;
+    flex: 1 1 0%;
+    min-height: 0px;
+}
+
+.hamburger_child_2 {
+    flex: 1 1 0%;
+    overflow: auto;
+}
+
+.profileSection {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 100%;
+    min-height: 100vh;
+    margin: 0px;
+    background-color: #f7f3f4;
+}
+
+.profileHeaderCnt {
+    z-index: 120;
+    position: sticky;
+    top: 0px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+
+.profileH_child {
+    width: 100%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profileHeader {
+    display: flex;
+    justify-content: center;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    position: relative;
+}
+
+.profileClose {
+    top: 5px;
+    left: 0px;
+}
+
+.profileLogo {
+    width: 170px;
+    height: 100px;
+}
+
+.profileCloseSvg {
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+}
+
 .hamburger.open {
-    width: 40%;
+    width: 20%;
     opacity: 1;
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+.profileOptionsCnt {
+    overflow: hidden;
+}
+
+.clickCnt {
+    color: inherit;
+    text-decoration: none;
+}
+
+.profileOptions_child {
+    width: 100%;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.optionCnt {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    position: relative;
+}
+
+.optionChild {
+    padding: 0px;
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    border-radius: 0.25rem;
+}
+
+.optionSvgCnt {
+    margin-right: 1.5rem;
+}
+
+.optionSvg {
+    width: 36px;
+    height: 36px;
+}
+
+.optionContent {
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.optionTitle {
+    margin: 0px;
+    color: rgb(0, 0, 0);
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0px;
+}
+
+.optionSubtitle {
+    margin: 0px;
+    color: inherit;
+    font-size: 0.688rem;
+    line-height: 1rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0.02em;
 }
 
 .settingsCntMobile {
@@ -191,6 +325,14 @@
 @media (max-width: 768px) {
     .logo {
         width: 85px;
+    }
+
+    .hamburger {
+        display: none;
+    }
+
+    .profileCnt {
+        display: none;
     }
 
     .libraryCnt {

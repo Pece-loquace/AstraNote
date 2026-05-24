@@ -6,74 +6,90 @@ import { Link, useNavigate } from 'react-router-dom'
 function Mission() {
     return (
         <>
-        <div className="missionCnt">
-            <div>
+            <div className="missionCnt">
                 <div>
-                    <section>
-                        <div>
+                    <div>
+                        <section>
                             <div>
                                 <div>
-                                    <Link to="/homepage"><img src={logo} alt="" className="missionLogo"/></Link>
-                                </div>
-                                <div>
-                                    <span>
-                                        <span className="h3">
-                                            Se vuoi condividere o ricercare appunti di studenti Sapienza, <br />
-                                            questo è il posto giusto per te!
+                                    <div>
+                                        <Link to="/homepage"><img src={logo} alt="" className="missionLogo" /></Link>
+                                    </div>
+                                    <div>
+                                        <span>
+                                            <span className="h3">
+                                                Se vuoi condividere o cercare appunti di studenti de La Sapienza, <br />
+                                                questo è il posto giusto per te!
+                                            </span>
                                         </span>
-                                    </span>
+                                    </div>
                                 </div>
+                                <hr />
                             </div>
-                            <hr />
-                        </div>
+                            <div className='h6'>
+                                <p>
+                                    "Per Aspera Ad Astra"<br />
+                                    "Attraverso le difficoltà, fino alle stelle."<br />
+                                    -Seneca<br />
+                                </p>
+                            </div>
 
-                        <div>
                             <div>
                                 <div>
-                                    <span>
-                                        <span className="h6">
-                                            Quante volte è capitato ad ognuno di noi <br />
-                                            di ricevere o inviare delle dispense <br />
-                                            sulle chat di Whatsapp, per poi non riuscire <br />
-                                            a ritrovarle? A noi tante... <br />
-                                            <br />
-                                            Se non vi è mai capitato, buon per voi, <br />
-                                            ma se esistesse un'area dedicata solamente <br />
-                                            allo scambio di dispense tra studenti <br />
-                                            iscritti alla Sapienza, non la usereste? <br />
-                                            <br />
-                                            Questo sito nasce da questa idea, ovvero <br />
-                                            dalla volontà di avere uno spazio totalmente <br />
-                                            riservato alla condivisione di materiale <br />
-                                            didattico tra studenti iscritti alla Sapienza. <br />
-                                            <br />
-                                            L'utilizzo della mail certificata Sapienza <br />
-                                            garantisce l'autenticità dei profili e <br />
-                                            inoltre non è necessario il download <br />
-                                            delle dispense grazie alla visualizzazione <br />
-                                            all'interno del browser. <br />
-                                            <br />
-                                            Puoi caricare i tuoi appunti, puoi salvare <br />
-                                            appunti di altri studenti e tramite le recensioni <br />
-                                            puoi giudicare la qualità di una qualsiasi dispensa. <br />
-                                            <br />
-                                            Whatsapp rimane per alcuni lo strumento più <br />
-                                            comodo, ma se non vuoi condividere il tuo <br />
-                                            numero di telefono o semplicemente vuoi tenere <br />
-                                            il tuo materiale di studio in uno spazio <br />
-                                            virtuale unico e sicuro, allora <br />
-                                            AstraNote è la scelta giusta per te! <br />
-                                            <br />
-                                            Buono Studio!!!
+                                    <div>
+                                        <span>
+                                            <span className="h6">
+
+                                                Quante volte ti è capitato <br />
+                                                di cercare degli appunti (senza succeso) <br />
+                                                nella speranza che ti aiutassero per un esame? <br />
+                                                Quante volte hai scaricato degli appunti<br />
+                                                senza sapere di chi fossero?<br />
+                                                Quante volte hai condiviso degli appunti<br />
+                                                che poi non ti sono mai stati attribuiti?<br />
+                                                Quante volte hai perso degli appunti <br />
+                                                (presi da chissà dove) <br />
+                                                e che non hai più ritrovato? <br />
+                                                <br />
+                                                Se non ti è mai capitato, buon per te! <br />
+                                                Ma se esistesse un'area dedicata soltanto <br />
+                                                allo scambio di dispense tra studenti <br />
+                                                de La Sapienza, non la useresti? <br />
+                                                <br />
+                                                Il nostro sito nasce proprio da questa idea: <br />
+                                                avere uno spazio completamente <br />
+                                                dedicato alla condivisione di materiale <br />
+                                                didattico tra gli studenti iscritti a La Sapienza. <br />
+                                                <br />
+                                                L'utilizzo della mail certificata Sapienza <br />
+                                                garantisce la tracciabilità, nonché l'autenticità <br />
+                                                di autori e appunti caricati sul sito.<br />
+                                                <br />
+                                                Su AstraNote puoi caricare i tuoi appunti, puoi salvare <br />
+                                                quelli di altri studenti e (votando con delle stelle) <br />
+                                                puoi valutare la qualità di una qualsiasi dispensa. <br />
+                                                <br />
+                                                Per alcuni, i gruppi di chat online<br />
+                                                sono lo strumento di condivisione più comodo.<br />
+                                                Ma, se vuoi tenere in ordine <br />
+                                                il tuo materiale di studio in uno spazio <br />
+                                                virtuale unico, sicuro e certificato Sapienza, <br />
+                                                allora AstraNote è la scelta giusta per te! <br />
+                                                <br />
+                                                Creato da studenti Sapienza<br />
+                                                per gli studenti della Sapienza.<br />
+                                                Buono Studio!!! <br />
+
+
+                                            </span>
                                         </span>
-                                    </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
+                    </div>
                 </div>
             </div>
-        </div>
         </>
     )
 }
