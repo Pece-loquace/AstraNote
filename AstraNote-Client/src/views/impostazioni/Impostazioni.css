@@ -1,0 +1,15 @@
+:root {
+    --bordeaux: #620821;
+    --paper: #faf5eb;
+    --border: #faf5eb;
+}
+
+/* Anteprima nella pagina impostazioni */
+.foto-profilo-preview {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--paper, --border);
+    background-color: var(--bordeaux);
+}

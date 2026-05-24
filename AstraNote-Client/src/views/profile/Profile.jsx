@@ -5,9 +5,8 @@ import "../../style/bootstrap.css";
 import "../../style/buttons.css";
 import "./Profile.css";
 
-import profile from "../../assets/profile.svg";
+import profile from "../../assets/profile-circle.svg";
 import CardAppunto from "../../components/CardAppunto";
-import Avatar from "../../components/Avatar";
 
 export default function Profilo() {
     const [utente, setUtente] = useState({});
@@ -48,27 +47,24 @@ export default function Profilo() {
         }
     }
 
-
+    // Se l'utente ha caricato una foto, il backend dovrebbe restituirne il
+    // percorso/URL in "utente.foto_profilo". In caso contrario, viene mostrata
+    // l'immagine di default "profile.svg".
+    const fotoSrc = utente.foto_profilo ? utente.foto_profilo : profile;
 
     return (
         <main className="min-vh-100 d-flex align-items-center justify-content-center py-3">
             <div className="container align-items-center py-2">
-                <div className="card border-primary-subtle shadow-sm mb-4">
+                <div className="card shadow-sm mb-4">
                     <div className="card-body align-items-center py-5">
                         <div className="row align-items-center g-1">
 
                             <div className="col-12 col-md-auto text-center">
-                                {/* Test Avatar */}
-
-                                <div className="col-12 col-md-auto text-center">
-                                    <Avatar
-                                        iconaId={Avatar.iconaId}
-                                        iconaColore={Avatar.iconaColore}
-                                        bgColore={Avatar.sfondoColore}
-                                        size={Avatar.size}
-                                    />
-                                </div>
-
+                                <img
+                                    src={fotoSrc}
+                                    alt="Foto profilo"
+                                    className="foto-profilo rounded-circle"
+                                />
                             </div>
 
                             {/* Informazioni utente */}

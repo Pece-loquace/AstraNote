@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
-import Avatar, {
-    AVATAR_ICONE,
-    AVATAR_COLORI,
-    COLORI,
-} from "../../components/Avatar";
+import profileDefault from "../../assets/profile-circle.svg";
+import "./Impostazioni.css"
 
 // Modifica Profilo
+
+const FILE_MAX = 100 * 1024 * 1024; //(100MB)
 
 export default function Impostazioni() {
     const navigate = useNavigate();
@@ -21,6 +20,11 @@ export default function Impostazioni() {
     const [errore, setErrore] = useState(null);
     const [successo, setSuccesso] = useState(null);
 
+    // anteprima foto: tiene sia il File da caricare sia l'URL per la <img>
+    const [fotoFile, setFotoFile] = useState(null);
+    const [fotoPreview, setFotoPreview] = useState(null);
+    const inputFotoRef = useRef(null);
+
     const [form, setForm] = useState({
         nome: "",
         cognome: "",
@@ -29,11 +33,6 @@ export default function Impostazioni() {
         password: "",
         nuovaPassword: "",
         confermaPassword: "",
-        avatar: {
-            iconaId: AVATAR_ICONE[0].id,
-            iconaColore: "bianco",
-            sfondoColore: "rosso",
-        },
     });
 
     // fetch
@@ -62,11 +61,6 @@ export default function Impostazioni() {
                     cognome: user.cognome || "",
                     matricola: user.matricola || "",
                     facolta: user.facolta || "",
-                    avatar: {
-                        iconaId: user.avatar?.iconaId || AVATAR_ICONE[0].id,
-                        iconaColore: user.avatar?.iconaColore || "bianco",
-                        sfondoColore: user.avatar?.sfondoColore || "rosso",
-                    },
                 }));
             } catch (err) {
                 console.error(err);
@@ -79,12 +73,60 @@ export default function Impostazioni() {
         fetchDati();
     }, []);
 
+    // libera l'URL temporaneo dell'anteprima quando viene sostituita o
+    // quando il componente viene smontato (evita memory leak)
+    useEffect(() => {
+        return () => {
+            if (fotoPreview && fotoPreview.startsWith("blob:")) {
+                URL.revokeObjectURL(fotoPreview);
+            }
+        };
+    }, [fotoPreview]);
+
     // helper
     const setField = (key, value) =>
         setForm((statoPrecendete) => ({ ...statoPrecendete, [key]: value }));
 
-    const setAvatar = (key, value) =>
-        setForm((statoPrecendete) => ({ ...statoPrecendete, avatar: { ...statoPrecendete.avatar, [key]: value } }));
+    // gestione upload foto
+    const handleFotoChange = (evento) => {
+        const file = evento.target.files?.[0];
+        if (!file) return;
+
+        // controllo base: solo immagini, max 100 MB
+        if (!file.type.startsWith("image/")) {
+            setErrore("Il file selezionato non è un'immagine valida");
+            return;
+        }
+        if (file.size > FILE_MAX) {
+            setErrore("L'immagine non può superare i 100 MB");
+            return;
+        }
+
+        // rilascia eventuale anteprima precedente prima di crearne una nuova
+        if (fotoPreview && fotoPreview.startsWith("blob:")) {
+            URL.revokeObjectURL(fotoPreview);
+        }
+
+        setErrore(null);
+        setFotoFile(file);
+        setFotoPreview(URL.createObjectURL(file));
+    };
+
+    const rimuoviFotoSelezionata = () => {
+        if (fotoPreview && fotoPreview.startsWith("blob:")) {
+            URL.revokeObjectURL(fotoPreview);
+        }
+        setFotoFile(null);
+        setFotoPreview(null);
+        if (inputFotoRef.current) {
+            inputFotoRef.current.value = "";
+        }
+    };
+
+    // sorgente da mostrare nell'anteprima: priorità a nuova selezione,
+    // poi foto già salvata sul profilo, infine immagine di default
+    const anteprimaSrc =
+        fotoPreview || utente?.foto_profilo || profileDefault;
 
     // salvataggio
     const handleSubmit = async (evento) => {
@@ -102,32 +144,31 @@ export default function Impostazioni() {
             setSalvataggio(true);
 
             // ⚠️ IMPORTANTE! ⚠️
+            // Il backend deve accettare multipart/form-data su questo endpoint
+            // per poter ricevere il file. Se la foto non viene modificata, il
+            // campo "foto" non viene inviato e il backend deve mantenere quella
+            // attuale.
+            const formData = new FormData();
+            formData.append("nome", form.nome);
+            formData.append("facolta", form.facolta);
+            if (form.password) formData.append("passwordAttuale", form.password);
+            if (form.nuovaPassword) formData.append("nuovaPassword", form.nuovaPassword);
+            if (fotoFile) formData.append("foto", fotoFile);
+
             // sostituire con l'endpoint reale di aggiornamento profilo
-            // verifica il metodo che ha il backend sia PUT o POST
             const risposta = await fetch(`/api/utente/${utente.id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                // adatta il payload ai nomi che il backend si aspetta.
-                // se il server non gestisce il cambio password in questo endpoint,
-                // rimuovi i tre campi password da qui e crea una chiamata separata.
-                body: JSON.stringify({
-                    nome: form.nome,
-                    facolta: form.facolta,
-                    avatar: form.avatar,
-                    passwordAttuale: form.password || undefined,
-                    nuovaPassword: form.nuovaPassword || undefined,
-                }),
+                body: formData,
             });
 
             if (!risposta.ok) {
-                // se il backend restituisce un messaggio JSON tipo { errore: "..." },
-                // puoi estrarlo qui e mostrarlo all'utente
+                // se il backend restituisce un messaggio errore
+                // si può mostrare all'utente da qui
                 throw new Error("Errore durante il salvataggio del profilo");
             }
 
             setSuccesso("Modifiche salvate correttamente!");
 
-            // decidi se reindirizzare subito o lasciare il messaggio visibile.
             // adesso il sito aspetta 1 secondo per far leggere il messaggio, poi torna al profilo.
             setTimeout(() => navigate("/profilo"), 1000);
         } catch (err) {
@@ -168,63 +209,55 @@ export default function Impostazioni() {
             <form onSubmit={handleSubmit}>
                 <div className="row g-4">
 
-                    {/* Colonna sinistra: personalizza avatar */}
+                    {/* Colonna sinistra: foto profilo */}
                     <div className="col-12 col-lg-5">
                         <div className="card border-0 shadow-sm h-100">
                             <div className="card-body p-3">
-                                <h3 className="fw-semibold mb-4">Avatar</h3>
+                                <h3 className="fw-semibold mb-4">Foto profilo</h3>
 
                                 <div className="text-center mb-4">
-                                    <Avatar
-                                        iconaId={form.avatar.iconaId}
-                                        iconaColore={form.avatar.iconaColore}
-                                        sfondoColore={form.avatar.sfondoColore}
-                                        size={140}
+                                    <img
+                                        src={anteprimaSrc}
+                                        alt="Anteprima foto profilo"
+                                        className="foto-profilo-preview"
                                     />
                                 </div>
 
-                                <label className="form-label small fw-medium text-uppercase text-muted">
-                                    Icona
-                                </label>
-                                <div className="d-flex flex-wrap justify-content-center gap-2 mb-4">
-                                    {AVATAR_ICONE.map(({ id, descrizione, Component }) => {
-                                        const selected = form.avatar.iconaId === id;
-                                        return (
-                                            <button
-                                                key={id}
-                                                type="button"
-                                                onClick={() => setAvatar("iconaId", id)}
-                                                className={`btn p-2 ${selected ? "btn-primary" : "btn-outline-secondary"
-                                                    }`}
-                                                style={{ width: 48, height: 48, lineHeight: 0 }}
-                                                title={descrizione}
-                                                aria-label={descrizione}
-                                                aria-pressed={selected}
-                                            >
-                                                <Component
-                                                    color={selected ? "#fff" : "#000"}
-                                                    size={28}
-                                                />
-                                            </button>
-                                        );
-                                    })}
+                                {/* input file nascosto, attivato dal pulsante */}
+                                <input
+                                    ref={inputFotoRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFotoChange}
+                                    className="d-none"
+                                    id="foto-input"
+                                />
+
+                                <div className="d-flex flex-column gap-2">
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary"
+                                        onClick={() => inputFotoRef.current?.click()}
+                                    >
+                                        {fotoFile || utente?.foto_profilo
+                                            ? "Cambia foto"
+                                            : "Carica foto"}
+                                    </button>
+
+                                    {fotoFile && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-outline-secondary"
+                                            onClick={rimuoviFotoSelezionata}
+                                        >
+                                            Annulla selezione
+                                        </button>
+                                    )}
                                 </div>
 
-                                <label className="form-label small fw-medium text-uppercase text-muted mt-4 p-1">
-                                    Colore icona
-                                </label>
-                                <ColoreSelezione
-                                    selected={form.avatar.iconaColore}
-                                    onSelect={(colore) => setAvatar("iconaColore", colore)}
-                                />
-
-                                <label className="form-label small fw-medium text-uppercase text-muted mt-4 p-1">
-                                    Colore sfondo
-                                </label>
-                                <ColoreSelezione
-                                    selected={form.avatar.sfondoColore}
-                                    onSelect={(colore) => setAvatar("sfondoColore", colore)}
-                                />
+                                <p className="form-text text-center mt-3 mb-0">
+                                    Formati supportati: JPG, PNG. Dimensione massima 100 MB.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -385,43 +418,4 @@ export default function Impostazioni() {
             </form>
         </div>
     );
-}
-
-// Selezione colori 
-function ColoreSelezione({ selected, onSelect }) {
-    return (
-        <div className="d-flex flex-wrap justify-content-center gap-2">
-            {COLORI.map((chiaveColore) => {
-                const isSelected = selected === chiaveColore;
-                const color = AVATAR_COLORI[chiaveColore];
-                return (
-                    <button
-                        key={chiaveColore}
-                        type="button"
-                        onClick={() => onSelect(chiaveColore)}
-                        title={maiuscolo(chiaveColore)}
-                        aria-label={maiuscolo(chiaveColore)}
-                        aria-pressed={isSelected}
-                        className="btn p-0 rounded-circle"
-                        style={{
-                            width: 36,
-                            height: 36,
-                            backgroundColor: color,
-                            border: isSelected
-                                ? "3px solid rgb(15, 110, 255)"
-                                : "1px solid rgb(195, 195, 195)",
-                            boxShadow: isSelected ? "0 0 0 2px #fff inset" : "none",
-                        }}
-                    />
-                );
-            })}
-        </div>
-    );
-}
-
-// Questa funzione è stata aggiunta solo per avere titolo
-// e accessibilità migliore, volendo si può eliminare
-
-function maiuscolo(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
 }

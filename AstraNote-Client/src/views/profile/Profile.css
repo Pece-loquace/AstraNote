@@ -1,11 +1,15 @@
-.container-personalizzato {
-    background-clip: padding-box;
-    box-shadow: 0 0 0 1px var(--paper);
-}
-
 :root {
     --bordeaux: #782d41;
     --bordeaux-dark: #5a232d;
     --paper: #faf5eb;
     --border: #faf5eb;
+}
+
+/* Foto profilo: cerchio fisso, ritaglio centrato anche se l'immagine non è quadrata */
+.foto-profilo {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border: 2px solid var(--paper, #faf5eb);
+    background-color: var(--bordeaux);
 }
