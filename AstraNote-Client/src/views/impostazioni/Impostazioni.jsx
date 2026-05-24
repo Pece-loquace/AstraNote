@@ -364,7 +364,7 @@ export default function Impostazioni() {
                                 {/* Pulsanti */}
                                 <hr className="my-4" />
                                 <div className="d-flex gap-2 justify-content-end">
-                                    {/* TODO: verificare la rotta /profilo */}
+                                    {/* verifica la rotta /profilo */}
                                     <button type="button"
                                         className="btn btn-outline-secondary"
                                         onClick={() => navigate(-1)}>
@@ -387,7 +387,7 @@ export default function Impostazioni() {
     );
 }
 
-// ---- Selezione colori ----
+// Selezione colori 
 function ColoreSelezione({ selected, onSelect }) {
     return (
         <div className="d-flex flex-wrap justify-content-center gap-2">
@@ -418,6 +418,9 @@ function ColoreSelezione({ selected, onSelect }) {
         </div>
     );
 }
+
+// Questa funzione è stata aggiunta solo per avere titolo
+// e accessibilità migliore, volendo si può eliminare
 
 function maiuscolo(s) {
     return s.charAt(0).toUpperCase() + s.slice(1);
