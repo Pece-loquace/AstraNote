@@ -1,7 +1,15 @@
 
-.bookmark{
-    cursor:pointer;
-    
+.bookmarkImg{
+    width: 24px;
+    height: 24px; 
+    cursor: pointer
+}
+
+.pencilImg{
+    width: 22px;
+    height: 22px;
+    margin-top: 8px;
+    cursor: pointer;
 }
 
 

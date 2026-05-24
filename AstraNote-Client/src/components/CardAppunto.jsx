@@ -7,6 +7,7 @@ import BookMarkSelected from "../assets/bookmarkSelected.png"
 import '../style/CardAppunto.css'
 import StelleValutazioni from "./StelleValutazioni";
 import ModificaNote from "./ModificaAppunto";
+import Matita from "../assets/matita.svg"
 
 
 export default function CardAppunto({ appunto, onSave , sectionActivate}) {
@@ -243,6 +244,37 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                         if (isLibreria) { onSave(); }
                     }}
                 />
+                <div className="position-absolute top-0 end-0 m-2 d-flex flex-column align-items-center" style={{ zIndex: 1 }}>
+    
+                    {/* Bookmark */}
+                    <img 
+                        src={bookMark ? BookMarkSelected : BookMark}
+                        className="bookmarkImg"
+                        onClick={() => {
+                            if (!bookMark) {
+                                saveCard();
+                            } else {
+                                deleteSavedCard();
+                            }
+
+                            setBookMark(!bookMark);
+
+                            if (isLibreria) {
+                                onSave();
+                            }
+                        }}
+                    />
+
+                    {/* Matita */}
+                    {(isLibreria && sectionActivate === 'caricati') && (
+                        <img className="pencilImg"
+                            src={Matita}
+                            alt="Modifica"
+                            onClick={modificaAppunto}
+                        />
+                    )}
+                </div>
+
 
                 {
                     errore && (
@@ -255,8 +287,9 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
 
                 <div className="d-flex w-100 position-relative h-100" >
                     <img className="col-4 object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
-                    <div className="d-flex flex-column ms-2 h-100 w-100">
-                        <h5>{appunto.titolo}</h5>
+                    <div className="d-flex flex-column ms-2 h-100 w-100 pe-3">
+                        {/*Text- break forza il ritorno a capo anche per parole lunghe */}
+                        <h5 className="text-break">{appunto.titolo}</h5> 
                         <span>{stelle}</span>
                         <span>( {recensioni.length} recensioni)</span>
                         <button type="button" className="btn btn-primary mt-auto " data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
@@ -314,17 +347,11 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
             
                                         {
                                             (isLibreria && sectionActivate === 'caricati') && 
-                                                <>
-                                                    <button className="btn btn-success me-auto" onClick={() => {modificaAppunto();}}>
-                                                        Modifica
-                                                    </button>
-                                                    
-                                                
                                                 
                                                     <button className="btn  btn-danger " onClick={() => {eliminaAppunto();}}>
                                                         Elimina
                                                     </button>
-                                                </>
+                                                
                                         }
                                 <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             </div>

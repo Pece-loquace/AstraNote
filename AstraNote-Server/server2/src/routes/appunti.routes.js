@@ -12,15 +12,27 @@ router.post("/api/appunti", upload.single("file"), async (req, res) => {
   if (!titolo || !corso || !file) {
     return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
   }
-e4r
 
   console.log("Upload thumbnail")
   // Upload thumbnail e URL file in parallelo
+
+    const fileName = `${Date.now()}_${file.originalname}`;
+    const { error: fileError } = await supabase.storage
+      .from("AstraNote-files")
+      .upload(fileName, file.buffer, { contentType: file.mimetype });
+
+    if (fileError) {
+      return res.status(500).json({ error: "Errore nel caricamento del file" });
+    }
+
+  
+  // 2. Ottieni l'URL pubblico del file
   const publicUrl = supabase.storage
     .from("AstraNote-files")
     .getPublicUrl(fileName).data.publicUrl;
 
   let url_thumbnail = null;
+  const thumbBuffer = await generaThumbnail(file.buffer); // assicurati che la funzione accetti un buffer
   if (thumbBuffer) {
     const thumbName = `${Date.now()}_thumb.jpg`;
     const { error: thumbError } = await supabase.storage
@@ -34,13 +46,16 @@ e4r
     }
   }
 
+  const data_creazione = new Date().toISOString();
+
+
   const { data, error: dbError } = await supabase
     .from("appunti")
     .insert([
       {
         titolo,
         data_creazione,
-        id_autore,
+        id_autore:req.session.user.id,
         url_file: publicUrl,
         descrizione,
         corso,
@@ -177,7 +192,7 @@ router.delete("/api/appunti/:id", async (req, res) => {
 router.get("/api/appunti_caricati", async (req, res) => {
   const { data, error } = await supabase
     .from("appunti")
-    .select(`*,corso(*,facolta(*))`)
+    .select(`*,corso(*,facolta(*)))`)
     .eq("id_autore", req.session.user.id);
 
   if (error) {
