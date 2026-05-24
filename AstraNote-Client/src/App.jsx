@@ -11,6 +11,8 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
 import Profile from "./views/profile/Profile"
 import Impostazioni from "./views/impostazioni/Impostazioni"
 import ModificaAppunto from "./components/ModificaAppunto";
+import Mission from "./views/Mission/Mission"
+import Valori from "./views/Valori/Valori"
 
 
 export default function App() {
@@ -29,6 +31,8 @@ export default function App() {
           <Route path="/profilo" element ={<Profile/>}/>
           <Route path="/impostazioni" element={<Impostazioni/>}/>
           <Route path="/modifica/:id" element = {<ModificaAppunto/>}/>
+          <Route path="/La_nostra_Mission" element = {<Mission/>}/>
+          <Route path="/I_nostri_Valori" element = {<Valori/>}/>
         </Route>
       </Routes>
     </BrowserRouter>
