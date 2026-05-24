@@ -105,7 +105,7 @@ export default function Impostazioni() {
             // sostituire con l'endpoint reale di aggiornamento profilo
             // verifica il metodo che ha il backend sia PUT o POST
             const res = await fetch(`/api/utente/${utente.id}`, {
-                method: "POST",
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 // adatta il payload ai nomi che il backend si aspetta.
                 // se il server non gestisce il cambio password in questo endpoint,
