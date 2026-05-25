@@ -82,7 +82,46 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="menuOptionsCnt">
-                                <a className="clickCnt" href="/profilo">
+                                <a className="clickCnt" href="/homepage" onClick={() => setMenu(!menu)}>
+                                    <div className="menuOptions_1">
+                                        <div className="menuOptions_1">
+                                            <div className="menuOptions_2">
+                                                <div className="optionCnt">
+                                                    <div className="optionChild">
+                                                        <div className="optionSvgCnt">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="optionSvg">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <div className="optionContent">
+                                                                <span>
+                                                                    <span className="optionTitle">
+                                                                        Home
+                                                                    </span>
+                                                                </span>
+                                                                <span>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256">
+                                                                        <path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>
+                                                                    </svg>
+                                                                </span>
+                                                            </div>
+                                                            <p className="optionSubtitle">
+                                                                Torna alla homepage
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <hr />
+
+                            <div className="menuOptionsCnt">
+                                <Link className="clickCnt" to={`/utente/${utente.id}`} onClick={() => setMenu(!menu)}>
                                     <div className="menuOptions_1">
                                         <div className="menuOptions_1">
                                             <div className="menuOptions_2">
@@ -115,13 +154,13 @@ function Navbar({ children }) {
                                             </div>
                                         </div>
                                     </div>
-                                </a>
+                                </Link>
                             </div>
 
                             <hr />
 
                             <div className="menuOptionsCnt">
-                                <a className="clickCnt" href="/libreria">
+                                <a className="clickCnt" href="/libreria" onClick={() => setMenu(!menu)}>
                                     <div className="menuOptions_1">
                                         <div className="menuOptions_1">
                                             <div className="menuOptions_2">
@@ -160,7 +199,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="menuOptionsCnt">
-                                <a className="clickCnt" href="/upload">
+                                <a className="clickCnt" href="/upload" onClick={() => setMenu(!menu)}>
                                     <div className="menuOptions_1">
                                         <div className="menuOptions_1">
                                             <div className="menuOptions_2">
@@ -199,7 +238,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="menuOptionsCnt">
-                                <a className="clickCnt" onClick={() => (Logout())}>
+                                <a className="clickCnt" onClick={() => {setMenu(!menu), Logout()}}>
                                     <div className="menuOptions_1">
                                         <div className="menuOptions_1" style={{ transform: 'none' }}>
                                             <div className="menuOptions_2">
@@ -258,19 +297,20 @@ function Navbar({ children }) {
                                         </svg>
                                     </span>
                                 </div>
-                                <div className="profileH_child">
-                                    <div className = "profileLogo">
-                                        {utente.image_url != undefined ? 
-                                        <img src ={utente.image_url}/>
-                                        :
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                        </svg>
-                                        }
+                                <div></div>
+                            </div>
+                            <div className="profileH_child">
+                                <div className = "profileLogo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div className="profileNameCnt">
+                                        <a className="profileName" type="button">
+                                            {utente.nome}  {utente.cognome}
+                                        </a>
                                     </div>
-                                    <a className="profileName" type="button">
-                                        {utente.nome}  {utente.cognome}
-                                    </a>
                                 </div>
                             </div>
 
@@ -338,6 +378,39 @@ function Navbar({ children }) {
                                         </div>
                                     </div>
                                 </Link>
+                            </div>
+
+                            <hr id="libraryPC"/>
+
+                            <div className="profileOptionsCnt" id="libraryPC">
+                                <a className="clickCnt" href="/homepage" onClick={() => setProfilo(!profilo)}>
+                                    <div className="profileOptions_child">
+                                        <div className="optionChild">
+                                            <div className="optionSvgCnt">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="optionSvg">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div className="optionContent">
+                                                    <span>
+                                                        <span className="optionTitle">
+                                                            La tua Libreria
+                                                        </span>
+                                                    </span>
+                                                    <span>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256">
+                                                            <path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>
+                                                        </svg>
+                                                    </span>
+                                                </div>
+                                                <p className="optionSubtitle">
+                                                    Visualizza le tue note caricate e salvate
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
                             </div>
 
                             <hr />
@@ -449,13 +522,9 @@ function Navbar({ children }) {
 
                 <div className="accountCnt">
                     <div className = "accountIcon">
-                        {utente.image_url != undefined ? 
-                        <img src ={utente.image_url}/>
-                        :
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
-                        }
                     </div>
                     <a className="account" type="button" onClick={() => setProfilo(!profilo)}>
                         {utente.nome}  {utente.cognome}
