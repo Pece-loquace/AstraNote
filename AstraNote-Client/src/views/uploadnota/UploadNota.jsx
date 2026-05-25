@@ -165,19 +165,22 @@ export default function UploadNota() {
             return;
         }
 
+        /*---Generazione Thumbnail */
 
         const file = formData.upload;
 
-        /*Genera thumbnail */
+        //Trasforma il file in un arrayBuffer, cioè una sequenza
+        //grezza di byte in memoria
         const arrayBuffer = await file.arrayBuffer();
         
-        //Carica pdf
+        //pdfjs analizza i byte e crea un oggetto pdf con cui interagire
         const pdf = await pdfjsLib.getDocument({
             data: arrayBuffer,
         }).promise;
 
         const page = await pdf.getPage(1);
 
+        //Calcola le dimensioni della prima pagina 
         const viewport = page.getViewport({
             scale: 1,
         });

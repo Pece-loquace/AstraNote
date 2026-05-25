@@ -313,7 +313,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                         <h5>{appunto.titolo}</h5>
                                         <span>({recensioni.length}) {stelle}</span>
                                         <span>(di {autore.nome} {autore.cognome})</span>
-                                        <span><strong>Descrizione:</strong> {appunto.descrizione}</span>
+                                        <span className="text-break"><strong>Descrizione:</strong> {appunto.descrizione}</span>
                                         <p>{appunto.anno}</p>
                                         <span>(Recensione personale)<StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} /></span>
                                         <div className="row justify-content-between">
