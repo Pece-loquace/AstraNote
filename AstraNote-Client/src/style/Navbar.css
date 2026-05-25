@@ -99,30 +99,9 @@
     background-color: rgba(128, 124, 124, 0.363);
     color: rgb(255, 255, 255);
     font-size: larger;
-
-    &:hover {
-        border-color: white;
-        transition: 0.2;
-    }
 }
 
-.dropdown {
-    display: flex;
-    padding: 15px;
-    gap: 10px;
-    color: #620821;
-    border: 2px solid transparent;
-
-    &:hover {
-        border-color: white;
-    }
-    &:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: 2px;
-    }
-}
-
-.profileCnt {
+.accountCnt {
     display: flex;
     align-items: center;
     padding: 15px;
@@ -139,23 +118,17 @@
     }
 }
 
-.profileIcon {
+.accountIcon {
     width: 40px;
     color: white;
     border-radius: 4px;
 }
 
-.profile {
+.account {
     background-color: #620821;
     padding: 10px;
     color: white;
     text-decoration: none;
-}
-
-.dropdown-item:hover {
-    background-color: #620821 !important; 
-    color: white !important;             
-    cursor: pointer;                      
 }
 
 .hamburger {
@@ -170,7 +143,6 @@
     position: fixed;
     flex-direction: column;
     overflow: hidden;
-    transition: all 0.5s ease-in-out, opacity 1.5s ease-in-out;
 }
 
 .hamburger_child_1 {
@@ -195,7 +167,6 @@
 }
 
 .profileHeaderCnt {
-    z-index: 120;
     position: sticky;
     top: 0px;
     background-color: transparent;
@@ -212,20 +183,12 @@
     margin-right: auto;
 }
 
-.profileHeader {
-    display: flex;
-    justify-content: center;
-    padding-top: 1.5rem;
-    padding-bottom: 1.5rem;
-    position: relative;
-}
-
 .profileClose {
     top: 5px;
     left: 0px;
 }
 
-.profileLogo{
+.profileLogo {
     width: 32px;      
     height: 32px;
     border-radius: 50%; 
@@ -233,14 +196,19 @@
 }
 
 .icona-rotonda img {
-  object-fit: cover;
+   object-fit: cover;
+}
+
+.profileName {
+    text-decoration: none;
+    color: inherit;
 }
 
 .profileCloseSvg {
+    display: inline-flex;
     cursor: pointer;
     width: 36px;
     height: 36px;
-    display: inline-flex;
 }
 
 .hamburger.open {
@@ -255,6 +223,7 @@
 }
 
 .clickCnt {
+    cursor: pointer;
     color: inherit;
     text-decoration: none;
 }
@@ -350,10 +319,6 @@
         display: none;
     }
 
-    .dropdown {
-        display: none;
-    }
-
     .settingsCntMobile {
         display: flex;
         
@@ -391,7 +356,6 @@
         flex-direction: column;
         overflow: hidden;
         transform: translateX(100%) translateY(0%);
-        animation-duration: 0.5s;
     }
 
     .menuCnt_child_1 {

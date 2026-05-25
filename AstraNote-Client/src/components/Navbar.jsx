@@ -1,7 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import searchIcon from "../assets/search.svg"
-//import libraryIcon from "../assets/library-1.svg"
-//import profileIcon from "../assets/profile.svg"
 import settingsIcon from "../assets/settings.svg"
 import AstraLogo from "../assets/AstraNote_Logo.svg"
 import logo from "../assets/AstraNote_Banner_IT_720.png"
@@ -261,14 +259,25 @@ function Navbar({ children }) {
                                     </span>
                                 </div>
                                 <div className="profileH_child">
-                                    <img src={logo} alt="profileLogo" className="profileLogo" />
+                                    <div className = "profileLogo">
+                                        {utente.image_url != undefined ? 
+                                        <img src ={utente.image_url}/>
+                                        :
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                        </svg>
+                                        }
+                                    </div>
+                                    <a className="profileName" type="button">
+                                        {utente.nome}  {utente.cognome}
+                                    </a>
                                 </div>
                             </div>
 
                             <hr />
 
                             <div className="profileOptionsCnt">
-                                <a className="clickCnt" href="/homepage">
+                                <a className="clickCnt" href="/homepage" onClick={() => setProfilo(!profilo)}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -290,7 +299,7 @@ function Navbar({ children }) {
                                                     </span>
                                                 </div>
                                                 <p className="optionSubtitle">
-
+                                                    Torna alla homepage
                                                 </p>
                                             </div>
                                         </div>
@@ -301,7 +310,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="profileOptionsCnt">
-                                <Link className="clickCnt" to={`/utente/${utente.id}`}>
+                                <Link className="clickCnt" to={`/utente/${utente.id}`} onClick={() => setProfilo(!profilo)}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -334,7 +343,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="profileOptionsCnt">
-                                <a className="clickCnt" href="/impostazioni">
+                                <a className="clickCnt" href="/impostazioni" onClick={() => setProfilo(!profilo)}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -367,8 +376,8 @@ function Navbar({ children }) {
 
                             <hr />
 
-                            <div className="profileOptionsCnt" onClick={() => (Logout())}>
-                                <a className="clickCnt" >
+                            <div className="profileOptionsCnt">
+                                <a className="clickCnt" onClick={() => {setProfilo(!profilo), Logout()}}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -414,7 +423,7 @@ function Navbar({ children }) {
 
                 <div className="logoCnt">
                     <Link to="/homepage">
-                        <img src={AstraLogo} className="logo" alt="React logo" ></img>
+                        <img src={AstraLogo} className="logo" alt="AstraLogo" ></img>
                     </Link>
                 </div>
 
@@ -438,31 +447,20 @@ function Navbar({ children }) {
                     <Link className="library text-white" to="/libreria">La tua libreria</Link>
                 </div>
 
-                <div className="profileCnt">
-                    <div className = "profileLogo">
+                <div className="accountCnt">
+                    <div className = "accountIcon">
+                        {utente.image_url != undefined ? 
                         <img src ={utente.image_url}/>
+                        :
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                        }
                     </div>
-                    <a className="profile" type="button" onClick={() => setProfilo(!profilo)}>
+                    <a className="account" type="button" onClick={() => setProfilo(!profilo)}>
                         {utente.nome}  {utente.cognome}
                     </a>
                 </div>
-
-                {/*<div className="dropdown">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
-                    <a class="profile dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Profilo
-                    </a>
-                    <div className="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a className="dropdown-item" href="/homepage">Home</a>
-                        <a className="dropdown-item" href="/profilo">Profilo</a>
-                        <a className="dropdown-item" href="#">Caricati</a>
-                        <a className="dropdown-item" href="#">Preferiti</a>
-                        <a className="dropdown-item" href="/impostazioni">Impostazioni Account</a>
-                        <a className="dropdown-item" id="logoutItem" onClick={()=>(Logout())} >Logout</a>
-                    </div>
-                </div>*/}
             </nav>
 
             {menu !== false && <Menu isOpen={menu} toggleMenu={() => setMenu(!menu)}></Menu>}
