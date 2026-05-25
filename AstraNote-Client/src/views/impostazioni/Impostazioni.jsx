@@ -1,22 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
-import profileDefault from "../../assets/profile-circle.svg";
 import "./Impostazioni.css"
 
 // Modifica Profilo
-const FILE_MAX = 100 * 1024 * 1024; //(100MB)
-
 // stesse costanti di Register/Login per coerenza di validazione
 const PASSWORD_MIN = 8;
 const MINUSCOLA_REGEX = /[a-z]/;
 const MAIUSCOLA_REGEX = /[A-Z]/;
 const SIMBOLO_REGEX = /[^A-Za-z0-9]/;
 const NUMBER_REGEX = /[0-9]/;
-
-// stesso schema URL usato in Register.jsx / Login.jsx
-const API_BASE = "http://localhost:3000/api";
 
 // valida i campi modificabili in impostazioni
 function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPassword }) {
@@ -38,7 +32,7 @@ function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPa
         campiInErrore.add("password");
     }
 
-    // la nuova password è opzionale: se vuota, niente cambio password
+    // la nuova password è opzionale: se vuota, non cambio password
     if (nuovaPassword) {
         if (nuovaPassword.length < PASSWORD_MIN) {
             errori.push("La nuova password deve essere di almeno " + PASSWORD_MIN + " caratteri.");
@@ -66,12 +60,30 @@ function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPa
             campiInErrore.add("confermaPassword");
         }
     } else if (confermaPassword) {
-        // ha riempito la conferma ma non la nuova password
+        // conferma, ma non con nuova password
         errori.push("Inserisci anche la nuova password.");
         campiInErrore.add("nuovaPassword");
     }
 
     return { ok: errori.length === 0, errori, campiInErrore };
+}
+
+// stesse icone di Register.jsx per il toggle mostra/nascondi password
+function EyeIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" width="18" height="18">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+    );
+}
+
+function EyeOffIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" width="18" height="18">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+        </svg>
+    );
 }
 
 export default function Impostazioni() {
@@ -88,10 +100,10 @@ export default function Impostazioni() {
     const [campiInErrore, setCampiInErrore] = useState(() => new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
 
-    // anteprima foto: tiene sia il File da caricare sia l'URL per la <img>
-    const [fotoFile, setFotoFile] = useState(null);
-    const [fotoPreview, setFotoPreview] = useState(null);
-    const inputFotoRef = useRef(null);
+    // toggle mostra/nascondi per i tre campi password
+    const [showPassword, setShowPassword] = useState(false);
+    const [showNuovaPassword, setShowNuovaPassword] = useState(false);
+    const [showConfermaPassword, setShowConfermaPassword] = useState(false);
 
     const [form, setForm] = useState({
         nome: "",
@@ -109,7 +121,6 @@ export default function Impostazioni() {
             try {
                 setCaricamento(true);
 
-                // URL assoluto come in Register/Login per coerenza
                 const resUser = await fetch("/api/utente_loggato");
                 if (!resUser.ok) throw new Error("Errore nel reperire l'utente loggato");
                 const user = await resUser.json();
@@ -139,18 +150,7 @@ export default function Impostazioni() {
         fetchDati();
     }, []);
 
-    // libera l'URL temporaneo dell'anteprima quando viene sostituita o
-    // quando il componente viene smontato (evita memory leak)
-    useEffect(() => {
-        return () => {
-            if (fotoPreview && fotoPreview.startsWith("blob:")) {
-                URL.revokeObjectURL(fotoPreview);
-            }
-        };
-    }, [fotoPreview]);
-
     // helper: aggiorna un campo e pulisce eventuale stato di errore su di esso
-    // (stesso comportamento di handleChange in Login/Register)
     const setField = (key, value) => {
         setForm((statoPrecendete) => ({ ...statoPrecendete, [key]: value }));
 
@@ -164,48 +164,7 @@ export default function Impostazioni() {
         setFeedback((prev) => (prev.show ? { ...prev, show: false } : prev));
     };
 
-    // gestione upload foto
-    const handleFotoChange = (evento) => {
-        const file = evento.target.files?.[0];
-        if (!file) return;
-
-        // controllo base: solo immagini, max 100 MB
-        if (!file.type.startsWith("image/")) {
-            setFeedback({ show: true, type: "error", errori: ["Il file selezionato non è un'immagine valida"] });
-            return;
-        }
-        if (file.size > FILE_MAX) {
-            setFeedback({ show: true, type: "error", errori: ["L'immagine non può superare i 100 MB"] });
-            return;
-        }
-
-        // rilascia eventuale anteprima precedente prima di crearne una nuova
-        if (fotoPreview && fotoPreview.startsWith("blob:")) {
-            URL.revokeObjectURL(fotoPreview);
-        }
-
-        setFeedback({ show: false, type: "", errori: [] });
-        setFotoFile(file);
-        setFotoPreview(URL.createObjectURL(file));
-    };
-
-    const rimuoviFotoSelezionata = () => {
-        if (fotoPreview && fotoPreview.startsWith("blob:")) {
-            URL.revokeObjectURL(fotoPreview);
-        }
-        setFotoFile(null);
-        setFotoPreview(null);
-        if (inputFotoRef.current) {
-            inputFotoRef.current.value = "";
-        }
-    };
-
-    // sorgente da mostrare nell'anteprima: priorità a nuova selezione,
-    // poi foto già salvata sul profilo, infine immagine di default
-    const anteprimaSrc =
-        fotoPreview || utente?.image_url || profileDefault;
-
-    // helper per assegnare classi is-valid / is-invalid (come in Login/Register)
+    // helper per assegnare classi is-valid / is-invalid
     const classFor = (field) => {
         if (campiInErrore.has(field)) return "is-invalid";
         if (tuttiValidi) return "is-valid";
@@ -231,26 +190,24 @@ export default function Impostazioni() {
             setCampiInErrore(new Set());
             setTuttiValidi(true);
 
-            const payload = new FormData();
-            payload.append("nome", form.nome);
-            payload.append("facolta", form.facolta);
-            payload.append("passwordAttuale", form.password);
-            if (form.nuovaPassword) payload.append("nuovaPassword", form.nuovaPassword);
-            if (fotoFile) payload.append("foto", fotoFile);
+            const payload = {
+                nome: form.nome,
+                facolta: form.facolta,
+                passwordAttuale: form.password,
+            };
+            if (form.nuovaPassword) payload.nuovaPassword = form.nuovaPassword;
 
             const risposta = await fetch("/api/utenti/id", {
                 method: "PUT",
                 credentials: "include",
-                body: payload,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
             });
 
             if (risposta.ok) {
                 setFeedback({ show: true, type: "ok", errori: [] });
-                // aspetta 1s per far leggere il messaggio, poi torna al profilo
                 setTimeout(() => navigate(`/utente/${utente.id}`), 1000);
             } else {
-                // stessa logica di parsing errori usata in Login/Register:
-                // il backend può restituire un array oppure { error } / { message }
                 const error = await risposta.json().catch(() => ({}));
                 const erroriBackend = Array.isArray(error)
                     ? error
@@ -294,53 +251,11 @@ export default function Impostazioni() {
             </div>
 
             <form onSubmit={handleSubmit} noValidate>
-                <div className="row g-4">
+                <div className="row g-4 justify-content-center">
 
-                    {/* Colonna sinistra: foto profilo */}
-                    <div className="col-12 col-lg-5">
-                        <div className="card border-0 shadow-sm h-100">
-                            <div className="card-body p-3">
-                                <h3 className="fw-semibold mb-4">Foto profilo</h3>
-
-                                <div className="text-center mb-4">
-                                    <img
-                                        src={anteprimaSrc}
-                                        alt="Anteprima foto profilo"
-                                        className="foto-profilo-preview"
-                                    />
-                                </div>
-
-                                <div className="d-flex flex-column gap-2">
-                                    <input
-                                        ref={inputFotoRef}
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFotoChange}
-                                        className="form-control"
-                                        id="foto-input"
-                                    />
-
-                                    {fotoFile && (
-                                        <button
-                                            type="button"
-                                            className="btn btn-outline-secondary"
-                                            onClick={rimuoviFotoSelezionata}
-                                        >
-                                            Annulla selezione
-                                        </button>
-                                    )}
-                                </div>
-
-                                <p className="form-text text-center mt-3 mb-0">
-                                    Formati supportati: JPG, PNG. Dimensione massima 100 MB.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Colonna destra: Dati utente */}
-                    <div className="col-12 col-lg-7">
-                        <div className="card border-0 shadow-sm h-100">
+                    {/* Unica colonna: Dati utente */}
+                    <div className="col-12 col-lg-8">
+                        <div className="card shadow-sm h-100">
                             <div className="card-body p-3">
                                 <h3 className="fw-semibold mb-4">Dati Utente</h3>
 
@@ -414,15 +329,24 @@ export default function Impostazioni() {
                                         <label htmlFor="password" className="form-label">
                                             Password
                                         </label>
-                                        <input
-                                            id="password"
-                                            type="password"
-                                            className={`form-control ${classFor("password")}`}
-                                            value={form.password}
-                                            onChange={(evento) => setField("password", evento.target.value)}
-                                            autoComplete="current-password"
-                                            required
-                                        />
+                                        <div className="input-group">
+                                            <input
+                                                id="password"
+                                                type={showPassword ? "text" : "password"}
+                                                className={`form-control ${classFor("password")}`}
+                                                value={form.password}
+                                                onChange={(evento) => setField("password", evento.target.value)}
+                                                autoComplete="current-password"
+                                                required
+                                            />
+                                            <button
+                                                className="btn btn-outline-secondary d-flex align-items-center"
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                            </button>
+                                        </div>
                                         <div className="form-text">
                                             Inserisci la tua password attuale per confermare le modifiche
                                         </div>
@@ -432,19 +356,28 @@ export default function Impostazioni() {
                                         <label htmlFor="nuovaPassword" className="form-label">
                                             Nuova Password
                                         </label>
-                                        <input
-                                            id="nuovaPassword"
-                                            type="password"
-                                            className={`form-control ${classFor("nuovaPassword")}`}
-                                            value={form.nuovaPassword}
-                                            onChange={(evento) =>
-                                                setField("nuovaPassword", evento.target.value)
-                                            }
-                                            autoComplete="new-password"
-                                        />
+                                        <div className="input-group">
+                                            <input
+                                                id="nuovaPassword"
+                                                type={showNuovaPassword ? "text" : "password"}
+                                                className={`form-control ${classFor("nuovaPassword")}`}
+                                                value={form.nuovaPassword}
+                                                onChange={(evento) =>
+                                                    setField("nuovaPassword", evento.target.value)
+                                                }
+                                                autoComplete="new-password"
+                                            />
+                                            <button
+                                                className="btn btn-outline-secondary d-flex align-items-center"
+                                                type="button"
+                                                onClick={() => setShowNuovaPassword(!showNuovaPassword)}
+                                            >
+                                                {showNuovaPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                            </button>
+                                        </div>
                                         <div className="form-text">
-                                            Lascia vuoto se non vuoi cambiarla. Almeno 8 caratteri:
-                                            una minuscola, una maiuscola, un numero e un simbolo.
+                                            Lascia vuoto se non vuoi cambiarla. <br />
+                                            Almeno 8 caratteri: una minuscola, una maiuscola, un numero e un simbolo.
                                         </div>
                                     </div>
 
@@ -452,16 +385,25 @@ export default function Impostazioni() {
                                         <label htmlFor="confermaPassword" className="form-label">
                                             Conferma Password
                                         </label>
-                                        <input
-                                            id="confermaPassword"
-                                            type="password"
-                                            className={`form-control ${classFor("confermaPassword")}`}
-                                            value={form.confermaPassword}
-                                            onChange={(evento) =>
-                                                setField("confermaPassword", evento.target.value)
-                                            }
-                                            autoComplete="new-password"
-                                        />
+                                        <div className="input-group">
+                                            <input
+                                                id="confermaPassword"
+                                                type={showConfermaPassword ? "text" : "password"}
+                                                className={`form-control ${classFor("confermaPassword")}`}
+                                                value={form.confermaPassword}
+                                                onChange={(evento) =>
+                                                    setField("confermaPassword", evento.target.value)
+                                                }
+                                                autoComplete="new-password"
+                                            />
+                                            <button
+                                                className="btn btn-outline-secondary d-flex align-items-center"
+                                                type="button"
+                                                onClick={() => setShowConfermaPassword(!showConfermaPassword)}
+                                            >
+                                                {showConfermaPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                            </button>
+                                        </div>
                                         <div className="form-text">
                                             Ripeti la nuova password
                                         </div>
@@ -485,7 +427,7 @@ export default function Impostazioni() {
                                     </button>
                                 </div>
 
-                                {/* Feedback unico, stesso pattern di Login/Register */}
+                                {/* Feedback unico */}
                                 {feedback.show && (
                                     <div className={`alert mt-4 ${feedback.type === "ok" ? "alert-success" : "alert-danger"}`} role="alert">
                                         {feedback.type === "ok" ? (
