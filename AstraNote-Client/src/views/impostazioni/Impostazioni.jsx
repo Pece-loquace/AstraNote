@@ -5,7 +5,6 @@ import "../../style/buttons.css";
 import "./Impostazioni.css"
 
 // Modifica Profilo
-// stesse costanti di Register/Login per coerenza di validazione
 const PASSWORD_MIN = 8;
 const MINUSCOLA_REGEX = /[a-z]/;
 const MAIUSCOLA_REGEX = /[A-Z]/;
@@ -68,7 +67,6 @@ function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPa
     return { ok: errori.length === 0, errori, campiInErrore };
 }
 
-// stesse icone di Register.jsx per il toggle mostra/nascondi password
 function EyeIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" width="18" height="18">
