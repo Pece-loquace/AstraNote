@@ -1,43 +1,55 @@
 import React from 'react';
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
-import "./Profile.css";
+import "./Utente.css";
 
 import profile from "../../assets/profile-circle.svg";
 import CardAppunto from "../../components/CardAppunto";
 
 export default function Profilo() {
+    const { id: id_utente } = useParams();
+    const [isUtenteLoggato, setIsUtenteLoggato] = useState(false);
     const [utente, setUtente] = useState({});
     const [appunti, setAppunti] = useState([]);
-    const [nomeFacolta, setNomeFacolta] = useState("");
     const [mediaUtente, setMediaUtente] = useState(0);
+    const[nomeFacolta,setNomeFacolta] = useState(null);
 
     useEffect(() => {
         fetchUtente()
     }, [])
 
     const fetchUtente = async () => {
+        console.log("Id utente" + id_utente)
         try {
-            const res1 = await fetch('/api/utente_loggato');
-            if (!res1.ok) throw new Error("Errore nel reperire l'utente loggato");
-            const user = await res1.json();
-            setUtente(user);
+            const res1 = await fetch('/api/me');
+            if(!res1.ok) throw new Error('Errore in /api/me');
+            const logged_user = await res1.json();
 
-            const [res2, res3, res4] = await Promise.all([
+            if(logged_user.id === id_utente){
+                setIsUtenteLoggato(true);
+            }
+
+            const res2 = await fetch(`/api/utenti/${id_utente}`);
+            if (!res2.ok) throw new Error("Errore nel reperire l'utente ");
+            const user = await res2.json();
+            setUtente(user);
+            
+
+            const [res3, res4, res5] = await Promise.all([
                 fetch(`/api/appunti_caricati/${user.id}`),
                 fetch(`/api/facolta/${user.facolta}`),
                 fetch(`/api/user_ratings/${user.id}`)
             ]);
 
-            if (!res2.ok || !res3.ok || !res4.ok) {
+            if (!res3.ok || !res4.ok || !res5.ok ) {
                 throw new Error("Errore nelle chiamate parallele");
             }
-            const [notes, uni, user_rating] = await Promise.all([res2.json(), res3.json(), res4.json()]);
+            const [notes, facolta, user_rating] = await Promise.all([res3.json(), res4.json(), res5.json()]);
 
             setAppunti(notes);
-            setNomeFacolta(uni.nome);
+            setNomeFacolta(facolta.nome);
             const media = user_rating.media_valutazioni;
             const valutazioneMedia = "⭐".repeat(user_rating.media_valutazioni) + "☆".repeat(5 - (user_rating.media_valutazioni));
             setMediaUtente(valutazioneMedia);
@@ -85,10 +97,16 @@ export default function Profilo() {
                                 <div className="h5 mb-3">{mediaUtente}</div>
 
                                 {/* Modifica */}
-                                <hr className="my-4" />
-                                <div className="justify-content-end">
-                                    <Link to="/impostazioni" className="btn btn-primary">Modifica profilo</Link>
-                                </div>
+                                { isUtenteLoggato && 
+                                    (
+                                        <div>
+                                            <hr className="my-4" />
+                                            <div className="justify-content-end">
+                                                <Link to="/impostazioni" className="btn btn-primary">Modifica profilo</Link>
+                                            </div>
+                                        </div>
+                                    )
+                                }
                             </div>
                         </div>
                     </div>

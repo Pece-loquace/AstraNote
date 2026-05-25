@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import searchIcon from "../assets/search.svg"
 //import libraryIcon from "../assets/library-1.svg"
 //import profileIcon from "../assets/profile.svg"
@@ -13,6 +13,7 @@ function Navbar({ children }) {
     const navigate = useNavigate();
     const [menu, setMenu] = useState(false);
     const [profilo, setProfilo] = useState(false);
+    const[utente,setUtente] = useState({});
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && query.trim() !== " ") {
@@ -35,6 +36,27 @@ function Navbar({ children }) {
             console.error("Errore di rete:", error);
         }
     }
+
+    useEffect(()=>{
+        fetchUtente();
+    },[])
+
+    const fetchUtente = async() =>{
+        try {
+            const res1 = await fetch("/api/me");
+            if(!res1.ok) throw new Error("Errore nel reperire l'utente loggato");
+            const logged_user = await res1.json();
+
+            const res2 = await fetch(`/api/utenti/${logged_user.id}`)
+            if(!res2.ok) throw new Error("Errore nel reperire l'utente loggato");
+            const user = await res2.json();
+            setUtente(user);
+            console.log(user);
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+    
 
     const Menu = ({ isOpen, toggleMenu }) => {
 
@@ -279,7 +301,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="profileOptionsCnt">
-                                <a className="clickCnt" href="/profilo">
+                                <Link className="clickCnt" to={`/utente/${utente.id}`}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -306,7 +328,7 @@ function Navbar({ children }) {
                                             </div>
                                         </div>
                                     </div>
-                                </a>
+                                </Link>
                             </div>
 
                             <hr />
@@ -417,11 +439,11 @@ function Navbar({ children }) {
                 </div>
 
                 <div className="profileCnt">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
+                    <div className = "profileLogo">
+                        <img src ={utente.image_url}/>
+                    </div>
                     <a className="profile" type="button" onClick={() => setProfilo(!profilo)}>
-                        Profilo
+                        {utente.nome}  {utente.cognome}
                     </a>
                 </div>
 

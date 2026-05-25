@@ -124,6 +124,7 @@
 
 .profileCnt {
     display: flex;
+    align-items: center;
     padding: 15px;
     gap: 10px;
     color: #620821;
@@ -224,9 +225,15 @@
     left: 0px;
 }
 
-.profileLogo {
-    width: 170px;
-    height: 100px;
+.profileLogo{
+    width: 32px;      
+    height: 32px;
+    border-radius: 50%; 
+    object-fit: cover;  
+}
+
+.icona-rotonda img {
+  object-fit: cover;
 }
 
 .profileCloseSvg {
@@ -538,3 +545,5 @@
     }
 
 }
+
+

@@ -12,6 +12,8 @@ router.get("/api/utenti/:id", async (req, res) => {
     .eq("id", id_utente)
     .single();
 
+    console.log(data)
+    console.log(error)
   if (error) {
     return res.status(500).json({ error: "Errore nella query al database" });
   }

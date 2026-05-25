@@ -8,7 +8,7 @@ import UploadNota from "./views/uploadnota/UploadNota"
 import Searchpage from "./views/searchpage/searchpage"
 import Libreria from "./views/libreria/Libreria"
 import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
-import Profile from "./views/profile/Profile"
+import Utente from "./views/profile/Utente"
 import Impostazioni from "./views/impostazioni/Impostazioni"
 import ModificaAppunto from "./components/ModificaAppunto";
 import Mission from "./views/Mission/Mission"
@@ -31,7 +31,7 @@ export default function App() {
           <Route path="/search" element={<Searchpage />} />
           <Route path="/libreria" element={<Libreria />} />
           <Route path="/upload" element={<UploadNota />} />
-          <Route path="/profilo" element ={<Profile/>}/>
+          <Route path="/utente/:id" element ={<Utente/>}/>
           <Route path="/impostazioni" element={<Impostazioni/>}/>
           <Route path="/modifica/:id" element = {<ModificaAppunto/>}/>
           <Route path="/La_nostra_Mission" element = {<Mission/>}/>
