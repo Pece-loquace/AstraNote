@@ -35,7 +35,7 @@ export default function Impostazioni() {
         confermaPassword: "",
     });
 
-    // fetch
+    // fetch dei dati
     useEffect(() => {
         const fetchDati = async () => {
             try {
@@ -223,26 +223,15 @@ export default function Impostazioni() {
                                     />
                                 </div>
 
-                                {/* input file nascosto, attivato dal pulsante */}
-                                <input
-                                    ref={inputFotoRef}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFotoChange}
-                                    className="d-none"
-                                    id="foto-input"
-                                />
-
                                 <div className="d-flex flex-column gap-2">
-                                    <button
-                                        type="button"
-                                        className="btn btn-outline-primary"
-                                        onClick={() => inputFotoRef.current?.click()}
-                                    >
-                                        {fotoFile || utente?.foto_profilo
-                                            ? "Cambia foto"
-                                            : "Carica foto"}
-                                    </button>
+                                    <input
+                                        ref={inputFotoRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFotoChange}
+                                        className="form-control"
+                                        id="foto-input"
+                                    />
 
                                     {fotoFile && (
                                         <button
