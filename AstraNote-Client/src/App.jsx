@@ -14,11 +14,14 @@ import ModificaAppunto from "./components/ModificaAppunto";
 import Mission from "./views/Mission/Mission"
 import Valori from "./views/Valori/Valori"
 
+import ScrollToTop from "./components/ScrollToTop";
+
 
 export default function App() {
 
   return (
     <BrowserRouter>
+    <ScrollToTop />
       <Routes>
         <Route path="/" element={<RedirectIfLoggedIn><Frontpage /></RedirectIfLoggedIn>} />
 

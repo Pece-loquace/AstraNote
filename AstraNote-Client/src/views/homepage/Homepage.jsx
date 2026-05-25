@@ -66,11 +66,10 @@ const Homepage = () =>{
                     Nessun appunto trovato
                 </div>
             }
-
-           
             
         </div>
     );
 };
+
 
 export default Homepage;

@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="col">
             <h3>AstraNote</h3>
             <p className="container text- fs-7">
-              AstraNote è il sito per gli appunti e le dispense dell'università La Sapienza di Roma.
+              AstraNote è il sito per le dispense dell'università La Sapienza di Roma.
               <br />
               Uno strumento creato per incentivare la condivisione tra studenti
               dello stesso corso di laurea.

@@ -325,7 +325,7 @@ export default function UploadNota() {
                         </div>
 
                         <div className="d-grid gap-2">
-                            <button type="submit" className="btn-custom">Carica nota</button>
+                            <button type="submit" className="carica btn-custom">Carica nota</button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
                             <Link to="/homepage" className="btn btn-outline-secondary">Indietro</Link>
                         </div>

@@ -1,11 +1,10 @@
 import Navbar from "../../components/Navbar"
 import Footer from "../../components/Footer"
-import { Link, Outlet, useLocation } from "react-router-dom";
+import {Outlet} from "react-router-dom";
 
 
 export default function DefaultLayout(){
-    const location = useLocation(); 
-    const isUpload = location.pathname === "/upload";
+
     return (
         <>
         <div className="d-flex flex-column min-vh-100">
