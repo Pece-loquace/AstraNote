@@ -240,217 +240,184 @@ export default function Impostazioni() {
     }
 
     return (
-        <div className="container py-4 py-md-5">
-            <div className="d-flex align-items-center mb-4">
-                <h1 className="h3 mb-0 fw-semibold">Modifica profilo</h1>
-                <button type="button"
-                    className="btn btn-link text-decoration-none ms-3"
-                    onClick={() => navigate(-1)}>
-                    ← Indietro
-                </button>
-            </div>
+        <main className="container min-vh-100 d-flex align-items-center justify-content-center py-4">
+            <div className="card shadow-lg w-100" style={{ maxWidth: "850px" }}>
+                <div className="card-body p-4 p-md-5 position-relative">
+                    <div className="custom-border"></div>
 
-            <form onSubmit={handleSubmit} noValidate>
-                <div className="row g-4 justify-content-center">
+                    <h1 className="text-center custom-title mb-1">Modifica profilo</h1>
+                    <p className="text-center text-muted fst-italic mb-4" style={{ fontSize: "0.875rem" }}>
+                        Aggiorna i tuoi dati personali
+                    </p>
 
-                    {/* Unica colonna: Dati utente */}
-                    <div className="col-12 col-lg-8">
-                        <div className="card shadow-sm h-100">
-                            <div className="card-body p-3">
-                                <h3 className="fw-semibold mb-4">Dati Utente</h3>
+                    <form onSubmit={handleSubmit} noValidate>
+                        <div className="row g-3">
+                            <div className="col-sm-6 mb-3">
+                                <label htmlFor="nome" className="form-label custom-label">Nome</label>
+                                <input
+                                    id="nome"
+                                    type="text"
+                                    className={`form-control ${classFor("nome")}`}
+                                    value={form.nome}
+                                    onChange={(evento) => setField("nome", evento.target.value)}
+                                    required
+                                />
+                            </div>
 
-                                <div className="row g-3">
-                                    <div className="col-sm-6">
-                                        <label htmlFor="nome" className="form-label">
-                                            Nome
-                                        </label>
-                                        <input
-                                            id="nome"
-                                            type="text"
-                                            className={`form-control ${classFor("nome")}`}
-                                            value={form.nome}
-                                            onChange={(evento) => setField("nome", evento.target.value)}
-                                            required
-                                        />
-                                    </div>
+                            <div className="col-sm-6  mb-3">
+                                <label htmlFor="cognome" className="form-label custom-label">Cognome</label>
+                                <input
+                                    id="cognome"
+                                    type="text"
+                                    className="form-control"
+                                    value={form.cognome}
+                                    onChange={(evento) => setField("cognome", evento.target.value)}
+                                    disabled
+                                />
+                                <div className="form-text">Il cognome non è modificabile</div>
+                            </div>
 
-                                    <div className="col-sm-6">
-                                        <label htmlFor="cognome" className="form-label">
-                                            Cognome
-                                        </label>
-                                        <input
-                                            id="cognome"
-                                            type="text"
-                                            className="form-control"
-                                            value={form.cognome}
-                                            onChange={(evento) => setField("cognome", evento.target.value)}
-                                            disabled
-                                        />
-                                    </div>
+                            <div className="col-sm-6 mb-3">
+                                <label htmlFor="matricola" className="form-label custom-label">Matricola</label>
+                                <input
+                                    id="matricola"
+                                    type="text"
+                                    className="form-control"
+                                    value={form.matricola}
+                                    onChange={(evento) => setField("matricola", evento.target.value)}
+                                    disabled
+                                />
+                                <div className="form-text">La matricola non è modificabile</div>
+                            </div>
 
-                                    <div className="col-sm-6">
-                                        <label htmlFor="matricola" className="form-label">
-                                            Matricola
-                                        </label>
-                                        <input
-                                            id="matricola"
-                                            type="text"
-                                            className="form-control"
-                                            value={form.matricola}
-                                            onChange={(evento) => setField("matricola", evento.target.value)}
-                                            disabled
-                                        />
-                                    </div>
+                            <div className="col-sm-6 mb-3">
+                                <label htmlFor="facolta" className="form-label custom-label">Facoltà</label>
+                                <select
+                                    id="facolta"
+                                    className={`form-select ${classFor("facolta")}`}
+                                    value={form.facolta}
+                                    onChange={(evento) => setField("facolta", evento.target.value)}
+                                    required
+                                >
+                                    <option value="" disabled>- Seleziona una facoltà -</option>
+                                    {listaFacolta.map((facoltà) => (
+                                        <option key={facoltà.id} value={facoltà.id}>
+                                            {facoltà.nome}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                                    {/* Seleziona la facoltà — popolato dal server */}
-                                    <div className="col-sm-6">
-                                        <label htmlFor="facolta" className="form-label">
-                                            Facoltà
-                                        </label>
-                                        <select
-                                            id="facolta"
-                                            className={`form-select ${classFor("facolta")}`}
-                                            value={form.facolta}
-                                            onChange={(evento) => setField("facolta", evento.target.value)}
-                                            required
-                                        >
-                                            <option value="" disabled>
-                                                Seleziona una facoltà
-                                            </option>
-                                            {listaFacolta.map((facoltà) => (
-                                                <option key={facoltà.id} value={facoltà.id}>
-                                                    {facoltà.nome}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="password" className="form-label">
-                                            Password
-                                        </label>
-                                        <div className="input-group">
-                                            <input
-                                                id="password"
-                                                type={showPassword ? "text" : "password"}
-                                                className={`form-control ${classFor("password")}`}
-                                                value={form.password}
-                                                onChange={(evento) => setField("password", evento.target.value)}
-                                                autoComplete="current-password"
-                                                required
-                                            />
-                                            <button
-                                                className="btn btn-outline-secondary d-flex align-items-center"
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                            >
-                                                {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-                                            </button>
-                                        </div>
-                                        <div className="form-text">
-                                            Inserisci la tua password attuale per confermare le modifiche
-                                        </div>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="nuovaPassword" className="form-label">
-                                            Nuova Password
-                                        </label>
-                                        <div className="input-group">
-                                            <input
-                                                id="nuovaPassword"
-                                                type={showNuovaPassword ? "text" : "password"}
-                                                className={`form-control ${classFor("nuovaPassword")}`}
-                                                value={form.nuovaPassword}
-                                                onChange={(evento) =>
-                                                    setField("nuovaPassword", evento.target.value)
-                                                }
-                                                autoComplete="new-password"
-                                            />
-                                            <button
-                                                className="btn btn-outline-secondary d-flex align-items-center"
-                                                type="button"
-                                                onClick={() => setShowNuovaPassword(!showNuovaPassword)}
-                                            >
-                                                {showNuovaPassword ? <EyeOffIcon /> : <EyeIcon />}
-                                            </button>
-                                        </div>
-                                        <div className="form-text">
-                                            Lascia vuoto se non vuoi cambiarla. <br />
-                                            Almeno 8 caratteri: una minuscola, una maiuscola, un numero e un simbolo.
-                                        </div>
-                                    </div>
-
-                                    <div className="col-12">
-                                        <label htmlFor="confermaPassword" className="form-label">
-                                            Conferma Password
-                                        </label>
-                                        <div className="input-group">
-                                            <input
-                                                id="confermaPassword"
-                                                type={showConfermaPassword ? "text" : "password"}
-                                                className={`form-control ${classFor("confermaPassword")}`}
-                                                value={form.confermaPassword}
-                                                onChange={(evento) =>
-                                                    setField("confermaPassword", evento.target.value)
-                                                }
-                                                autoComplete="new-password"
-                                            />
-                                            <button
-                                                className="btn btn-outline-secondary d-flex align-items-center"
-                                                type="button"
-                                                onClick={() => setShowConfermaPassword(!showConfermaPassword)}
-                                            >
-                                                {showConfermaPassword ? <EyeOffIcon /> : <EyeIcon />}
-                                            </button>
-                                        </div>
-                                        <div className="form-text">
-                                            Ripeti la nuova password
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Pulsanti */}
-                                <hr className="my-4" />
-                                <div className="d-flex gap-2 justify-content-end">
-                                    <button type="button"
-                                        className="btn btn-outline-secondary"
-                                        onClick={() => navigate(-1)}>
-                                        Annulla
-                                    </button>
+                            <div className="mb-3">
+                                <label htmlFor="password" className="form-label custom-label">Password</label>
+                                <div className="input-group">
+                                    <input
+                                        id="password"
+                                        type={showPassword ? "text" : "password"}
+                                        className={`form-control ${classFor("password")}`}
+                                        value={form.password}
+                                        onChange={(evento) => setField("password", evento.target.value)}
+                                        autoComplete="current-password"
+                                        required
+                                    />
                                     <button
-                                        type="submit"
-                                        className="btn btn-primary"
-                                        disabled={salvataggio}
+                                        className="btn btn-outline-secondary d-flex align-items-center"
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
                                     >
-                                        {salvataggio ? "Salvataggio…" : "Salva modifiche"}
+                                        {showPassword ? <EyeOffIcon /> : <EyeIcon />}
                                     </button>
                                 </div>
+                                <div className="form-text">
+                                    Inserisci la tua password attuale per confermare le modifiche
+                                </div>
+                            </div>
 
-                                {/* Feedback unico */}
-                                {feedback.show && (
-                                    <div className={`alert mt-4 ${feedback.type === "ok" ? "alert-success" : "alert-danger"}`} role="alert">
-                                        {feedback.type === "ok" ? (
-                                            salvataggio
-                                                ? "Tutti i campi sono corretti, salvataggio in corso..."
-                                                : "Modifiche salvate correttamente!"
-                                        ) : (
-                                            <>
-                                                <strong className="d-block mb-2">Impossibile salvare le modifiche:</strong>
-                                                <ul className="mb-0">
-                                                    {feedback.errori.map((err, i) => (
-                                                        <li className="text-start" key={i}>{err}</li>
-                                                    ))}
-                                                </ul>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
+                            <div className="mb-3">
+                                <label htmlFor="nuovaPassword" className="form-label custom-label">Nuova Password</label>
+                                <div className="input-group">
+                                    <input
+                                        id="nuovaPassword"
+                                        type={showNuovaPassword ? "text" : "password"}
+                                        className={`form-control ${classFor("nuovaPassword")}`}
+                                        value={form.nuovaPassword}
+                                        onChange={(evento) => setField("nuovaPassword", evento.target.value)}
+                                        autoComplete="new-password"
+                                    />
+                                    <button
+                                        className="btn btn-outline-secondary d-flex align-items-center"
+                                        type="button"
+                                        onClick={() => setShowNuovaPassword(!showNuovaPassword)}
+                                    >
+                                        {showNuovaPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                    </button>
+                                </div>
+                                <div className="form-text">
+                                    Lascia vuoto se non vuoi cambiarla. Almeno 8 caratteri: una minuscola, una maiuscola, un numero e un simbolo.
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <label htmlFor="confermaPassword" className="form-label custom-label">Conferma Password</label>
+                                <div className="input-group">
+                                    <input
+                                        id="confermaPassword"
+                                        type={showConfermaPassword ? "text" : "password"}
+                                        className={`form-control ${classFor("confermaPassword")}`}
+                                        value={form.confermaPassword}
+                                        onChange={(evento) => setField("confermaPassword", evento.target.value)}
+                                        autoComplete="new-password"
+                                    />
+                                    <button
+                                        className="btn btn-outline-secondary d-flex align-items-center"
+                                        type="button"
+                                        onClick={() => setShowConfermaPassword(!showConfermaPassword)}
+                                    >
+                                        {showConfermaPassword ? <EyeOffIcon /> : <EyeIcon />}
+                                    </button>
+                                </div>
+                                <div className="form-text">Ripeti la nuova password</div>
                             </div>
                         </div>
-                    </div>
+
+                        <div className="d-grid gap-2">
+                            <button
+                                type="submit"
+                                className="carica btn-custom"
+                                disabled={salvataggio}
+                            >
+                                {salvataggio ? "Salvataggio…" : "Salva modifiche"}
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={() => navigate(-1)}
+                            >
+                                Annulla
+                            </button>
+                        </div>
+
+                        {feedback.show && (
+                            <div className={`alert mt-4 ${feedback.type === "ok" ? "alert-success" : "alert-danger"}`} role="alert">
+                                {feedback.type === "ok" ? (
+                                    salvataggio
+                                        ? "Tutti i campi sono corretti, salvataggio in corso..."
+                                        : "Modifiche salvate correttamente!"
+                                ) : (
+                                    <>
+                                        <strong className="d-block mb-2">Impossibile salvare le modifiche:</strong>
+                                        <ul className="mb-0">
+                                            {feedback.errori.map((err, i) => (
+                                                <li className="text-start" key={i}>{err}</li>
+                                            ))}
+                                        </ul>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </form>
                 </div>
-            </form>
-        </div>
+            </div>
+        </main>
     );
 }
