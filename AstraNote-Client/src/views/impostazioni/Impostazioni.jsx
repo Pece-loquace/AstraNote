@@ -6,8 +6,73 @@ import profileDefault from "../../assets/profile-circle.svg";
 import "./Impostazioni.css"
 
 // Modifica Profilo
-
 const FILE_MAX = 100 * 1024 * 1024; //(100MB)
+
+// stesse costanti di Register/Login per coerenza di validazione
+const PASSWORD_MIN = 8;
+const MINUSCOLA_REGEX = /[a-z]/;
+const MAIUSCOLA_REGEX = /[A-Z]/;
+const SIMBOLO_REGEX = /[^A-Za-z0-9]/;
+const NUMBER_REGEX = /[0-9]/;
+
+// stesso schema URL usato in Register.jsx / Login.jsx
+const API_BASE = "http://localhost:3000/api";
+
+// valida i campi modificabili in impostazioni
+function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPassword }) {
+    const errori = [];
+    const campiInErrore = new Set();
+
+    if (!nome.trim()) {
+        errori.push("Il campo nome è obbligatorio.");
+        campiInErrore.add("nome");
+    }
+
+    if (!facolta) {
+        errori.push("Devi selezionare una facoltà.");
+        campiInErrore.add("facolta");
+    }
+
+    if (!password) {
+        errori.push("Devi inserire la password attuale per confermare le modifiche.");
+        campiInErrore.add("password");
+    }
+
+    // la nuova password è opzionale: se vuota, niente cambio password
+    if (nuovaPassword) {
+        if (nuovaPassword.length < PASSWORD_MIN) {
+            errori.push("La nuova password deve essere di almeno " + PASSWORD_MIN + " caratteri.");
+            campiInErrore.add("nuovaPassword");
+        }
+        if (!MINUSCOLA_REGEX.test(nuovaPassword)) {
+            errori.push("La nuova password deve contenere almeno una lettera minuscola (a-z).");
+            campiInErrore.add("nuovaPassword");
+        }
+        if (!MAIUSCOLA_REGEX.test(nuovaPassword)) {
+            errori.push("La nuova password deve contenere almeno una lettera maiuscola (A-Z).");
+            campiInErrore.add("nuovaPassword");
+        }
+        if (!NUMBER_REGEX.test(nuovaPassword)) {
+            errori.push("La nuova password deve contenere almeno un numero (0-9).");
+            campiInErrore.add("nuovaPassword");
+        }
+        if (!SIMBOLO_REGEX.test(nuovaPassword)) {
+            errori.push("La nuova password deve contenere almeno un simbolo.");
+            campiInErrore.add("nuovaPassword");
+        }
+        if (nuovaPassword !== confermaPassword) {
+            errori.push("La nuova password e la conferma non coincidono.");
+            campiInErrore.add("nuovaPassword");
+            campiInErrore.add("confermaPassword");
+        }
+    } else if (confermaPassword) {
+        // ha riempito la conferma ma non la nuova password
+        errori.push("Inserisci anche la nuova password.");
+        campiInErrore.add("nuovaPassword");
+    }
+
+    return { ok: errori.length === 0, errori, campiInErrore };
+}
 
 export default function Impostazioni() {
     const navigate = useNavigate();
@@ -17,8 +82,11 @@ export default function Impostazioni() {
     const [listaFacolta, setListaFacolta] = useState([]);
     const [caricamento, setCaricamento] = useState(true);
     const [salvataggio, setSalvataggio] = useState(false);
-    const [errore, setErrore] = useState(null);
-    const [successo, setSuccesso] = useState(null);
+
+    // unico stato feedback, stesso pattern di Login/Register
+    const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] });
+    const [campiInErrore, setCampiInErrore] = useState(() => new Set());
+    const [tuttiValidi, setTuttiValidi] = useState(false);
 
     // anteprima foto: tiene sia il File da caricare sia l'URL per la <img>
     const [fotoFile, setFotoFile] = useState(null);
@@ -35,20 +103,18 @@ export default function Impostazioni() {
         confermaPassword: "",
     });
 
-    // fetch dei dati
+    // fetch dei dati iniziali (utente loggato + lista facoltà)
     useEffect(() => {
         const fetchDati = async () => {
             try {
                 setCaricamento(true);
 
-                // verifica che l'endpoint /api/utente_loggato sia corretto
+                // URL assoluto come in Register/Login per coerenza
                 const resUser = await fetch("/api/utente_loggato");
                 if (!resUser.ok) throw new Error("Errore nel reperire l'utente loggato");
                 const user = await resUser.json();
                 setUtente(user);
 
-                // controlla se backend usa nomi di campo diversi,
-                // modifica il rendering del <select> più sotto.
                 const resFacoltaLista = await fetch("/api/facolta");
                 if (!resFacoltaLista.ok) throw new Error("Errore nel reperire le facoltà");
                 const facolta = await resFacoltaLista.json();
@@ -64,7 +130,7 @@ export default function Impostazioni() {
                 }));
             } catch (err) {
                 console.error(err);
-                setErrore(err.message);
+                setFeedback({ show: true, type: "error", errori: [err.message] });
             } finally {
                 setCaricamento(false);
             }
@@ -83,9 +149,20 @@ export default function Impostazioni() {
         };
     }, [fotoPreview]);
 
-    // helper
-    const setField = (key, value) =>
+    // helper: aggiorna un campo e pulisce eventuale stato di errore su di esso
+    // (stesso comportamento di handleChange in Login/Register)
+    const setField = (key, value) => {
         setForm((statoPrecendete) => ({ ...statoPrecendete, [key]: value }));
+
+        setCampiInErrore((prev) => {
+            if (!prev.has(key)) return prev;
+            const next = new Set(prev);
+            next.delete(key);
+            return next;
+        });
+        setTuttiValidi(false);
+        setFeedback((prev) => (prev.show ? { ...prev, show: false } : prev));
+    };
 
     // gestione upload foto
     const handleFotoChange = (evento) => {
@@ -94,11 +171,11 @@ export default function Impostazioni() {
 
         // controllo base: solo immagini, max 100 MB
         if (!file.type.startsWith("image/")) {
-            setErrore("Il file selezionato non è un'immagine valida");
+            setFeedback({ show: true, type: "error", errori: ["Il file selezionato non è un'immagine valida"] });
             return;
         }
         if (file.size > FILE_MAX) {
-            setErrore("L'immagine non può superare i 100 MB");
+            setFeedback({ show: true, type: "error", errori: ["L'immagine non può superare i 100 MB"] });
             return;
         }
 
@@ -107,7 +184,7 @@ export default function Impostazioni() {
             URL.revokeObjectURL(fotoPreview);
         }
 
-        setErrore(null);
+        setFeedback({ show: false, type: "", errori: [] });
         setFotoFile(file);
         setFotoPreview(URL.createObjectURL(file));
     };
@@ -126,54 +203,67 @@ export default function Impostazioni() {
     // sorgente da mostrare nell'anteprima: priorità a nuova selezione,
     // poi foto già salvata sul profilo, infine immagine di default
     const anteprimaSrc =
-        fotoPreview || utente?.foto_profilo || profileDefault;
+        fotoPreview || utente?.image_url || profileDefault;
+
+    // helper per assegnare classi is-valid / is-invalid (come in Login/Register)
+    const classFor = (field) => {
+        if (campiInErrore.has(field)) return "is-invalid";
+        if (tuttiValidi) return "is-valid";
+        return "";
+    };
 
     // salvataggio
     const handleSubmit = async (evento) => {
         evento.preventDefault();
-        setErrore(null);
-        setSuccesso(null);
 
-        // valida password lato client
-        if (form.nuovaPassword && form.nuovaPassword !== form.confermaPassword) {
-            setErrore("La nuova password e la conferma non coincidono");
+        const { ok, errori, campiInErrore: nuoviErrori } = validaImpostazioni(form);
+
+        if (!ok) {
+            setFeedback({ show: true, type: "error", errori });
+            setCampiInErrore(nuoviErrori);
+            setTuttiValidi(false);
             return;
         }
 
         try {
             setSalvataggio(true);
+            setFeedback({ show: true, type: "ok", errori: [] });
+            setCampiInErrore(new Set());
+            setTuttiValidi(true);
 
-            // ⚠️ IMPORTANTE! ⚠️
-            // Il backend deve accettare multipart/form-data su questo endpoint
-            // per poter ricevere il file. Se la foto non viene modificata, il
-            // campo "foto" non viene inviato e il backend deve mantenere quella
-            // attuale.
-            const formData = new FormData();
-            formData.append("nome", form.nome);
-            formData.append("facolta", form.facolta);
-            if (form.password) formData.append("passwordAttuale", form.password);
-            if (form.nuovaPassword) formData.append("nuovaPassword", form.nuovaPassword);
-            if (fotoFile) formData.append("foto", fotoFile);
+            const payload = new FormData();
+            payload.append("nome", form.nome);
+            payload.append("facolta", form.facolta);
+            payload.append("passwordAttuale", form.password);
+            if (form.nuovaPassword) payload.append("nuovaPassword", form.nuovaPassword);
+            if (fotoFile) payload.append("foto", fotoFile);
 
-            // sostituire con l'endpoint reale di aggiornamento profilo
-            const risposta = await fetch(`/api/utente/${utente.id}`, {
+            const risposta = await fetch("/api/utenti/id", {
                 method: "PUT",
-                body: formData,
+                credentials: "include",
+                body: payload,
             });
 
-            if (!risposta.ok) {
-                // se il backend restituisce un messaggio errore
-                // si può mostrare all'utente da qui
-                throw new Error("Errore durante il salvataggio del profilo");
+            if (risposta.ok) {
+                setFeedback({ show: true, type: "ok", errori: [] });
+                // aspetta 1s per far leggere il messaggio, poi torna al profilo
+                setTimeout(() => navigate(`/utente/${utente.id}`), 1000);
+            } else {
+                // stessa logica di parsing errori usata in Login/Register:
+                // il backend può restituire un array oppure { error } / { message }
+                const error = await risposta.json().catch(() => ({}));
+                const erroriBackend = Array.isArray(error)
+                    ? error
+                    : [error.error || error.message || "Errore durante il salvataggio del profilo"];
+
+                setFeedback({ show: true, type: "error", errori: erroriBackend });
+                setCampiInErrore(new Set());
+                setTuttiValidi(false);
             }
-
-            setSuccesso("Modifiche salvate correttamente!");
-
-            // adesso il sito aspetta 1 secondo per far leggere il messaggio, poi torna al profilo.
-            setTimeout(() => navigate("/profilo"), 1000);
         } catch (err) {
             console.error(err);
-            setErrore(err.message);
+            setFeedback({ show: true, type: "error", errori: [err.message] });
+            setTuttiValidi(false);
         } finally {
             setSalvataggio(false);
         }
@@ -184,10 +274,10 @@ export default function Impostazioni() {
         return <div className="container py-5 text-center">Caricamento…</div>;
     }
 
-    if (errore && !utente) {
+    if (feedback.show && feedback.type === "error" && !utente) {
         return (
             <div className="container py-5 text-center text-danger">
-                Errore: {errore}
+                Errore: {feedback.errori.join(", ")}
             </div>
         );
     }
@@ -203,10 +293,7 @@ export default function Impostazioni() {
                 </button>
             </div>
 
-            {errore && <div className="alert alert-warning">{errore}</div>}
-            {successo && <div className="alert alert-success">{successo}</div>}
-
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
                 <div className="row g-4">
 
                     {/* Colonna sinistra: foto profilo */}
@@ -265,7 +352,7 @@ export default function Impostazioni() {
                                         <input
                                             id="nome"
                                             type="text"
-                                            className="form-control"
+                                            className={`form-control ${classFor("nome")}`}
                                             value={form.nome}
                                             onChange={(evento) => setField("nome", evento.target.value)}
                                             required
@@ -305,12 +392,9 @@ export default function Impostazioni() {
                                         <label htmlFor="facolta" className="form-label">
                                             Facoltà
                                         </label>
-                                        {/* se il backend restituisce campi con nomi diversi,
-                                            modifica `facoltà.id` e `facoltà.nome` qui sotto
-                                         */}
                                         <select
                                             id="facolta"
-                                            className="form-select"
+                                            className={`form-select ${classFor("facolta")}`}
                                             value={form.facolta}
                                             onChange={(evento) => setField("facolta", evento.target.value)}
                                             required
@@ -333,7 +417,7 @@ export default function Impostazioni() {
                                         <input
                                             id="password"
                                             type="password"
-                                            className="form-control"
+                                            className={`form-control ${classFor("password")}`}
                                             value={form.password}
                                             onChange={(evento) => setField("password", evento.target.value)}
                                             autoComplete="current-password"
@@ -351,7 +435,7 @@ export default function Impostazioni() {
                                         <input
                                             id="nuovaPassword"
                                             type="password"
-                                            className="form-control"
+                                            className={`form-control ${classFor("nuovaPassword")}`}
                                             value={form.nuovaPassword}
                                             onChange={(evento) =>
                                                 setField("nuovaPassword", evento.target.value)
@@ -359,7 +443,8 @@ export default function Impostazioni() {
                                             autoComplete="new-password"
                                         />
                                         <div className="form-text">
-                                            Lascia vuoto se non vuoi cambiarla
+                                            Lascia vuoto se non vuoi cambiarla. Almeno 8 caratteri:
+                                            una minuscola, una maiuscola, un numero e un simbolo.
                                         </div>
                                     </div>
 
@@ -370,7 +455,7 @@ export default function Impostazioni() {
                                         <input
                                             id="confermaPassword"
                                             type="password"
-                                            className="form-control"
+                                            className={`form-control ${classFor("confermaPassword")}`}
                                             value={form.confermaPassword}
                                             onChange={(evento) =>
                                                 setField("confermaPassword", evento.target.value)
@@ -386,7 +471,6 @@ export default function Impostazioni() {
                                 {/* Pulsanti */}
                                 <hr className="my-4" />
                                 <div className="d-flex gap-2 justify-content-end">
-                                    {/* verifica la rotta /profilo */}
                                     <button type="button"
                                         className="btn btn-outline-secondary"
                                         onClick={() => navigate(-1)}>
@@ -400,6 +484,26 @@ export default function Impostazioni() {
                                         {salvataggio ? "Salvataggio…" : "Salva modifiche"}
                                     </button>
                                 </div>
+
+                                {/* Feedback unico, stesso pattern di Login/Register */}
+                                {feedback.show && (
+                                    <div className={`alert mt-4 ${feedback.type === "ok" ? "alert-success" : "alert-danger"}`} role="alert">
+                                        {feedback.type === "ok" ? (
+                                            salvataggio
+                                                ? "Tutti i campi sono corretti, salvataggio in corso..."
+                                                : "Modifiche salvate correttamente!"
+                                        ) : (
+                                            <>
+                                                <strong className="d-block mb-2">Impossibile salvare le modifiche:</strong>
+                                                <ul className="mb-0">
+                                                    {feedback.errori.map((err, i) => (
+                                                        <li className="text-start" key={i}>{err}</li>
+                                                    ))}
+                                                </ul>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
