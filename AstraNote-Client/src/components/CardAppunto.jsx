@@ -312,7 +312,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                     <div className="col-8 d-flex flex-column ms-2">
                                         <h5>{appunto.titolo}</h5>
                                         <span>({recensioni.length}) {stelle}</span>
-                                        <Link className="clickCnt" to={`/utente/${utente.id}`}>(di {autore.nome} {autore.cognome})</Link>
+                                        <Link className="clickCnt" to={`/utente/${autore.id}`}>(di {autore.nome} {autore.cognome})</Link>
                                         <span className="text-break"><strong>Descrizione:</strong> {appunto.descrizione}</span>
                                         <p>{appunto.anno}</p>
                                         <span>(Recensione personale)<StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} /></span>
