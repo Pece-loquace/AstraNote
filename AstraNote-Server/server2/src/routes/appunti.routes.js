@@ -5,66 +5,73 @@ const upload = require("../middlewares/upload");
 const generaThumbnail = require("../lib/thumbnail");
 
 
-router.post("/api/appunti", upload.single("file"), async (req, res) => {
-  const file = req.file;
-  const { titolo, descrizione, corso, anno_riferimento } = req.body;
+router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 }]), async (req, res) => {
 
-  if (!titolo || !corso || !file) {
+  const file = req.files.file?.[0];
+  const thumbnail = req.files.thumbnail?.[0];
+  const { titolo, descrizione, corso, anno_riferimento} = req.body;
+
+
+  if (!titolo || !corso || !file || !anno_riferimento) {
     return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
   }
 
-  console.log("Upload thumbnail")
-  // Upload thumbnail e URL file in parallelo
-
-    const fileName = `${Date.now()}_${file.originalname}`;
-    const { error: fileError } = await supabase.storage
-      .from("AstraNote-files")
-      .upload(fileName, file.buffer, { contentType: file.mimetype });
-
-    if (fileError) {
-      return res.status(500).json({ error: "Errore nel caricamento del file" });
-    }
-
-  
-  // 2. Ottieni l'URL pubblico del file
-  const publicUrl = supabase.storage
+  //Upload del file
+  console.log("Upload file")
+  const fileName = `${Date.now()}_${file.originalname}`;
+  const { error: fileError } = await supabase.storage
     .from("AstraNote-files")
-    .getPublicUrl(fileName).data.publicUrl;
+    .upload(fileName, file.buffer, { contentType: file.mimetype });
 
-  let url_thumbnail = null;
-  const thumbBuffer = await generaThumbnail(file.buffer); // assicurati che la funzione accetti un buffer
-  if (thumbBuffer) {
-    const thumbName = `${Date.now()}_thumb.jpg`;
-    const { error: thumbError } = await supabase.storage
-      .from("thumbnails")
-      .upload(thumbName, thumbBuffer, { contentType: "image/jpeg" });
+    console.log(fileError);
+  if (fileError) {
 
-    if (!thumbError) {
-      url_thumbnail = supabase.storage
-        .from("thumbnails")
-        .getPublicUrl(thumbName).data.publicUrl;
-    }
+    return res.status(500).json({ error: "Errore nel caricamento del file" });
   }
 
-  const data_creazione = new Date().toISOString();
+  console.log("Upload tthumbanil")
+  //Upload della thumbnail
+  const thumbName = `${Date.now()}_thumb.png`;
+  const { error: thumbError } = await supabase.storage
+      .from("thumbnails")
+      .upload(thumbName, thumbnail.buffer, {
+        contentType: "image/png",
+      });
+
+    if (thumbError) {
+      return res.status(500).json({ error: "Errore upload thumbnail" });
+    }
 
 
+    const { data: pdfUrlData } = supabase.storage
+      .from("AstraNote-files")
+      .getPublicUrl(fileName);
+
+    const { data: thumbUrlData } = supabase.storage
+      .from("thumbnails")
+      .getPublicUrl(thumbName);
+
+    const url_file = pdfUrlData.publicUrl;
+    const url_thumbnail = thumbUrlData.publicUrl;
+
+ 
   const { data, error: dbError } = await supabase
     .from("appunti")
     .insert([
       {
         titolo,
-        data_creazione,
+        data_creazione:new Date().toISOString(),
         id_autore:req.session.user.id,
-        url_file: publicUrl,
+        url_file: url_file,
         descrizione,
         corso,
-        url_thumbnail,
+        url_thumbnail: url_thumbnail,
         anno_riferimento,
       },
     ])
     .select();
-    console.log("Appunto caricato")
+    console.log("Upload file")
   if (dbError) {
     return res.status(500).json({ error: "Errore nell'inserimento dei dati" });
   }

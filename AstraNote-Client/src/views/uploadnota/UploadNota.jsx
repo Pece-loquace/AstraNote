@@ -3,6 +3,12 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import "./UploadNota.css";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+
+
 
 // CARICAMENTO NOTA
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
@@ -152,16 +158,58 @@ export default function UploadNota() {
             descrizione: formData.descrizione,
         });
 
+        
+        if (!ok) {
+            setFeedback({show: true,type: "error",errori});
+            setCampiInErrore(listaErrori);
+            return;
+        }
+
+
+        const file = formData.upload;
+
+        /*Genera thumbnail */
+        const arrayBuffer = await file.arrayBuffer();
+        
+        //Carica pdf
+        const pdf = await pdfjsLib.getDocument({
+            data: arrayBuffer,
+        }).promise;
+
+        const page = await pdf.getPage(1);
+
+        const viewport = page.getViewport({
+            scale: 1,
+        });
+
+        const canvas = document.createElement("canvas");
+
+        const context = canvas.getContext("2d");
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({
+            canvasContext: context,
+            viewport,
+        }).promise;
+
+        // canvas -> blob png
+        const thumbnailBlob = await new Promise((resolve) => {
+            canvas.toBlob(resolve, "image/png");
+        });
+
         if (ok) {
             try {
                 const payload = new FormData();
                 payload.append("file", formData.upload);
+                payload.append("thumbnail", thumbnailBlob, "thumbnail.png");
                 payload.append("titolo", formData.nome.trim());
                 payload.append("corso", formData.corso);
                 payload.append("anno_riferimento", formData.anno)
                 payload.append("descrizione", formData.descrizione.trim());
 
-                const response = await fetch(API_UPLOAD_URL, {
+                const response = await fetch('/api/appunti', {
                     method: "POST",
                     credentials: 'include',
                     body: payload
