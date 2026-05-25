@@ -15,7 +15,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 const EXTENSION = "application/pdf";
 const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
-const DESCRIZIONE_MAX = 500;
+const DESCRIZIONE_MAX = 96;
 
 const API_FACOLTA_URL = "http://localhost:3000/api/facolta";
 const API_CORSO_URL = "http://localhost:3000/api/corso";
@@ -158,9 +158,9 @@ export default function UploadNota() {
             descrizione: formData.descrizione,
         });
 
-        
+
         if (!ok) {
-            setFeedback({show: true,type: "error",errori});
+            setFeedback({ show: true, type: "error", errori });
             setCampiInErrore(listaErrori);
             return;
         }
@@ -172,7 +172,7 @@ export default function UploadNota() {
         //Trasforma il file in un arrayBuffer, cioè una sequenza
         //grezza di byte in memoria
         const arrayBuffer = await file.arrayBuffer();
-        
+
         //pdfjs analizza i byte e crea un oggetto pdf con cui interagire
         const pdf = await pdfjsLib.getDocument({
             data: arrayBuffer,

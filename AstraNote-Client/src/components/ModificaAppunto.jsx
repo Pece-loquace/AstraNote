@@ -6,7 +6,7 @@ import "../style/buttons.css";
 
 const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
-const DESCRIZIONE_MAX = 500;
+const DESCRIZIONE_MAX = 96;
 
 const API_FACOLTA_URL = "http://localhost:3000/api/facolta";
 const API_CORSO_URL = "http://localhost:3000/api/corso";
