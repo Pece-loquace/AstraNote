@@ -195,14 +195,16 @@ export default function Impostazioni() {
             };
             if (form.nuovaPassword) payload.nuovaPassword = form.nuovaPassword;
 
-            const risposta = await fetch("/api/utenti/id", {
+            const risposta = await fetch(`/api/utenti/${utente.id}`, {
                 method: "PUT",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             });
+            console.log("Risposta ok")
 
             if (risposta.ok) {
+                console.log("Risposta ok")
                 setFeedback({ show: true, type: "ok", errori: [] });
                 setTimeout(() => navigate(`/utente/${utente.id}`), 1000);
             } else {

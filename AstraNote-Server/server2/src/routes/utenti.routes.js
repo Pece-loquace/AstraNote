@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const supabase = require("../config/supabase");
+const bcrypt = require("bcrypt");
 
 //----------Utente -----------
 router.get("/api/utenti/:id", async (req, res) => {
@@ -53,4 +54,59 @@ router.get("/api/utente_loggato", async (req, res) => {
   res.json(data);
 });
 
+
+router.put("/api/utenti/:id" , async(req,res)=>{
+  console.log(req.body)
+  const{nome,facolta,passwordAttuale,nuovaPassword} = req.body;
+  const idUtente = req.params.id;
+
+  const {data,error} = await supabase 
+        .from("utenti")
+        .select("password_hash")
+        .eq("id",idUtente)
+        .single()
+  
+  if(error){
+    return res.status(500).json({ error: "Errore nel recuperare la password" });
+  }
+
+
+  const isPasswordCorrect = await bcrypt.compare(passwordAttuale, data.password_hash);
+  console.log()
+  if(isPasswordCorrect){
+    if(nuovaPassword){
+      const saltRounds = 10;
+      const hashNuovaPassword= await bcrypt.hash(nuovaPassword, saltRounds);
+      const {error} = await supabase 
+        .from("utenti")
+        .update({
+          nome:nome,
+          facolta:facolta,
+          password_hash: hashNuovaPassword  
+        })
+        .eq("id",idUtente)
+      
+      if(error){
+         return res.status(500).json({ error: "Errore nell'aggiornare i 3 campi" });
+      }
+    }else{
+      //Se non è stata settata la nuova password aggiorno solo i campi restanti
+      const {error} = await supabase 
+        .from("utenti")
+        .update({
+          nome:nome,
+          facolta:facolta,
+        })
+        .eq("id",idUtente)
+      
+        console.log(error)
+      if(error){
+         return res.status(500).json({ error: "Errore nell'aggiornare i 2 campi" });
+      }
+    }
+  }else{
+    return res.status(401).json({error: "Password attuale non corretta"});
+  }
+  return res.json({ message: "Profilo aggiornato" });
+})
 module.exports = router;
