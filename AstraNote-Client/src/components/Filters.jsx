@@ -55,7 +55,10 @@ export default function  Filters({filters,setFilters}){
                         if(e.target.value !== ""){
                             loadCorsi(e.target.value); 
                             setFilters(prev => ({...prev, facolta: e.target.value}));
-                        }else{setCorsi([]);}
+                        }else{
+                            setCorsi([]);
+                            setFilters(prev => ({...prev,facolta: "",corso: ""}));
+                        }
                     }}>
                     <option value={""}>---Seleziona una facoltà---</option>
                     {
@@ -89,7 +92,7 @@ export default function  Filters({filters,setFilters}){
                 </div>
                 <div className="col-12 col-md-3 d-flex flex-column align-items-start">
                     <label className="form-label fw-bold mb-1" htmlFor = "stelle">Valutazione: </label>
-                    <select  className="form-select" name = "stelle" id= "anno" onChange={(e) => setFilters(prev => ({...prev, stelle: e.target.value}))}>
+                    <select  className="form-select" name = "stelle" id = "stelle" onChange={(e) => setFilters(prev => ({...prev, stelle: e.target.value}))}>
                         <option value = "">----------</option>
                         <option value="1">⭐</option>
                         <option value="2">⭐⭐</option>

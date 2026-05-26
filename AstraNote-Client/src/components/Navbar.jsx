@@ -4,7 +4,7 @@ import settingsIcon from "../assets/settings.svg"
 import AstraLogo from "../assets/AstraNote_Logo.svg"
 import logo from "../assets/AstraNote_Banner_IT_720.png"
 import "../style/Navbar.css"
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 function Navbar({ children }) {
     const [query, setQuery] = useState('');
@@ -12,6 +12,8 @@ function Navbar({ children }) {
     const [menu, setMenu] = useState(false);
     const [profilo, setProfilo] = useState(false);
     const[utente,setUtente] = useState({});
+
+    const location = useLocation();
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && query.trim() !== " ") {
@@ -288,6 +290,13 @@ function Navbar({ children }) {
         )
     };
 
+
+    useEffect(()=>{
+        if (!location.pathname.startsWith('/search')) {
+            setQuery('');
+        }
+    },[location.pathname]);
+
     const Profilo = ({ isOpen, toggleProfile }) => {
 
         return (
@@ -508,9 +517,9 @@ function Navbar({ children }) {
 
                 <div className="searchCnt flex-grow-1">
                     <img src={searchIcon} className="searchIcon" alt="searchIcon" />
-                    <input className="search text-white" placeholder="Cerca degli appunti..."
+                    <input className="search text-white" value={query} placeholder="Cerca degli appunti..."
                            onChange={(e) => setQuery(e.target.value)} 
-                           onClick={autoCloseProfile}
+                           onClick={autoCloseProfile} 
                            onKeyDown={handleKeyDown}></input>
                 </div>
 

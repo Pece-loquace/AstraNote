@@ -48,6 +48,11 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                 fetch('/api/me')
             ])
 
+            console.log("Errore chiamata 1 ? "  + res1.ok)
+            console.log("Errore chiamata 2 ? "  + res2.ok)
+            console.log("Errore chiamata 3 ? "  + res3.ok)
+            console.log("Errore chiamata 4 ? "  + res4.ok)
+
             if (!res1.ok || !res2.ok || !res3.ok || !res4.ok) {
                 throw new Error("Errore nel recupero dati");
             }
@@ -181,13 +186,12 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
             })
             if (!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
 
-            /*Ricarica gli appunti nell'homepage */
             document.body.classList.remove("modal-open");
             document.body.style.removeProperty("overflow");
             document.body.style.removeProperty("padding-right");
             const backdrop = document.querySelector(".modal-backdrop");
             if (backdrop) backdrop.remove();
-
+            
             onSave();
         } catch (error) {
             alert(error.message)
@@ -273,15 +277,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                     </div>
                 )}
 
-                <img src={bookMark ? BookMarkSelected : BookMark} className="bookmark position-absolute top-0 end-0 m-2"
-                    style={{ width: "24px", height: "24px", zIndex: 1 }}
-                    onClick={() => {
-                        if (!bookMark) { saveCard(); }
-                        else { deleteSavedCard(); }
-                        setBookMark(!bookMark);
-                        if (isLibreria) { onSave(); }
-                    }}
-                />
+                
                 <div className="position-absolute top-0 end-0 m-2 d-flex flex-column align-items-center" style={{ zIndex: 1 }}>
     
                     {/* Bookmark */}
@@ -346,7 +342,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                             </div>
                             <div className="modal-body">
                                 <div className="d-flex">
-                                    <img className="col-4 object-fit-cover rounded border border-info border border-3" src={appunto.url_thumbnail} alt="Card image cap" />
+                                    <img className="anteprima col-4 object-fit-cover rounded border border-info border border-3" src={appunto.url_thumbnail} alt="Card image cap" />
                                     <div className="col-8 d-flex flex-column ms-2">
                                         <h5>{appunto.titolo}</h5>
                                         <span>({recensioni.length}) {stelle}</span>
