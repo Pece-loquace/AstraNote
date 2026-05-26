@@ -39,6 +39,12 @@ function Navbar({ children }) {
         fetchUtente();
     },[])
 
+    const autoCloseProfile = () => {
+        if (profilo === true) {
+            setProfilo(false);
+        }
+    }
+
     const fetchUtente = async() =>{
         try {
             const res1 = await fetch("/api/me");
@@ -383,7 +389,7 @@ function Navbar({ children }) {
                             <hr id="libraryPC"/>
 
                             <div className="profileOptionsCnt" id="libraryPC">
-                                <a className="clickCnt" href="/homepage" onClick={() => setProfilo(!profilo)}>
+                                <a className="clickCnt" href="/libreria" onClick={() => setProfilo(!profilo)}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -495,7 +501,7 @@ function Navbar({ children }) {
                 </div>
 
                 <div className="logoCnt">
-                    <Link to="/homepage">
+                    <Link to="/homepage" onClick={autoCloseProfile}>
                         <img src={AstraLogo} className="logo" alt="AstraLogo" ></img>
                     </Link>
                 </div>
@@ -503,21 +509,27 @@ function Navbar({ children }) {
                 <div className="searchCnt flex-grow-1">
                     <img src={searchIcon} className="searchIcon" alt="searchIcon" />
                     <input className="search text-white" placeholder="Cerca degli appunti..."
-                        onChange={(e) => setQuery(e.target.value)} onKeyDown={handleKeyDown}></input>
+                           onChange={(e) => setQuery(e.target.value)} 
+                           onClick={autoCloseProfile}
+                           onKeyDown={handleKeyDown}></input>
                 </div>
 
                 <div className="uploadCnt">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="uploadIcon">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
                     </svg>
-                    <Link className="upload text-white" to="/upload">Aggiungi una nota</Link>
+                    <Link className="upload text-white" to="/upload" onClick={autoCloseProfile}>
+                        Aggiungi una nota
+                    </Link>
                 </div>
 
                 <div className="libraryCnt">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="libraryIcon">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
                     </svg>
-                    <Link className="library text-white" to="/libreria">La tua libreria</Link>
+                    <Link className="library text-white" to="/libreria" onClick={autoCloseProfile}>
+                        La tua libreria
+                    </Link>
                 </div>
 
                 <div className="accountCnt">

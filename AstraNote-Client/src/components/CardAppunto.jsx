@@ -182,6 +182,12 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
             if (!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
 
             /*Ricarica gli appunti nell'homepage */
+            document.body.classList.remove("modal-open");
+            document.body.style.removeProperty("overflow");
+            document.body.style.removeProperty("padding-right");
+            const backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) backdrop.remove();
+
             onSave();
         } catch (error) {
             alert(error.message)

@@ -55,7 +55,7 @@ export default function Libreria(){
     return(
        <div className="container my-5 flex-grow-1">
                         <ul className="nav">
-                            <li className="nav-item">
+                            <li className="nav-item" style={{textDecoration: 'none', color: 'inherit', border: '2px solid #333', borderRadius: '8px'}}>
                                     <button
                                 className={`nav-link ${sezioneAttiva === "caricati" ? "active" : ""}`}
                                 onClick={() => setSezioneAttiva("caricati")}  
