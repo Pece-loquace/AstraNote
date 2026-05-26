@@ -8,11 +8,6 @@ const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
 const DESCRIZIONE_MAX = 96;
 
-const API_FACOLTA_URL = "http://localhost:3000/api/facolta";
-const API_CORSO_URL = "http://localhost:3000/api/corso";
-const API_MATERIA_URL = "http://localhost:3000/api/materia";
-const API_UPLOAD_URL = "http://localhost:3000/api/appunti";
-
 function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) {
     const errori = [];
     const campiInErrore = new Set();
@@ -39,12 +34,6 @@ function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) 
         campiInErrore.add("corso");
     }
 
-    /*
-    if (!materia) {
-        errori.push("Devi selezionare una materia.");
-        campiInErrore.add("materia");
-    }
-    */
     if (!anno) {
         errori.push("Devi inserire un anno")
         campiInErrore.add("anno")

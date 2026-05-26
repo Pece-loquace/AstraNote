@@ -13,8 +13,8 @@ router.get("/api/utenti/:id", async (req, res) => {
     .eq("id", id_utente)
     .single();
 
-    console.log(data)
-    console.log(error)
+  console.log(data)
+  console.log(error)
   if (error) {
     return res.status(500).json({ error: "Errore nella query al database" });
   }
@@ -55,57 +55,57 @@ router.get("/api/utente_loggato", async (req, res) => {
 });
 
 
-router.put("/api/utenti/:id" , async(req,res)=>{
+router.put("/api/utenti/:id", async (req, res) => {
   console.log(req.body)
-  const{nome,facolta,passwordAttuale,nuovaPassword} = req.body;
+  const { nome, facolta, passwordAttuale, nuovaPassword } = req.body;
   const idUtente = req.params.id;
 
-  const {data,error} = await supabase 
-        .from("utenti")
-        .select("password_hash")
-        .eq("id",idUtente)
-        .single()
-  
-  if(error){
+  const { data, error } = await supabase
+    .from("utenti")
+    .select("password_hash")
+    .eq("id", idUtente)
+    .single()
+
+  if (error) {
     return res.status(500).json({ error: "Errore nel recuperare la password" });
   }
 
 
   const isPasswordCorrect = await bcrypt.compare(passwordAttuale, data.password_hash);
   console.log()
-  if(isPasswordCorrect){
-    if(nuovaPassword){
+  if (isPasswordCorrect) {
+    if (nuovaPassword) {
       const saltRounds = 10;
-      const hashNuovaPassword= await bcrypt.hash(nuovaPassword, saltRounds);
-      const {error} = await supabase 
+      const hashNuovaPassword = await bcrypt.hash(nuovaPassword, saltRounds);
+      const { error } = await supabase
         .from("utenti")
         .update({
-          nome:nome,
-          facolta:facolta,
-          password_hash: hashNuovaPassword  
+          nome: nome,
+          facolta: facolta,
+          password_hash: hashNuovaPassword
         })
-        .eq("id",idUtente)
-      
-      if(error){
-         return res.status(500).json({ error: "Errore nell'aggiornare i 3 campi" });
+        .eq("id", idUtente)
+
+      if (error) {
+        return res.status(500).json({ error: "Errore nell'aggiornare i 3 campi" });
       }
-    }else{
+    } else {
       //Se non è stata settata la nuova password aggiorno solo i campi restanti
-      const {error} = await supabase 
+      const { error } = await supabase
         .from("utenti")
         .update({
-          nome:nome,
-          facolta:facolta,
+          nome: nome,
+          facolta: facolta,
         })
-        .eq("id",idUtente)
-      
-        console.log(error)
-      if(error){
-         return res.status(500).json({ error: "Errore nell'aggiornare i 2 campi" });
+        .eq("id", idUtente)
+
+      console.log(error)
+      if (error) {
+        return res.status(500).json({ error: "Errore nell'aggiornare i 2 campi" });
       }
     }
-  }else{
-    return res.status(401).json({error: "Password attuale non corretta"});
+  } else {
+    return res.status(401).json({ error: "Password non corretta" });
   }
   return res.json({ message: "Profilo aggiornato" });
 })
