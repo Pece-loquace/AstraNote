@@ -39,7 +39,7 @@ function Navbar({ children }) {
 
     useEffect(()=>{
         fetchUtente();
-    },[])
+    },[location.pathname])
 
     const autoCloseProfile = () => {
         if (profilo === true) {
