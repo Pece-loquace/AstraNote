@@ -155,7 +155,6 @@ export default function UploadNota() {
         if (!ok) {
             setFeedback({ show: true, type: "error", errori });
             setCampiInErrore(listaErrori);
-            setTuttiValidi(false);
             return;
         }
 
@@ -165,13 +164,7 @@ export default function UploadNota() {
             setCampiInErrore(new Set());
             setTuttiValidi(true);
 
-        try {
-            setSalvataggio(true);
-            setFeedback({ show: true, type: "ok", errori: [] });
-            setCampiInErrore(new Set());
-            setTuttiValidi(true);
-
-        /*---Generazione Thumbnail */
+            /*---Generazione Thumbnail */
 
             const file = formData.upload;
 
@@ -222,26 +215,19 @@ export default function UploadNota() {
                 body: payload
             });
 
-                console.log("Risposta " + response.ok)
-                if (response.ok) {
-                    setFeedback({ show: true, type: "ok", errori: [] });
-                    setTuttiValidi(true);
-                    setCampiInErrore(new Set());
-                    navigate("/homepage");
-
-                } else {
-                    throw new Error("Impossibile caricare la nota");
-                }
-            } catch (error) {
-                console.error(error);
-                setFeedback({ show: true, type: "error", errori: ["Errore di rete durante il caricamento. Riprova più tardi."] });
-                setTuttiValidi(false);
+            console.log("Risposta " + response.ok)
+            if (response.ok) {
+                setFeedback({ show: true, type: "ok", errori: [] });
+                setTimeout(() => navigate("/homepage"), 1000);
+            } else {
+                throw new Error("Impossibile caricare la nota");
             }
-
-        } else {
-            setFeedback({ show: true, type: "error", errori });
-            setCampiInErrore(listaErrori);
+        } catch (error) {
+            console.error(error);
+            setFeedback({ show: true, type: "error", errori: ["Errore di rete durante il caricamento. Riprova più tardi."] });
             setTuttiValidi(false);
+        } finally {
+            setSalvataggio(false);
         }
     };
 
