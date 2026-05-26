@@ -14,7 +14,7 @@ export default function Profilo() {
     const [utente, setUtente] = useState({});
     const [appunti, setAppunti] = useState([]);
     const [mediaUtente, setMediaUtente] = useState(0);
-    const[nomeFacolta,setNomeFacolta] = useState(null);
+    const [nomeFacolta, setNomeFacolta] = useState(null);
 
     useEffect(() => {
         fetchUtente()
@@ -24,10 +24,10 @@ export default function Profilo() {
         console.log("Id utente" + id_utente)
         try {
             const res1 = await fetch('/api/me');
-            if(!res1.ok) throw new Error('Errore in /api/me');
+            if (!res1.ok) throw new Error('Errore in /api/me');
             const logged_user = await res1.json();
 
-            if(logged_user.id === id_utente){
+            if (logged_user.id === id_utente) {
                 setIsUtenteLoggato(true);
             }
 
@@ -35,7 +35,7 @@ export default function Profilo() {
             if (!res2.ok) throw new Error("Errore nel reperire l'utente ");
             const user = await res2.json();
             setUtente(user);
-            
+
 
             const [res3, res4, res5] = await Promise.all([
                 fetch(`/api/appunti_caricati/${user.id}`),
@@ -43,7 +43,7 @@ export default function Profilo() {
                 fetch(`/api/user_ratings/${user.id}`)
             ]);
 
-            if (!res3.ok || !res4.ok || !res5.ok ) {
+            if (!res3.ok || !res4.ok || !res5.ok) {
                 throw new Error("Errore nelle chiamate parallele");
             }
             const [notes, facolta, user_rating] = await Promise.all([res3.json(), res4.json(), res5.json()]);
@@ -59,11 +59,6 @@ export default function Profilo() {
         }
     }
 
-    // Se l'utente ha caricato una foto, il backend dovrebbe restituirne il
-    // percorso/URL in "utente.foto_profilo". In caso contrario, viene mostrata
-    // l'immagine di default "profile.svg".
-    const fotoSrc = utente.foto_profilo ? utente.foto_profilo : profile;
-
     return (
         <main className="min-vh-100 d-flex align-items-center justify-content-center py-3">
             <div className="container align-items-center py-2">
@@ -73,8 +68,8 @@ export default function Profilo() {
 
                             <div className="col-12 col-md-auto text-center">
                                 <img
-                                    src={fotoSrc}
-                                    alt="Foto profilo"
+                                    src={profile}
+                                    alt="Immagine profilo"
                                     className="foto-profilo rounded-circle"
                                 />
                             </div>
@@ -97,7 +92,7 @@ export default function Profilo() {
                                 <div className="h5 mb-3">{mediaUtente}</div>
 
                                 {/* Modifica */}
-                                { isUtenteLoggato && 
+                                {isUtenteLoggato &&
                                     (
                                         <div>
                                             <hr className="my-4" />
