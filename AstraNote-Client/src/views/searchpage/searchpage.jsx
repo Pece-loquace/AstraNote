@@ -7,7 +7,7 @@ import Filters from "../../components/Filters";
 export default function Searchpage(){
     const [appunti,setAppunti] = useState([])
     const[error,setError] = useState("")
-    const[loading,setLoading] = useState(false)
+    const[loading,setLoading] = useState(true)
     const[filters,setFilters] = useState({facolta:"",anno:"",stelle:""})
 
     /*Recupera il valore di q dall'URL */
