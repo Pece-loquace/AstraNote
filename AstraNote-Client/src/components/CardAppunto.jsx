@@ -29,6 +29,8 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
     const location = useLocation();
     const isLibreria = location.pathname === "/libreria";
 
+    const[caricamentoCard,setCaricamentoCard] = useState(true);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,6 +40,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
     const fetchCard = async () => {
         const appuntoId = appunto.id;
         try {
+            setCaricamentoCard(true);
             const [res1, res2, res3, res4] = await Promise.all([
                 fetch(`/api/appunti/${appuntoId}/preferiti`),
                 fetch(`/api/recensioni/${appuntoId}`),
@@ -77,6 +80,8 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
 
         } catch (error) {
             alert(error.message)
+        }finally{
+            setCaricamentoCard(false);
         }
     }
 
@@ -217,8 +222,35 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
             navigate(`/modifica/${appunto.id}`);
         }, 300);
     };
-    
 
+    const autoreAppunto = () =>{
+        document.body.classList.remove("modal-open");
+        document.body.style.removeProperty("overflow");
+        document.body.style.removeProperty("padding-right");
+        const backdrop = document.querySelector(".modal-backdrop");
+        if (backdrop) backdrop.remove();
+
+        setTimeout(() => {
+            navigate(`/utente/${autore.id}`);
+        }, 300);
+    }
+
+    
+    if (caricamentoCard) {
+        return (
+            <div className="col-lg-4 col-md-6 col-12">
+                <div className="border rounded p-3 h-100 shadow-sm placeholder-glow">
+                    <div className="d-flex gap-2">
+                        <div className="placeholder col-4 rounded" style={{height: "120px"}}></div>
+                        <div className="col-8">
+                            <div className="placeholder col-8 mb-2"></div>
+                            <div className="placeholder col-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="col-lg-4  col-md-6 col-12">
@@ -312,7 +344,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                     <div className="col-8 d-flex flex-column ms-2">
                                         <h5>{appunto.titolo}</h5>
                                         <span>({recensioni.length}) {stelle}</span>
-                                        <Link className="clickCnt" to={`/utente/${autore.id}`}>(di {autore.nome} {autore.cognome})</Link>
+                                        <Link className="clickCnt" to={`/utente/${autore.id}`} onClick={autoreAppunto}>(di {autore.nome} {autore.cognome})</Link>
                                         <span className="text-break"><strong>Descrizione:</strong> {appunto.descrizione}</span>
                                         <p>{appunto.anno}</p>
                                         <span>(Recensione personale)<StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} /></span>
