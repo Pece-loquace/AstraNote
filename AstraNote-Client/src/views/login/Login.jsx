@@ -6,14 +6,12 @@ import "../../style/back_buttons.css";
 
 // REGISTRAZIONE STUDENTE SAPIENZA
 const DOMINIO = "studenti.uniroma1.it";
-const MATRICOLA_LEN = 7;
 const PASSWORD_MIN = 8;
 const EMAIL_REGEX = /^([a-z]+)\.(\d{7})@studenti\.uniroma1\.it$/;
 const MINUSCOLA_REGEX = /[a-z]/;
 const MAIUSCOLA_REGEX = /[A-Z]/;
 const SIMBOLO_REGEX = /[^A-Za-z0-9]/;
 const NUMBER_REGEX = /[0-9]/;
-const API_BASE_URL = "http://localhost:3000/api/facolta";
 
 function validazioneLogin({ email, password }) {
     const errori = [];

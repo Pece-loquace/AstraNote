@@ -26,7 +26,13 @@ export default function Searchpage(){
 
             const data = await response.json();
             
-            const dataFiltrati =  data.filter((a) => a.titolo.toLowerCase().startsWith(query.toLocaleLowerCase()))
+            const dataFiltrati =  data.filter((a) => {
+                const paroleTitolo = a.titolo.toLowerCase().split(" ");
+                const queryLower = query.toLowerCase();
+
+                return paroleTitolo.some(parola => queryLower.includes(parola)); 
+            });
+            
             setAppunti(dataFiltrati)
         } catch (err) {
             setError(err.message)
