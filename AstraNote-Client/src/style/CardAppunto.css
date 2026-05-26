@@ -12,4 +12,9 @@
     cursor: pointer;
 }
 
+.anteprima{
+    height: 500;
+    align-self: flex-start;
+}
+
 

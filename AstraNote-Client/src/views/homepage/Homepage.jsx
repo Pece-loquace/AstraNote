@@ -3,13 +3,14 @@ import {Link} from "react-router-dom"
 //import Filter from "../../components/Filters";
 import CardAppunto from "../../components/CardAppunto";
 import Filters from "../../components/Filters";
+
 const Homepage = () =>{
     const [appuntiFacolta,setAppunti] = useState([])
     const [errore,setErrore] = useState(null)
     const [filters,setFilters] = useState({facolta:"",corso:"",anno:"",stelle:""})
 
    
-    //Campi Filters
+    //Campi Filtri
     const [corso,setCorso] = useState(null)
     const [data,setData] = useState(null)
     const [stelle,setStelle] = useState(0)
