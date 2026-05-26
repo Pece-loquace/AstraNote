@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
 import "./Impostazioni.css"
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 // Modifica Profilo
 const PASSWORD_MIN = 8;
@@ -226,9 +227,9 @@ export default function Impostazioni() {
         }
     };
 
-    // render
+    // render caricamento
     if (caricamento) {
-        return <div className="container py-5 text-center">Caricamento…</div>;
+        return <LoadingSpinner />;
     }
 
     if (feedback.show && feedback.type === "error" && !utente) {

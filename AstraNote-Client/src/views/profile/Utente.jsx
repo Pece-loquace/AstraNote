@@ -7,6 +7,7 @@ import "./Utente.css";
 
 import profile from "../../assets/profile-circle.svg";
 import CardAppunto from "../../components/CardAppunto";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 export default function Profilo() {
     const { id: id_utente } = useParams();
@@ -14,20 +15,26 @@ export default function Profilo() {
     const [utente, setUtente] = useState({});
     const [appunti, setAppunti] = useState([]);
     const [mediaUtente, setMediaUtente] = useState(0);
-    const[nomeFacolta,setNomeFacolta] = useState(null);
+    const [nomeFacolta, setNomeFacolta] = useState(null);
+    const [caricamento, setCaricamento] = useState(true);
 
     useEffect(() => {
-        fetchUtente()
-    }, [])
+        const init = async () => {
+            setCaricamento(true);
+            await fetchUtente();
+            setCaricamento(false);
+        };
+        init();
+    }, []);
 
     const fetchUtente = async () => {
         console.log("Id utente" + id_utente)
         try {
             const res1 = await fetch('/api/me');
-            if(!res1.ok) throw new Error('Errore in /api/me');
+            if (!res1.ok) throw new Error('Errore in /api/me');
             const logged_user = await res1.json();
 
-            if(logged_user.id === id_utente){
+            if (logged_user.id === id_utente) {
                 setIsUtenteLoggato(true);
             }
 
@@ -35,7 +42,7 @@ export default function Profilo() {
             if (!res2.ok) throw new Error("Errore nel reperire l'utente ");
             const user = await res2.json();
             setUtente(user);
-            
+
 
             const [res3, res4, res5] = await Promise.all([
                 fetch(`/api/appunti_caricati/${user.id}`),
@@ -43,7 +50,7 @@ export default function Profilo() {
                 fetch(`/api/user_ratings/${user.id}`)
             ]);
 
-            if (!res3.ok || !res4.ok || !res5.ok ) {
+            if (!res3.ok || !res4.ok || !res5.ok) {
                 throw new Error("Errore nelle chiamate parallele");
             }
             const [notes, facolta, user_rating] = await Promise.all([res3.json(), res4.json(), res5.json()]);
@@ -59,54 +66,61 @@ export default function Profilo() {
         }
     }
 
-    // Se l'utente ha caricato una foto, il backend dovrebbe restituirne il
-    // percorso/URL in "utente.foto_profilo". In caso contrario, viene mostrata
-    // l'immagine di default "profile.svg".
-    const fotoSrc = utente.foto_profilo ? utente.foto_profilo : profile;
+    if (caricamento) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <main className="min-vh-100 d-flex align-items-center justify-content-center py-3">
             <div className="container align-items-center py-2">
-                <div className="card shadow-sm mb-4">
-                    <div className="card-body align-items-center py-5">
-                        <div className="row align-items-center g-1">
+                <div className="card shadow-lg mb-4">
+                    <div className="card-body p-4 p-md-5 position-relative">
+                        <div className="custom-border"></div>
 
+                        <div className="row align-items-center g-4">
+
+                            {/* Foto profilo */}
                             <div className="col-12 col-md-auto text-center">
                                 <img
-                                    src={fotoSrc}
-                                    alt="Foto profilo"
-                                    className="foto-profilo rounded-circle"
+                                    src={profile}
+                                    alt="Immagine profilo"
+                                    className="immagine-profilo rounded-circle"
                                 />
                             </div>
 
                             {/* Informazioni utente */}
                             <div className="col">
-                                <h2 className="h mb-1 fw-semibold">
+                                <h1 className="custom-title mb-3 py-1">
                                     {utente.nome} {utente.cognome}
-                                </h2>
+                                </h1>
 
-                                <div className="h5 text-muted mb-1">
-                                    Matricola <span className="fw-medium text-body">{utente.matricola}</span>
+                                <div className="row g-3">
+                                    <div className="col-sm-6">
+                                        <div className="custom-label">Matricola</div>
+                                        <div className="fw-medium">{utente.matricola}</div>
+                                    </div>
+
+                                    <div className="col-sm-6">
+                                        <div className="custom-label">Facoltà</div>
+                                        <div className="fw-medium">{nomeFacolta}</div>
+                                    </div>
+
+                                    <div className="col-12">
+                                        <div className="custom-label">Valutazione media</div>
+                                        <div className="h5 mb-0">{mediaUtente}</div>
+                                    </div>
                                 </div>
 
-                                <div className="text-muted mb-2">
-                                    Facoltà: <span className="fw-medium text-body">{nomeFacolta}</span>
-                                </div>
-
-                                {/* posizione stelle*/}
-                                <div className="h5 mb-3">{mediaUtente}</div>
-
-                                {/* Modifica */}
-                                { isUtenteLoggato && 
-                                    (
-                                        <div>
-                                            <hr className="my-4" />
-                                            <div className="justify-content-end">
-                                                <Link to="/impostazioni" className="btn btn-primary">Modifica profilo</Link>
-                                            </div>
+                                {isUtenteLoggato && (
+                                    <>
+                                        <hr className="my-4" />
+                                        <div className="d-flex justify-content-end">
+                                            <Link to="/impostazioni" className="btn-custom">
+                                                Modifica profilo
+                                            </Link>
                                         </div>
-                                    )
-                                }
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

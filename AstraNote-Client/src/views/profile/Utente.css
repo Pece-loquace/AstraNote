@@ -1,15 +1,51 @@
 :root {
-    --bordeaux: #782d41;
-    --bordeaux-dark: #5a232d;
-    --paper: #faf5eb;
-    --border: #faf5eb;
+    --bordeaux: #782F40;
+    --bordeaux-dark: #5a212f;
+    --paper: #f6f1e7;
+    --border: #c8aa6480;
 }
 
-/* Foto profilo: cerchio fisso, ritaglio centrato anche se l'immagine non è quadrata */
-.foto-profilo {
+body {
+    background:
+        radial-gradient(ellipse at top left, #f0e6d2 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, #e6dcc3 0%, transparent 50%),
+        var(--paper);
+}
+
+/* Bordo decorativo interno alla card */
+.custom-border {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    border: 1px solid var(--border);
+    pointer-events: none;
+}
+
+.custom-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 2.2rem;
+    color: var(--bordeaux);
+    letter-spacing: -0.01em;
+}
+
+.custom-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bordeaux-dark);
+    margin-bottom: 0.3rem;
+}
+
+/* immagine profilo */
+.immagine-profilo {
     width: 250px;
     height: 250px;
     object-fit: cover;
-    border: 2px solid var(--paper, #faf5eb);
+    border: 3px solid var(--bordeaux-dark);
     background-color: var(--bordeaux);
+    padding: 4px;
 }

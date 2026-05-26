@@ -2,10 +2,12 @@
     z-index: 3;
     background-color: #812534e3;
     border-radius: 8px;
-    padding: 8px 28px; 
-    border: none; 
+    padding: 8px 28px;
+    border: none;
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.404);
     transition: transform 0.3s, box-shadow 0.3s;
+    color: #fff;
+    text-decoration: none;
 }
 
 .btn-custom:hover {
