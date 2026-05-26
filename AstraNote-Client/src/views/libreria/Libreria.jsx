@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { useState } from "react"
 import Filters from "../../components/Filters"
 import CardAppunto from "../../components/CardAppunto"
+import './Libreria.css'
 
 
 export default function Libreria(){
@@ -53,9 +54,9 @@ export default function Libreria(){
     });
     
     return(
-       <div className="container my-5 flex-grow-1">
+       <div className="libCnt container my-5 flex-grow-1">
                         <ul className="nav">
-                            <li className="nav-item" style={{textDecoration: 'none', color: 'inherit', border: '2px solid #333', borderRadius: '8px'}}>
+                            <li className="appunti nav-item">
                                     <button
                                 className={`nav-link ${sezioneAttiva === "caricati" ? "active" : ""}`}
                                 onClick={() => setSezioneAttiva("caricati")}  
@@ -63,7 +64,7 @@ export default function Libreria(){
                                 Appunti Caricati ({appuntiCaricatiFiltrati.length})
                             </button>
                             </li>
-                            <li className="nav-item">
+                            <li className="appunti nav-item">
                                 <button
                                 className={`nav-link ${sezioneAttiva === "scaricati" ? "active" : ""}`}
                                 onClick={() => setSezioneAttiva("scaricati")}  

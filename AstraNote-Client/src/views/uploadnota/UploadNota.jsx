@@ -5,6 +5,7 @@ import "../../style/bootstrap.css";
 import "../../style/buttons.css";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
@@ -79,6 +80,8 @@ export default function UploadNota() {
     const [facolta, setFacolta] = useState([]);
     const [corso, setCorso] = useState([]);
     const [materia, setMateria] = useState([]);
+    const [caricamento, setCaricamento] = useState(true);
+    const [salvataggio, setSalvataggio] = useState(false);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -107,6 +110,7 @@ export default function UploadNota() {
 
     const caricaFacolta = async () => {
         try {
+            setCaricamento(true);
             const response = await fetch('/api/facolta')
             if (!response.ok) throw new Error("Errore nel caricamento delle materie");
 
@@ -115,6 +119,8 @@ export default function UploadNota() {
             console.log(facolta)
         } catch (error) {
             console.error(error);
+        } finally {
+            setCaricamento(false);
         }
     };
 
@@ -153,80 +159,82 @@ export default function UploadNota() {
             return;
         }
 
+        try {
+            setSalvataggio(true);
+            setFeedback({ show: true, type: "ok", errori: [] });
+            setCampiInErrore(new Set());
+            setTuttiValidi(true);
 
-        setFeedback({ show: true, type: "ok", errori: [] });
-        setTuttiValidi(true);
-        setCampiInErrore(new Set());
+        try {
+            setSalvataggio(true);
+            setFeedback({ show: true, type: "ok", errori: [] });
+            setCampiInErrore(new Set());
+            setTuttiValidi(true);
+
         /*---Generazione Thumbnail */
 
-        const file = formData.upload;
+            const file = formData.upload;
 
-        //Trasforma il file in un arrayBuffer, cioè una sequenza
-        //grezza di byte in memoria
-        const arrayBuffer = await file.arrayBuffer();
+            //Trasforma il file in un arrayBuffer, cioè una sequenza
+            //grezza di byte in memoria
+            const arrayBuffer = await file.arrayBuffer();
 
-        //pdfjs analizza i byte e crea un oggetto pdf con cui interagire
-        const pdf = await pdfjsLib.getDocument({
-            data: arrayBuffer,
-        }).promise;
+            //pdfjs analizza i byte e crea un oggetto pdf con cui interagire
+            const pdf = await pdfjsLib.getDocument({
+                data: arrayBuffer,
+            }).promise;
 
-        const page = await pdf.getPage(1);
+            const page = await pdf.getPage(1);
 
-        //Calcola le dimensioni della prima pagina 
-        const viewport = page.getViewport({
-            scale: 1,
-        });
+            //Calcola le dimensioni della prima pagina 
+            const viewport = page.getViewport({
+                scale: 1,
+            });
 
-        const canvas = document.createElement("canvas");
+            const canvas = document.createElement("canvas");
 
-        const context = canvas.getContext("2d");
+            const context = canvas.getContext("2d");
 
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
 
-        await page.render({
-            canvasContext: context,
-            viewport,
-        }).promise;
+            await page.render({
+                canvasContext: context,
+                viewport,
+            }).promise;
 
-        // canvas -> blob png
-        const thumbnailBlob = await new Promise((resolve) => {
-            canvas.toBlob(resolve, "image/png");
-        });
+            // canvas -> blob png
+            const thumbnailBlob = await new Promise((resolve) => {
+                canvas.toBlob(resolve, "image/png");
+            });
 
-        if (ok) {
-            try {
-                const payload = new FormData();
-                payload.append("file", formData.upload);
-                payload.append("thumbnail", thumbnailBlob, "thumbnail.png");
-                payload.append("titolo", formData.nome.trim());
-                payload.append("corso", formData.corso);
-                payload.append("anno_riferimento", formData.anno)
-                payload.append("descrizione", formData.descrizione.trim());
+            const payload = new FormData();
+            payload.append("file", formData.upload);
+            payload.append("thumbnail", thumbnailBlob, "thumbnail.png");
+            payload.append("titolo", formData.nome.trim());
+            payload.append("corso", formData.corso);
+            payload.append("anno_riferimento", formData.anno)
+            payload.append("descrizione", formData.descrizione.trim());
 
-                const response = await fetch('/api/appunti', {
-                    method: "POST",
-                    credentials: 'include',
-                    body: payload
-                });
+            const response = await fetch('/api/appunti', {
+                method: "POST",
+                credentials: 'include',
+                body: payload
+            });
 
                 console.log("Risposta " + response.ok)
                 if (response.ok) {
-                   console.log("Risposta ok")
-                   setFeedback({ show: true, type: "ok", errori: [] });
-                    setTimeout(() => {navigate("/homepage");}, 1000);
+                    setFeedback({ show: true, type: "ok", errori: [] });
+                    setTuttiValidi(true);
+                    setCampiInErrore(new Set());
+                    navigate("/homepage");
 
                 } else {
                     throw new Error("Impossibile caricare la nota");
                 }
-            } catch (err) {
-                const error = await risposta.json().catch(() => ({}));
-                const erroriBackend = Array.isArray(error)
-                    ? error
-                    : [error.error || error.message || "Errore durante il salvataggio del profilo"];
-
-                setFeedback({ show: true, type: "error", errori: erroriBackend });
-                setCampiInErrore(new Set());
+            } catch (error) {
+                console.error(error);
+                setFeedback({ show: true, type: "error", errori: ["Errore di rete durante il caricamento. Riprova più tardi."] });
                 setTuttiValidi(false);
             }
 
@@ -250,6 +258,11 @@ export default function UploadNota() {
         if (tuttiValidi) return "is-valid";
         return "";
     };
+
+    // render caricamento
+    if (caricamento) {
+        return <LoadingSpinner />;
+    }
 
     return (
         <main className="container min-vh-100 d-flex align-items-center justify-content-center py-4">
@@ -321,7 +334,9 @@ export default function UploadNota() {
                         </div>
 
                         <div className="d-grid gap-2">
-                            <button type="submit" className="carica btn-custom">Carica nota</button>
+                            <button type="submit" className="carica btn-custom" disabled={salvataggio}>
+                                {salvataggio ? "Caricamento…" : "Carica nota"}
+                            </button>
                             <button type="button" className="btn btn-outline-secondary" onClick={handleReset}>Resetta il form</button>
                             <Link to="/homepage" className="btn btn-outline-secondary">Indietro</Link>
                         </div>
@@ -329,7 +344,9 @@ export default function UploadNota() {
                         {feedback.show && (
                             <div className={`alert mt-4 ${feedback.type === "ok" ? "alert-success" : "alert-danger"}`} role="alert">
                                 {feedback.type === "ok" ? (
-                                    "Nota caricata con successo! Grazie per aver condiviso i tuoi appunti."
+                                    salvataggio
+                                        ? "Tutti i campi sono corretti, caricamento in corso..."
+                                        : "Nota caricata con successo! Grazie per aver condiviso i tuoi appunti."
                                 ) : (
                                     <>
                                         <strong className="d-block mb-2">Impossibile caricare la nota:</strong>

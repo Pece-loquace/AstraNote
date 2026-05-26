@@ -1,0 +1,11 @@
+.nav-link.caricati, .nav-link.scaricati {
+    text-decoration: none;
+    color: black;
+    border: 2px solid #333;
+    border-radius: 8px;
+}
+
+.appunti:hover {
+    border: 2px solid #333;
+    border-radius: 8px;
+}
