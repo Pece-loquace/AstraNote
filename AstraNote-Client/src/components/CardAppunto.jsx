@@ -8,6 +8,7 @@ import '../style/CardAppunto.css'
 import StelleValutazioni from "./StelleValutazioni";
 import ModificaNote from "./ModificaAppunto";
 import Matita from "../assets/matita.svg"
+import profile from "../assets/profile-circle.svg";
 
 
 export default function CardAppunto({ appunto, onSave , sectionActivate}) {
@@ -185,6 +186,14 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                 body: JSON.stringify({ valutazione: valutazioneMedia })
             })
             if (!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
+            /*
+            document.body.classList.remove("modal-open");
+            document.body.style.removeProperty("overflow");
+            document.body.style.removeProperty("padding-right");
+            const backdrop = document.querySelector(".modal-backdrop");
+            if (backdrop) backdrop.remove();
+            */
+       
         } catch (error) {
             alert(error.message)
         }
@@ -329,31 +338,69 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                     <div className="modal-dialog">
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h1 className="modal-title fs-5" id="exampleModalLabel">{appunto.titolo}</h1>
+                                
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
                                 <div className="d-flex">
-                                    <img className="anteprima col-4 object-fit-cover rounded border border-info border border-3" src={appunto.url_thumbnail} alt="Card image cap" />
-                                    <div className="col-8 d-flex flex-column ms-2">
-                                        <h5>{appunto.titolo}</h5>
-                                        <span>({recensioni.length}) {stelle}</span>
-                                        <Link className="clickCnt" to={`/utente/${autore.id}`} onClick={autoreAppunto}>(di {autore.nome} {autore.cognome})</Link>
-                                        <span className="text-break"><strong>Descrizione:</strong> {appunto.descrizione}</span>
-                                        <p>{appunto.anno}</p>
-                                        <span>(Recensione personale)<StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} /></span>
-                                        <div className="row justify-content-between">
-                                            <div className="col">
-                                                    <button type="button" className="btn btn-primary" data-bs-target={`#modal-${appunto.id}`} onClick={() => window.open(appunto.url_file, '_blank')}>
-                                                        Visualizza
-                                                    </button>
-                                            </div> 
-                                            <div className="col">
-                                                    <a type="button" className="btn btn-primary" href={`${appunto.url_file}?download=`}>
-                                                        Scarica
-                                                    </a>
+                                   
+
+                                <div className="col-4 d-flex flex-column align-items-center">
+                                    <img
+                                        className="anteprima object-fit-cover rounded border border-info border-3 w-100"
+                                        src={appunto.url_thumbnail}
+                                        alt="Card image cap"
+                                    />
+
+                                    <Link
+                                        className="clickCnt mt-2"
+                                        to={`/utente/${autore.id}`}
+                                        onClick={autoreAppunto}
+                                    >   
+                                        <div className = "autore-container"s>
+                                            <img
+                                                src={profile}
+                                                alt="Immagine profilo"
+                                                className="logo-profilo rounded-circle"
+                                            /> 
+                                            
+                                            <span className="fw-bold"> {autore.nome} {autore.cognome}</span>
+                                        </div>
+                                    </Link>
+                                </div>    
+
+
+
+
+
+                                    <div className="col-8 d-flex flex-column ms-2  position-relative">
+                                        <div className="text-start d-flex flex-column align-items-start">
+                                            <h5>{appunto.titolo}</h5>
+                                            <span>
+                                                {stelle} ({recensioni.length === 1 ? '1 recensione' : `${recensioni.length} recensioni`})
+                                            </span>
+                                            
+                                            <span className="text-break"><strong>Descrizione:</strong> {appunto.descrizione}</span>
+                                            <p>{appunto.anno}</p>
+                                        </div>
+
+                                        <div className="position-absolute  bottom-0 start-0 w-100">
+                                            <span><StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} />(Recensione personale)</span>
+                                            <div className="row justify-content-between">
+                                                <div className="col">
+                                                        <button type="button" className="btn btn-primary" data-bs-target={`#modal-${appunto.id}`} onClick={() => window.open(appunto.url_file, '_blank')}>
+                                                            Visualizza
+                                                        </button>
+                                                </div> 
+                                                <div className="col">
+                                                        <a type="button" className="btn btn-primary" href={`${appunto.url_file}?download=`}>
+                                                            Scarica
+                                                        </a>
+                                                </div>
                                             </div>
                                         </div>
+
+                                        
                                     </div>
                                 </div>
 

@@ -17,4 +17,22 @@
     align-self: flex-start;
 }
 
+.logo-profilo{
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border: 3px solid var(--bordeaux-dark);
+    background-color: var(--bordeaux);
+    padding: 4px;
+}
 
+.autore-container{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.autore-container:hover{
+    background-color: rgb(204, 204, 204);
+    border-radius: 10px;
+}

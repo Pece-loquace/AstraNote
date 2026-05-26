@@ -149,9 +149,14 @@ export default function UploadNota() {
         if (!ok) {
             setFeedback({ show: true, type: "error", errori });
             setCampiInErrore(listaErrori);
+            setTuttiValidi(false);
             return;
         }
 
+
+        setFeedback({ show: true, type: "ok", errori: [] });
+        setTuttiValidi(true);
+        setCampiInErrore(new Set());
         /*---Generazione Thumbnail */
 
         const file = formData.upload;
@@ -207,17 +212,21 @@ export default function UploadNota() {
 
                 console.log("Risposta " + response.ok)
                 if (response.ok) {
-                    setFeedback({ show: true, type: "ok", errori: [] });
-                    setTuttiValidi(true);
-                    setCampiInErrore(new Set());
-                    navigate("/homepage");
+                   console.log("Risposta ok")
+                   setFeedback({ show: true, type: "ok", errori: [] });
+                    setTimeout(() => {navigate("/homepage");}, 1000);
 
                 } else {
                     throw new Error("Impossibile caricare la nota");
                 }
-            } catch (error) {
-                console.error(error);
-                setFeedback({ show: true, type: "error", errori: ["Errore di rete durante il caricamento. Riprova più tardi."] });
+            } catch (err) {
+                const error = await risposta.json().catch(() => ({}));
+                const erroriBackend = Array.isArray(error)
+                    ? error
+                    : [error.error || error.message || "Errore durante il salvataggio del profilo"];
+
+                setFeedback({ show: true, type: "error", errori: erroriBackend });
+                setCampiInErrore(new Set());
                 setTuttiValidi(false);
             }
 
