@@ -11,7 +11,7 @@ function Navbar({ children }) {
     const navigate = useNavigate();
     const [menu, setMenu] = useState(false);
     const [profilo, setProfilo] = useState(false);
-    const[utente,setUtente] = useState({});
+    const [utente, setUtente] = useState({});
 
     const location = useLocation();
 
@@ -37,9 +37,9 @@ function Navbar({ children }) {
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchUtente();
-    },[location.pathname])
+    }, [location.pathname])
 
     const autoCloseProfile = () => {
         if (profilo === true) {
@@ -47,14 +47,14 @@ function Navbar({ children }) {
         }
     }
 
-    const fetchUtente = async() =>{
+    const fetchUtente = async () => {
         try {
             const res1 = await fetch("/api/me");
-            if(!res1.ok) throw new Error("Errore nel reperire l'utente loggato");
+            if (!res1.ok) throw new Error("Errore nel reperire l'utente loggato");
             const logged_user = await res1.json();
 
             const res2 = await fetch(`/api/utenti/${logged_user.id}`)
-            if(!res2.ok) throw new Error("Errore nel reperire l'utente loggato");
+            if (!res2.ok) throw new Error("Errore nel reperire l'utente loggato");
             const user = await res2.json();
             setUtente(user);
             console.log(user);
@@ -62,7 +62,7 @@ function Navbar({ children }) {
             console.error(error.message);
         }
     }
-    
+
 
     const Menu = ({ isOpen, toggleMenu }) => {
 
@@ -129,7 +129,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="menuOptionsCnt">
-                                <Link className="clickCnt" to={`/utente/${utente.id}`} onClick={() => setMenu(!menu)}>
+                                <a className="clickCnt" href={`/utente/${utente.id}`} onClick={() => setMenu(!menu)}>
                                     <div className="menuOptions_1">
                                         <div className="menuOptions_1">
                                             <div className="menuOptions_2">
@@ -162,7 +162,7 @@ function Navbar({ children }) {
                                             </div>
                                         </div>
                                     </div>
-                                </Link>
+                                </a>
                             </div>
 
                             <hr />
@@ -286,7 +286,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="menuOptionsCnt">
-                                <a className="clickCnt" onClick={() => {setMenu(!menu), Logout()}}>
+                                <a className="clickCnt" onClick={() => { setMenu(!menu), Logout() }}>
                                     <div className="menuOptions_1">
                                         <div className="menuOptions_1" style={{ transform: 'none' }}>
                                             <div className="menuOptions_2">
@@ -331,11 +331,11 @@ function Navbar({ children }) {
     };
 
 
-    useEffect(()=>{
+    useEffect(() => {
         if (!location.pathname.startsWith('/search')) {
             setQuery('');
         }
-    },[location.pathname]);
+    }, [location.pathname]);
 
     const Profilo = ({ isOpen, toggleProfile }) => {
 
@@ -355,7 +355,7 @@ function Navbar({ children }) {
                                 <div></div>
                             </div>
                             <div className="profileH_child">
-                                <div className = "profileLogo">
+                                <div className="profileLogo">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                     </svg>
@@ -405,7 +405,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="profileOptionsCnt">
-                                <Link className="clickCnt" to={`/utente/${utente.id}`} onClick={() => setProfilo(!profilo)}>
+                                <a className="clickCnt" href={`/utente/${utente.id}`} onClick={() => setProfilo(!profilo)}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -432,10 +432,10 @@ function Navbar({ children }) {
                                             </div>
                                         </div>
                                     </div>
-                                </Link>
+                                </a>
                             </div>
 
-                            <hr id="libraryPC"/>
+                            <hr id="libraryPC" />
 
                             <div className="profileOptionsCnt" id="libraryPC">
                                 <a className="clickCnt" href="/libreria" onClick={() => setProfilo(!profilo)}>
@@ -505,7 +505,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="profileOptionsCnt">
-                                <a className="clickCnt" onClick={() => {setProfilo(!profilo), Logout()}}>
+                                <a className="clickCnt" onClick={() => { setProfilo(!profilo), Logout() }}>
                                     <div className="profileOptions_child">
                                         <div className="optionChild">
                                             <div className="optionSvgCnt">
@@ -550,17 +550,17 @@ function Navbar({ children }) {
                 </div>
 
                 <div className="logoCnt">
-                    <Link to="/homepage" onClick={autoCloseProfile}>
+                    <a className="clickCnt" href="/homepage" onClick={autoCloseProfile}>
                         <img src={AstraLogo} className="logo" alt="AstraLogo" ></img>
-                    </Link>
+                    </a>
                 </div>
 
                 <div className="searchCnt flex-grow-1">
                     <img src={searchIcon} className="searchIcon" alt="searchIcon" />
                     <input className="search text-white" value={query} placeholder="Cerca degli appunti..."
-                           onChange={(e) => setQuery(e.target.value)} 
-                           onClick={autoCloseProfile} 
-                           onKeyDown={handleKeyDown}></input>
+                        onChange={(e) => setQuery(e.target.value)}
+                        onClick={autoCloseProfile}
+                        onKeyDown={handleKeyDown}></input>
                 </div>
 
                 <div className="uploadCnt">
@@ -582,7 +582,7 @@ function Navbar({ children }) {
                 </div>
 
                 <div className="accountCnt">
-                    <div className = "accountIcon">
+                    <div className="accountIcon">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="profileIcon">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
