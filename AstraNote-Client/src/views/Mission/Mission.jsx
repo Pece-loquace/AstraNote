@@ -109,4 +109,4 @@ function Mission() {
         </>
     )
 }
-export default Mission;
+export default Mission

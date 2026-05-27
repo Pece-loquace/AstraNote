@@ -33,4 +33,4 @@ function Contattaci() {
         </>
     )
 }
-export default Contattaci;
+export default Contattaci

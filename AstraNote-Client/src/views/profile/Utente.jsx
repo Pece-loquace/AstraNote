@@ -129,7 +129,7 @@ export default function Profilo() {
                 {/* Lista appunti*/}
                 <div className="mb-3">
                     <div className="d-flex justify-content-between align-items-center">
-                        <h2 className="h4 mb-0 fw-semibold">I tuoi appunti</h2>
+                        <h2 className="h4 mb-0 fw-semibold">Appunti caricati</h2>
 
                         <span className="badge text-bg-light">
                             {appunti.length} {appunti.length === 1 ? 'appunto' : 'appunti'}

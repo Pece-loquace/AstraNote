@@ -11,8 +11,8 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn"
 import Utente from "./views/profile/Utente"
 import Impostazioni from "./views/impostazioni/Impostazioni"
 import ModificaAppunto from "./components/ModificaAppunto";
-import Mission from "./views/Mission/Mission"
-import Valori from "./views/Valori/Valori"
+import Mission from "./views/mission/Mission"
+import Valori from "./views/valori/Valori"
 import Contattaci from "./views/contattaci/Contattaci"
 
 import ScrollToTop from "./components/ScrollToTop";
