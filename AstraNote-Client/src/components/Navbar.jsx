@@ -246,7 +246,7 @@ function Navbar({ children }) {
                             <hr />
 
                             <div className="menuOptionsCnt">
-                                <Link className="clickCnt" to='/impostazioni' onClick={() => setMenu(!menu)}>
+                                <a className="clickCnt" href='/impostazioni' onClick={() => setMenu(!menu)}>
                                     <div className="menuOptions_1">
                                         <div className="menuOptions_1">
                                             <div className="menuOptions_2">
@@ -280,7 +280,7 @@ function Navbar({ children }) {
                                             </div>
                                         </div>
                                     </div>
-                                </Link>
+                                </a>
                             </div>
 
                             <hr />
@@ -567,18 +567,18 @@ function Navbar({ children }) {
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="uploadIcon">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
                     </svg>
-                    <Link className="upload text-white" to="/upload" onClick={autoCloseProfile}>
+                    <a className="upload text-white" href="/upload" onClick={autoCloseProfile}>
                         Aggiungi una nota
-                    </Link>
+                    </a>
                 </div>
 
                 <div className="libraryCnt">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="libraryIcon">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
                     </svg>
-                    <Link className="library text-white" to="/libreria" onClick={autoCloseProfile}>
+                    <a className="library text-white" href="/libreria" onClick={autoCloseProfile}>
                         La tua libreria
-                    </Link>
+                    </a>
                 </div>
 
                 <div className="accountCnt">
