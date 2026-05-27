@@ -43,9 +43,9 @@ export default function Footer() {
 
       <div>
         &#169;2026 Copyright: AstraNote di Simone, Valerio, Alessandro   -
-        <span className="text-decoration-none text-primary">   Privacy Policy  </span>
+        <a className="text-decoration-none text-primary" href="/privacy">   Privacy Policy  </a>
         <span> - </span>
-        <span className="text-decoration-none text-primary"> Termini del servizio</span>
+        <a className="text-decoration-none text-primary"> Termini del servizio</a>
       </div>
     </footer>
   )

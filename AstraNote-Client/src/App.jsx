@@ -16,6 +16,8 @@ import Valori from "./views/valori/Valori"
 import Contattaci from "./views/contattaci/Contattaci"
 
 import ScrollToTop from "./components/ScrollToTop";
+import Privacy from "./views/footer/PrivacyPolicy";
+
 
 
 export default function App() {
@@ -38,6 +40,7 @@ export default function App() {
           <Route path="/La_nostra_Mission" element={<Mission />} />
           <Route path="/I_nostri_Valori" element={<Valori />} />
           <Route path="/Contattaci" element={<Contattaci />} />
+          <Route path="/privacy" element={<Privacy/>}/>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -261,7 +261,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
 
     return (
         <div className=" col-lg-4  col-md-6 col-12">
-            <div className="cardCnt border rounded p-3 h-100 shadow-sm position-relative">
+            <div className="cardCnt">
                 {loading && (
                     <div style={{
                         position: 'fixed', inset: 0,
@@ -278,23 +278,14 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                 <div className="position-absolute top-0 end-0 m-2 d-flex flex-column align-items-center" style={{ zIndex: 1 }}>
     
                     {/* Bookmark */}
-                    <img 
-                        src={bookMark ? BookMarkSelected : BookMark}
-                        className="bookmarkImg"
-                        onClick={() => {
-                            if (!bookMark) {
-                                saveCard();
-                            } else {
-                                deleteSavedCard();
-                            }
-
-                            setBookMark(!bookMark);
-
-                            if (isLibreria) {
-                                onSave();
-                            }
-                        }}
-                    />
+                    <div className="bookmark">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"fill={bookMark ? "currentColor" : "none"}className="bookmarkImg"
+                            onClick={() => {if (!bookMark) {saveCard();} else {deleteSavedCard();}setBookMark(!bookMark); if (isLibreria) {  onSave();}}}
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                        </svg>
+                    </div>
+                    
 
                     {/* Matita */}
                     {(isLibreria && sectionActivate === 'caricati') && (
@@ -339,28 +330,10 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                         </div>
                       
                         <span>{appunto.anno_riferimento}</span>
-                        {
-                            /*Il formato json che mi restituisce il server è:
-                            appunto{
-                                id: 313,
-                                titolo:fdsfsdf,
-                                descrizione:asdas,
-                                corso{
-                                    id:312,
-                                    nome: info,
-                                    facolta{
-                                        id:3123;
-                                        nome:Ingegneria;
-                                    }
-                                }
-                            } */
-                        }
                         <span>{appunto.corso.facolta.nome}</span>
                         <span>{stelle} </span>
                         <span>( {recensioni.length} recensioni)</span>
-                        <button type="button" className="btn btn-primary mt-auto " data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
-                            Mostra
-                        </button>
+                        
                     </div>
                 </div>
 
@@ -409,7 +382,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                     <div className="col-8 d-flex flex-column ms-2  position-relative">
                                         <div className="text-start d-flex flex-column align-items-start">
                                             <h5>{appunto.titolo}</h5>
-                                            <span>Valutazione media: {stelle} </span>
+                                            
                                             <span>
                                                 {stelle} ({recensioni.length === 1 ? '1 recensione' : `${recensioni.length} recensioni`})
                                             </span>

@@ -9,9 +9,9 @@ const upload = require("../middlewares/upload");
 /*Accede ai dati utente quando vado nell'homepage */
 router.get("/api/me", (req, res) => {
   if (req.session.user) {
-    res.json(req.session.user);
+    res.json({loggato:true, utente: req.session.user});
   } else {
-    res.status(401).json({ error: "Non sei loggato" });
+    res.json({ loggato: false  });
   }
 });
 
