@@ -34,16 +34,6 @@ router.post("/api/segnalazioni", async (req, res) => {
   });
 });
 
-router.get("/api/segnalazioni", async (req, res) => {
-  const { data, error } = await supabase.from("segnalazioni").select("*");
-
-  if (error) {
-    return res
-      .status(500)
-      .json({ error: "Errore nell'ottenere le segnalazioni" });
-  }
-  res.json(data);
-});
 
 router.get("/api/segnalazioni_utente", async (req, res) => {
   const idSegnalazione = req.params.id;
@@ -60,40 +50,6 @@ router.get("/api/segnalazioni_utente", async (req, res) => {
   res.json(data);
 });
 
-router.put("/api/segnalazioni/:id", async (req, res) => {
-  const idSegnalazione = req.params.id;
-  const { messaggio, data_creazione, utente, appunto } = req.body;
-  const { data, error } = await supabase
-    .from("segnalazioni")
-    .update({
-      messaggio: messaggio,
-      created_at: data_creazione,
-      utente_id: utente,
-      appunto_id: appunto,
-    })
-    .eq("id", idSegnalazione)
-    .select()
-    .single();
 
-  if (error) {
-    return res.status(500).json({ error: "Errore nell'update" });
-  }
-  res.status(201).json({ message: "Update effettuato con successo!" });
-});
-
-router.delete("/api/segnalazioni/:id", async (req, res) => {
-  const idSegnalazione = req.params.id;
-
-  const { error } = await supabase
-    .from("segnalazioni")
-    .delete()
-    .eq("id", idSegnalazione);
-
-  if (error) {
-    return res
-      .status(500)
-      .json({ error: "Errore nell'eliminazione della segnalazione" });
-  }
-});
 
 module.exports = router;
