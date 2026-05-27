@@ -11,9 +11,7 @@
 
 }
 
-.fotoPagina:hover{
-    cursor:pointer;
-}
+
 
 .bookmarkImg{
     width: 24px;
@@ -30,9 +28,22 @@
 }
 
 .anteprima{
-    height: 500;
+    width: 100%;
+    height: 100%;
+    max-height: 70%; 
     align-self: flex-start;
+    border: 3px solid grey;
 }
+
+.anteprima:hover{
+    cursor: pointer;
+}
+
+.titoloAppunto:hover{
+    cursor: pointer;
+    color:rgb(102, 102, 219);
+}
+
 
 .logo-profilo{
     width: 40px;

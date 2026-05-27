@@ -324,19 +324,24 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                     <div 
                         data-bs-toggle="modal"
                         data-bs-target={`#modal-${appunto.id}`}
-                        className="fotoPagina col-4"
+                        className="col-4"
                     >   
-                        <div className="thumbnailCnt">
-                            
-                        </div>
-                        <img className=" w-100 h-100 object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
+                        
+                        <img className=" anteprima object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
                             
 
                     </div>
                     
                     <div className="d-flex flex-column ms-2 h-100 w-100 pe-3">
                         {/*Text- break forza il ritorno a capo anche per parole lunghe */}
-                        <h5 className="text-break">{appunto.titolo}</h5> 
+                        <div
+                            className="titoloAppunto" 
+                            data-bs-toggle="modal"
+                            data-bs-target={`#modal-${appunto.id}`}   
+                        >
+                            <h5 className="text-break">{appunto.titolo}</h5> 
+                        </div>
+                      
                         <span>{appunto.anno_riferimento}</span>
                         {
                             /*Il formato json che mi restituisce il server è:
