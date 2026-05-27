@@ -40,6 +40,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
 
     const fetchCard = async () => {
         const appuntoId = appunto.id;
+        console.log(appunto);
         try {
             setCaricamentoCard(true);
             const [res1, res2, res3, res4] = await Promise.all([
@@ -48,11 +49,6 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                 fetch(`/api/utenti/${appunto.id_autore}`),   /*Per caricare nome e cognome dell'utente*/
                 fetch('/api/me')
             ])
-
-            console.log("Errore chiamata 1 ? "  + res1.ok)
-            console.log("Errore chiamata 2 ? "  + res2.ok)
-            console.log("Errore chiamata 3 ? "  + res3.ok)
-            console.log("Errore chiamata 4 ? "  + res4.ok)
 
             if (!res1.ok || !res2.ok || !res3.ok || !res4.ok) {
                 throw new Error("Errore nel recupero dati");

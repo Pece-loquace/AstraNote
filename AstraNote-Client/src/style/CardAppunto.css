@@ -11,8 +11,6 @@
 
 }
 
-
-
 .bookmarkImg{
     width: 24px;
     height: 24px; 
@@ -37,13 +35,13 @@
 
 .anteprima:hover{
     cursor: pointer;
+    border: 3px solid rgb(102, 102, 219); 
 }
 
 .titoloAppunto:hover{
     cursor: pointer;
     color:rgb(102, 102, 219);
 }
-
 
 .logo-profilo{
     width: 40px;
@@ -64,3 +62,5 @@
 .autore-container:hover{
     background-color:#C15B6C;
 }
+
+

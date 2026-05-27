@@ -213,7 +213,7 @@ router.get("/api/appunti_caricati/:idUtente", async (req, res) => {
   console.log(req.params.idUtente);
   const { data, error } = await supabase
     .from("appunti")
-    .select("*")
+    .select(`*,corso(*,facolta(*)))`)
     .eq("id_autore", req.params.idUtente);
 
   console.log(data);

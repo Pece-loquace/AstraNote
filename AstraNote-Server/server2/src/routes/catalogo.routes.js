@@ -55,11 +55,10 @@ router.get("/api/facolta/:id/corsi", async (req, res) => {
 router.get("/api/facolta", async (req, res) => {
   const { data, error } = await supabase.from("facolta").select("id, nome");
 
-  console.log(data);
-  console.log(error);
   if (error) {
     return res.status(500).json({ error: "Errore nella query al database" });
   }
+  console.log(error);
   res.json(data);
 });
 
