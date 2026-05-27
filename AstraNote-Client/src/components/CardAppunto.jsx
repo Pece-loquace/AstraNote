@@ -264,8 +264,8 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
     }
 
     return (
-        <div className="col-lg-4  col-md-6 col-12">
-            <div className="border rounded p-3 h-100 shadow-sm position-relative">
+        <div className=" col-lg-4  col-md-6 col-12">
+            <div className="cardCnt border rounded p-3 h-100 shadow-sm position-relative">
                 {loading && (
                     <div style={{
                         position: 'fixed', inset: 0,
@@ -320,12 +320,42 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                 }
 
 
-                <div className="d-flex w-100 position-relative h-100" >
-                    <img className="col-4 object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
+                <div className=" d-flex w-100 position-relative h-100" >
+                    <div 
+                        data-bs-toggle="modal"
+                        data-bs-target={`#modal-${appunto.id}`}
+                        className="fotoPagina col-4"
+                    >   
+                        <div className="thumbnailCnt">
+                            
+                        </div>
+                        <img className=" w-100 h-100 object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
+                            
+
+                    </div>
+                    
                     <div className="d-flex flex-column ms-2 h-100 w-100 pe-3">
                         {/*Text- break forza il ritorno a capo anche per parole lunghe */}
                         <h5 className="text-break">{appunto.titolo}</h5> 
-                        <span>{stelle}</span>
+                        <span>{appunto.anno_riferimento}</span>
+                        {
+                            /*Il formato json che mi restituisce il server è:
+                            appunto{
+                                id: 313,
+                                titolo:fdsfsdf,
+                                descrizione:asdas,
+                                corso{
+                                    id:312,
+                                    nome: info,
+                                    facolta{
+                                        id:3123;
+                                        nome:Ingegneria;
+                                    }
+                                }
+                            } */
+                        }
+                        <span>{appunto.corso.facolta.nome}</span>
+                        <span>{stelle} </span>
                         <span>( {recensioni.length} recensioni)</span>
                         <button type="button" className="btn btn-primary mt-auto " data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
                             Mostra
@@ -333,7 +363,9 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                     </div>
                 </div>
 
-                {/*Modal */}
+                
+            </div>
+            {/*Modal */}
                 <div className="modal fade" id={`modal-${appunto.id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div className="modal-dialog">
                         <div className="modal-content">
@@ -345,29 +377,29 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                 <div className="d-flex">
                                    
 
-                                <div className="col-4 d-flex flex-column align-items-center">
-                                    <img
-                                        className="anteprima object-fit-cover rounded border border-info border-3 w-100"
-                                        src={appunto.url_thumbnail}
-                                        alt="Card image cap"
-                                    />
-
-                                    <Link
-                                        className="clickCnt mt-2"
-                                        to={`/utente/${autore.id}`}
-                                        onClick={autoreAppunto}
-                                    >   
-                                        <div className = "autore-container"s>
-                                            <img
-                                                src={profile}
-                                                alt="Immagine profilo"
-                                                className="logo-profilo rounded-circle"
-                                            /> 
-                                            
-                                            <span className="fw-bold"> {autore.nome} {autore.cognome}</span>
-                                        </div>
-                                    </Link>
-                                </div>    
+                                    <div className="col-4 d-flex flex-column align-items-center">
+                                        <img
+                                            className="anteprima object-fit-cover rounded border border-info border-3 w-100"
+                                            src={appunto.url_thumbnail}
+                                            alt="Card image cap"
+                                        />
+                                        <span >Caricato il: {new Date(appunto.data_creazione).toLocaleDateString("it-IT")}</span>
+                                        <Link
+                                            className="clickCnt mt-2"
+                                            to={`/utente/${autore.id}`}
+                                            onClick={autoreAppunto}
+                                        >   
+                                            <div className = "autore-container"s>
+                                                <img
+                                                    src={profile}
+                                                    alt="Immagine profilo"
+                                                    className="logo-profilo rounded-circle"
+                                                /> 
+                                                
+                                                <span className="fw-bold"> {autore.nome} {autore.cognome}</span>
+                                            </div>
+                                        </Link>
+                                    </div>    
 
 
 
@@ -376,6 +408,7 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                                     <div className="col-8 d-flex flex-column ms-2  position-relative">
                                         <div className="text-start d-flex flex-column align-items-start">
                                             <h5>{appunto.titolo}</h5>
+                                            <span>Valutazione media: {stelle} </span>
                                             <span>
                                                 {stelle} ({recensioni.length === 1 ? '1 recensione' : `${recensioni.length} recensioni`})
                                             </span>
@@ -431,7 +464,6 @@ export default function CardAppunto({ appunto, onSave , sectionActivate}) {
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     )
 }

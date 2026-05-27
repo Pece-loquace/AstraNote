@@ -1,4 +1,20 @@
 
+.cardCnt:hover{
+    transform: translateY(-5px) scale(1.02);
+    background-color: rgb(175, 206, 231);
+    box-shadow: 0 8px 20px rgba(41, 40, 40, 0.2);
+    z-index: 10;
+}
+
+.thumbnailCnt{
+    position: relative;
+
+}
+
+.fotoPagina:hover{
+    cursor:pointer;
+}
+
 .bookmarkImg{
     width: 24px;
     height: 24px; 
@@ -10,6 +26,7 @@
     height: 22px;
     margin-top: 8px;
     cursor: pointer;
+    border: 1px solid black;
 }
 
 .anteprima{
@@ -29,10 +46,10 @@
 .autore-container{
     display: flex;
     align-items: center;
+    border-radius: 15px;
     gap: 8px;
 }
 
 .autore-container:hover{
-    background-color: rgb(204, 204, 204);
-    border-radius: 10px;
+    background-color:#C15B6C;
 }

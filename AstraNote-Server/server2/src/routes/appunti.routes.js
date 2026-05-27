@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const supabase = require("../config/supabase");
 const upload = require("../middlewares/upload");
-const generaThumbnail = require("../lib/thumbnail");
 
 
 router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
