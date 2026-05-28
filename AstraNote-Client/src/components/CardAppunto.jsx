@@ -13,26 +13,20 @@ import profile from "../assets/profile-circle.svg";
 
 export default function CardAppunto({ appunto, onSave, sectionActivate }) {
     const [stelle, setStelle] = useState("");
-    const [loading, setLoading] = useState(false);
     const [utente, setUtente] = useState([])
     const [autore, setAutore] = useState([])
     const [showSegnala, setShowSegnala] = useState(false);
     const [showModifica, setShowModifica] = useState(false);
     const [bookMark, setBookMark] = useState(false)
     const [errore, setErrore] = useState(false)
-
     const [valutazioneUtente, setValutazioneUtente] = useState(0)
-
-    const [numSalvato, setNumSalvato] = useState(0);
     const [recensioni, setRecensioni] = useState([]);
+    const [caricamentoCard, setCaricamentoCard] = useState(true);
+    const navigate = useNavigate();
 
     /*Controlla se l'URL corrente è libreria */
     const location = useLocation();
     const isLibreria = location.pathname === "/libreria";
-
-    const [caricamentoCard, setCaricamentoCard] = useState(true);
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetchCard()
@@ -58,8 +52,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
             setAutore(autore);
             /*Setta l'utente */
             setUtente(ris4.utente);
-            /*Setta il numero di volte che è stato salvato */
-            setNumSalvato(preferiti.length)
             /* Controllo se l'utente corrente ha salvato l'appunto*/
             const isPresente = preferiti.some(p => String(p.user_id) === String(ris4.utente.id));
             setBookMark(isPresente);
@@ -96,14 +88,12 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 body: JSON.stringify({ appunto_id: appunto.id })
             })
             if (!response.ok) throw new Error("Errore nel recupero dati");
-
+            
             console.log("Appunto aggiunto")
         } catch (error) {
             setErrore("Errore nel salvare la card")
             console.log(error)
-        } finally {
-            setLoading(false);
-        }
+        } 
     }
 
 
@@ -120,9 +110,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
         } catch (error) {
             setErrore("Errore nell'eliminare il salvataggio")
             console.log(error)
-        } finally {
-            setLoading(false);
-        }
+        } 
     }
 
     const ricalcolaStelle = (recensioniAggiornate) => {
@@ -255,21 +243,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
     return (
         <div className=" col-lg-4  col-md-6 col-12 h-100">
             <div className="cardCnt ">
-                {loading && (
-                    <div style={{
-                        position: 'fixed', inset: 0,
-                        display: 'flex', justifyContent: 'center', alignItems: 'center',
-                        backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999
-                    }}>
-                        <div className="spinner-border text-light" role="status" style={{ width: '4rem', height: '4rem' }}>
-                            <span className="visually-hidden">Caricamento...</span>
-                        </div>
-                    </div>
-                )}
-
-
                 <div className="position-absolute top-0 end-0 m-2 d-flex flex-column align-items-center" style={{ zIndex: 1 }}>
-
                     {/* Bookmark */}
                     <div className="bookmarkCnt">
                         <svg className="bookmarkImg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill={bookMark ? "currentColor" : "none"} className="bookmarkImg"
@@ -277,7 +251,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
                         </svg>
                     </div>
-
 
                     {/* Matita */}
                     {(isLibreria && sectionActivate === 'caricati') && (
@@ -289,7 +262,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                     )}
                 </div>
 
-
                 {
                     errore && (
                         <div className="alert alert-danger position-fixed bottom-0 end-0 m-3" role="alert">
@@ -297,7 +269,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                         </div>
                     )
                 }
-
 
                 <div className=" d-flex 6 w-100 position-relative h-100" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
                     <div className="col-4">
@@ -314,21 +285,14 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                         <div className="titoloAppunto" >
                             <h5 className="text-break">{appunto.titolo}</h5>
                         </div>
-
                         <span >{appunto.corso.facolta.nome}</span>
-
                         <hr className="linea" />
-
-                        <div className="dopoLinea">
-                        
-                                
-                                <span >{appunto.corso.nome}</span>
+                        <div className="dopoLinea">      
+                            <span >{appunto.corso.nome}</span>
                         </div>
                     </div>
                 </div>
-
             </div>
-
 
             {/*Modal */}
             <div className="modal fade" id={`modal-${appunto.id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -366,18 +330,12 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                                     </a>
                                 </div>
 
-
-
-
-
                                 <div className="col-8 d-flex flex-column ms-2  position-relative">
                                     <div className="text-start d-flex flex-column align-items-start">
                                         <h5>{appunto.titolo}</h5>
-
                                         <span>
                                             {stelle} ({recensioni.length === 1 ? '1 recensione' : `${recensioni.length} recensioni`})
                                         </span>
-
                                         <span className="text-break"><strong>Descrizione:</strong> {appunto.descrizione}</span>
                                         <p>{appunto.anno}</p>
                                     </div>
@@ -397,32 +355,25 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                                             </div>
                                         </div>
                                     </div>
-
-
                                 </div>
                             </div>
 
-
-
                             {showSegnala && (<Segnala appuntoId={appunto.id} onClose={() => setShowSegnala(false)} />)}
-
                         </div>
                         <div className="modal-footer">
 
-                            {(!isLibreria || (isLibreria && sectionActivate === 'salvati')) &&
+                            {     
+                                (!isLibreria || (isLibreria && sectionActivate === 'salvati')) &&
                                 <button className="btn btn-warning me-auto" onClick={() => setShowSegnala(true)}>
                                     Segnala
                                 </button>
-
                             }
 
                             {
                                 (isLibreria && sectionActivate === 'caricati') &&
-
-                                <button className="btn  btn-danger " onClick={() => { eliminaAppunto(); }}>
+                                <button className="btn  btn-danger " onClick={() => {eliminaAppunto();}}>
                                     Elimina
                                 </button>
-
                             }
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>

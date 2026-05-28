@@ -1,7 +1,6 @@
 import Frontpage from "./views/frontpage/frontpage"
 import Homepage from "./views/homepage/Homepage"
 import DefaultLayout from "./views/Layout/DefaultLayout"
-import AppuntoSpecifico from './components/AppuntoSpecifico'
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import UploadNota from "./views/uploadnota/UploadNota"
@@ -30,7 +29,6 @@ export default function App() {
 
         <Route element={<DefaultLayout />}>
           <Route path="/homepage" element={<Homepage />} />
-          <Route path="/appunto_specifico" element={<AppuntoSpecifico />} />
           <Route path="/search" element={<Searchpage />} />
           <Route path="/libreria" element={<Libreria />} />
           <Route path="/upload" element={<UploadNota />} />

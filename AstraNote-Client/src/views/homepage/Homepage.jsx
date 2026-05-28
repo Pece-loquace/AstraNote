@@ -9,16 +9,9 @@ const Homepage = () => {
     const [errore, setErrore] = useState(null)
     const [filters, setFilters] = useState({ facolta: "", corso: "", anno: "", stelle: "" })
 
-
-    //Campi Filtri
-    const [corso, setCorso] = useState(null)
-    const [data, setData] = useState(null)
-    const [stelle, setStelle] = useState(0)
-
     useEffect(() => {
         caricaAppunti()
     }, [])
-
 
     const caricaAppunti = async () => {
         try {
@@ -42,14 +35,11 @@ const Homepage = () => {
         return true
     })
 
-
-
     return (
         <div className="container my-5 flex-grow-1">
             {errore &&
                 <div className="alert alert-danger">{errore}</div>
             }
-
             <div className="mb-4">
                 <Filters filters={filters} setFilters={setFilters} />
             </div>
@@ -57,7 +47,7 @@ const Homepage = () => {
             <div className="row g-4 m-3">
                 {
                     appuntiFiltrati.map((a) => (
-                        <CardAppunto key={a.id} appunto={a} onSave={caricaAppunti} />))
+                    <CardAppunto key={a.id} appunto={a} onSave={caricaAppunti} />))
                 }
             </div>
 
@@ -67,7 +57,6 @@ const Homepage = () => {
                     Nessun appunto trovato
                 </div>
             }
-
         </div>
     )
 }
