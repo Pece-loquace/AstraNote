@@ -182,7 +182,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 body: JSON.stringify({ valutazione: valutazioneMedia })
             })
             if (!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
-        
+
         } catch (error) {
             alert(error.message)
         }
@@ -273,7 +273,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                     {/* Bookmark */}
                     <div className="bookmarkCnt">
                         <svg className="bookmarkImg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill={bookMark ? "currentColor" : "none"} className="bookmarkImg"
-                            onClick={() => { if (!bookMark) { saveCard();} else { deleteSavedCard(); } setBookMark(!bookMark); onSave(); }}>
+                            onClick={() => { if (!bookMark) { saveCard(); } else { deleteSavedCard(); } setBookMark(!bookMark); onSave(); }}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
                         </svg>
                     </div>
@@ -311,15 +311,15 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                             <h5 className="text-break">{appunto.titolo}</h5>
                         </div>
 
-                        
+
                         <span>{appunto.corso.facolta.nome}</span>
-                        <hr className="linea"/>
+                        <hr className="linea" />
                         <span>{appunto.corso.nome}</span>
                         <div className="recensioneCnt">
                             <span>{stelle}</span>
                             <span>( {recensioni.length} recensioni)</span>
                         </div>
-                        
+
                     </div>
                 </div>
 
@@ -345,9 +345,9 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                                         alt="Card image cap"
                                     />
                                     <span >Caricato il: {new Date(appunto.data_creazione).toLocaleDateString("it-IT")}</span>
-                                    <Link
+                                    <a
                                         className="clickCnt mt-2"
-                                        to={`/utente/${autore.id}`}
+                                        href={`/utente/${autore.id}`}
                                         onClick={autoreAppunto}
                                     >
                                         <div className="autore-container">
@@ -359,7 +359,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
 
                                             <span className="fw-bold"> {autore.nome} {autore.cognome}</span>
                                         </div>
-                                    </Link>
+                                    </a>
                                 </div>
 
 
