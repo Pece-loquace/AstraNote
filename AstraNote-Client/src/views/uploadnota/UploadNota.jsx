@@ -14,7 +14,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 const EXTENSION = "application/pdf";
 const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
-const DESCRIZIONE_MAX = 50;
+const DESCRIZIONE_MAX = 100;
 
 function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) {
     const errori = [];
@@ -74,12 +74,11 @@ const initialFormState = {
 
 export default function UploadNota() {
     const [formData, setFormData] = useState(initialFormState);
-    const [campiInErrore, setCampiInErrore] = useState(() => new Set());
+    const [campiInErrore, setCampiInErrore] = useState(new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] });
     const [facolta, setFacolta] = useState([]);
     const [corso, setCorso] = useState([]);
-    const [materia, setMateria] = useState([]);
     const [caricamento, setCaricamento] = useState(true);
     const [salvataggio, setSalvataggio] = useState(false);
     const fileInputRef = useRef(null);

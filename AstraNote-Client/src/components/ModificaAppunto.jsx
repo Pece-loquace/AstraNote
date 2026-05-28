@@ -6,7 +6,7 @@ import "../style/buttons.css";
 
 const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
-const DESCRIZIONE_MAX = 50;
+const DESCRIZIONE_MAX = 100;
 
 function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) {
     const errori = [];

@@ -1,6 +1,59 @@
-
-
-.a:hover{
-    
+.contattaciLogo {
+    width: 350px;
+    height: 200px;
 }
 
+@media (max-width: 768px) {
+    .missionLogo {
+        width: 300px;
+        height: 170px;
+    }
+}
+
+:root {
+    --bordeaux: #782F40;
+    --bordeaux-dark: #5a212f;
+    --paper: #f6f1e7;
+    --border: #c8aa6480;
+}
+
+body {
+    background:
+        radial-gradient(ellipse at top left, #f0e6d2 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, #e6dcc3 0%, transparent 50%),
+        var(--paper);
+}
+
+/* Bordo decorativo interno alla card */
+.custom-border {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    border: 1px solid var(--border);
+    pointer-events: none;
+}
+
+.custom-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 2.2rem;
+    color: var(--bordeaux);
+    letter-spacing: -0.01em;
+}
+
+.custom-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bordeaux-dark);
+    margin-bottom: 0.3rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--bordeaux);
+    box-shadow: 0 0 0 0.25rem rgba(120, 47, 64, 0.25);
+}
