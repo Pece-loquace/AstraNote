@@ -56,7 +56,7 @@ function Navbar({ children }) {
             if (!res1.ok) throw new Error("Errore nel reperire l'utente loggato");
             const logged_user = await res1.json();
 
-            const res2 = await fetch(`/api/utenti/${logged_user.id}`)
+            const res2 = await fetch(`/api/utenti/${logged_user.utente.id}`)
             if (!res2.ok) throw new Error("Errore nel reperire l'utente loggato");
             const user = await res2.json();
             setUtente(user);

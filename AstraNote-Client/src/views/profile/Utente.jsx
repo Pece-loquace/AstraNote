@@ -34,7 +34,7 @@ export default function Profilo() {
             if (!res1.ok) throw new Error('Errore in /api/me')
             const logged_user = await res1.json()
 
-            if (logged_user.id === id_utente) {
+            if (logged_user.utente.id === id_utente) {
                 setIsUtenteLoggato(true)
             }
 

@@ -54,10 +54,10 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 throw new Error("Errore nel recupero dati");
             }
 
-            const [preferiti, recensioni, autore, utente] = await Promise.all([res1.json(), res2.json(), res3.json(), res4.json()])
+            const [preferiti, recensioni, autore, ris4] = await Promise.all([res1.json(), res2.json(), res3.json(), res4.json()])
             setAutore(autore);
             /*Setta l'utente */
-            setUtente(utente);
+            setUtente(ris4.utente);
             /*Setta il numero di volte che è stato salvato */
             setNumSalvato(preferiti.length)
             /* Controllo se l'utente corrente ha salvato l'appunto*/
