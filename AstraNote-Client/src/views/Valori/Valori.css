@@ -14,6 +14,7 @@
     justify-content: space-between;
     align-items: center;
     overflow: hidden;
+    max-width: 25rem;
 }
 
 .valoreCnt {
@@ -33,6 +34,7 @@
         width: 200px;
         height: 120px;
     }
+
     .content {
         display: flex;
         flex-direction: column;

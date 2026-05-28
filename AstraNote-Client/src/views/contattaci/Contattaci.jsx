@@ -6,31 +6,25 @@ import "../../style/bootstrap.css"
 
 function Contattaci() {
     return (
-        <>
-            <div className="">
-                <div>
-                    <div>
-                        <section>
-                            <div>
-                                <div>
-                                    <div>
-                                        <Link to="/homepage"><img src={logo} alt="" className="contattaciLogo" /></Link>
-                                        <hr />
-                                    </div>
-                                    <div className="container min-vh-100 d-flex align-items-center justify-content-center py-4">
-                                        <div className="card shadow-lg w-100" style={{ maxWidth: "1000px" }}>
-                                            <div className="card-body p-4 p-md-5 position-relative">
-                                                <div className="custom-border"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+
+        <div>
+            <div>
+                <Link to="/homepage"><img src={logo} alt="" className="contattaciLogo" /></Link>
+                <hr />
+            </div>
+            <div className="container min-vh-100 d-flex align-items-center justify-content-center py-4">
+                <div className="card shadow-lg w-100" style={{ maxWidth: "1000px" }}>
+                    <div className="card-body p-4 p-md-5 position-relative">
+                        <div className="custom-border"></div>
+                        <h3 className="text-center custom-title mb-1">Contatti</h3>
+                        <p className="text-black fst-italic mb-4">
+                            test
+                        </p>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
+
     )
 }
 export default Contattaci
