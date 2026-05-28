@@ -36,9 +36,9 @@ function Navbar({ children }) {
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchUtente();
-    },[location.pathname])
+    }, [location.pathname])
 
     const autoCloseMenu = () => {
         if (menuDesktop === true) {
@@ -50,14 +50,14 @@ function Navbar({ children }) {
         }
     }
 
-    const fetchUtente = async() =>{
+    const fetchUtente = async () => {
         try {
             const res1 = await fetch("/api/me");
-            if(!res1.ok) throw new Error("Errore nel reperire l'utente loggato");
+            if (!res1.ok) throw new Error("Errore nel reperire l'utente loggato");
             const logged_user = await res1.json();
 
             const res2 = await fetch(`/api/utenti/${logged_user.id}`)
-            if(!res2.ok) throw new Error("Errore nel reperire l'utente loggato");
+            if (!res2.ok) throw new Error("Errore nel reperire l'utente loggato");
             const user = await res2.json();
             setUtente(user);
             console.log(user);
@@ -66,12 +66,11 @@ function Navbar({ children }) {
         }
     }
 
-
-    useEffect(()=>{
+    useEffect(() => {
         if (!location.pathname.startsWith('/search')) {
             setQuery('');
         }
-    },[location.pathname]);
+    }, [location.pathname]);
 
     return (
         <>

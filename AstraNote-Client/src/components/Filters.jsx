@@ -12,7 +12,7 @@ export default function  Filters({filters,setFilters}){
 
     const loadFilters = async() =>{
         const anni = [];
-        for(let i = 0; i <= 10; i++){
+        for(let i = 0; i <= 7; i++){
             anni.push((2026)-i);
         }    
         console.log(anni)

@@ -13,12 +13,12 @@ export default function RedirectIfLoggedIn({ children }) {
     const fetchUser = async () => {
         try {
             const response = await fetch('/api/me', { credentials: 'include' });
-            if (response.ok) {
+            const data = await response.json();
+            if (data.loggato) {
                 navigate("/homepage");            
+            }else{
+                navigate("/")
             }
-        } catch (error) {
-            alert("Operazione non consentita")
-            navigate("/")
         } finally {
             setLoading(false);                      
         }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "./UploadNota.css";
 import "../../style/bootstrap.css";
 import "../../style/buttons.css";
@@ -14,7 +14,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 const EXTENSION = "application/pdf";
 const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
-const DESCRIZIONE_MAX = 96;
+const DESCRIZIONE_MAX = 50;
 
 function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) {
     const errori = [];
@@ -302,7 +302,7 @@ export default function UploadNota() {
                             <label htmlFor="anno" className="form-label custom-label">Anno di riferimento</label>
                             <select id="anno" name="anno" value={formData.anno} onChange={handleChange} className={`form-select ${classFor("anno")}`}>
                                 <option value="" disabled>-Seleziona un anno -</option>
-                                <option value="2015">2019</option>
+                                <option value="2019">2019</option>
                                 <option value="2020">2020</option>
                                 <option value="2021">2021</option>
                                 <option value="2022">2022</option>
