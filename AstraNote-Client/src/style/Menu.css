@@ -1,0 +1,67 @@
+.menuCnt {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.menuChild_1 {
+    display: flex;
+    flex: 1 1 0%;
+    min-height: 0px;
+}
+
+.menuChild_2 {
+    flex: 1 1 0%;
+    overflow: auto;
+}
+
+.menuSection {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 100%;
+    min-height: 100vh;
+    margin: 0px;
+    background-color: #f7f3f4;
+}
+
+.menuHeaderCnt {
+    display: flex;
+    top: 0px;
+    background-color: transparent;
+    position: relative;
+}
+
+.menuAccount {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 5px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.menuNameCnt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menuIcon {
+    width: 40px;
+    border-radius: 4px;
+}
+
+.menuName {
+    text-decoration: none;
+    color: inherit;
+}
+
+.menuCloseSvg {
+    display: inline-flex;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+}
