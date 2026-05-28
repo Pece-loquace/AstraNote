@@ -10,7 +10,7 @@ function Contattaci() {
         <div>
             <div>
                 <div>
-                    <Link to="/homepage"><img src={logo} alt="" className="contattaciLogo" /></Link>
+                    <Link to="/homepage"><img src={logo} alt="logo di AstraNote" className="image-fix" /></Link>
                     <hr />
                 </div>
                 <div className="container d-flex align-items-center justify-content-center py-4">
@@ -18,13 +18,9 @@ function Contattaci() {
                         <div className="card-body p-4 p-md-5 position-relative">
                             <div className="custom-border"></div>
                             <h3 className="text-center custom-title mb-1">Contattaci</h3>
-                            <img src={chat} alt="Vignetta che sorride" className="contattaciLogo" />
+                            <img src={chat} alt="Vignetta che sorride" className="image-fix" />
                             <ul
-                                className="text-black d-inline-block fst-italic mb-4 text-start p-4"
-                                style={{
-                                    listStylePosition: "inside",
-                                    paddingLeft: 0
-                                }}
+                                className="text-black d-inline-block fst-italic mb-4 text-start p-4 text-fix"
                             >
                                 <li>Simone Pietro Alteri - alteri.1642077@studenti.uniroma1.it</li>
                                 <li>Valerio Grasso - grasso.2108914@studenti.uniroma1.it</li>
@@ -34,7 +30,7 @@ function Contattaci() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
 
     )
 }

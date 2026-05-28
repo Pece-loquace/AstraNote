@@ -79,7 +79,7 @@ export default function Profilo() {
 
                         <div className="row align-items-center g-4">
 
-                            {/* Foto profilo */}
+                            {/* Immagine profilo */}
                             <div className="col-12 col-md-auto text-center">
                                 <img
                                     src={profile}
