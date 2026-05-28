@@ -34,7 +34,7 @@ const Frontpage = () => {
                     <img
                         src={logo}
                         alt="logo"
-                        className="astranote img-fluid mb-4 mb-md-5 px-3 px-md-0"
+                        className="astranote logoFluid mb-4 mb-md-5 px-3 px-md-0"
                     />
 
                     <div className="buttons w-100 px-3 px-md-0">
