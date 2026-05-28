@@ -61,7 +61,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
             /*Setta il numero di volte che è stato salvato */
             setNumSalvato(preferiti.length)
             /* Controllo se l'utente corrente ha salvato l'appunto*/
-            const isPresente = preferiti.some(p => String(p.user_id) === String(utente.id));
+            const isPresente = preferiti.some(p => String(p.user_id) === String(ris4.utente.id));
             setBookMark(isPresente);
 
             setRecensioni(recensioni);
@@ -182,14 +182,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 body: JSON.stringify({ valutazione: valutazioneMedia })
             })
             if (!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
-            /*
-            document.body.classList.remove("modal-open");
-            document.body.style.removeProperty("overflow");
-            document.body.style.removeProperty("padding-right");
-            const backdrop = document.querySelector(".modal-backdrop");
-            if (backdrop) backdrop.remove();
-            */
-
+        
         } catch (error) {
             alert(error.message)
         }
@@ -260,8 +253,8 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
     }
 
     return (
-        <div className=" col-lg-4  col-md-6 col-12">
-            <div className="cardCnt">
+        <div className=" col-lg-4  col-md-6 col-12 h-100">
+            <div className="cardCnt ">
                 {loading && (
                     <div style={{
                         position: 'fixed', inset: 0,
@@ -278,8 +271,8 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 <div className="position-absolute top-0 end-0 m-2 d-flex flex-column align-items-center" style={{ zIndex: 1 }}>
 
                     {/* Bookmark */}
-                    <div className="bookmark">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill={bookMark ? "currentColor" : "none"} className="bookmarkImg"
+                    <div className="bookmarkCnt">
+                        <svg className="bookmarkImg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill={bookMark ? "currentColor" : "none"} className="bookmarkImg"
                             onClick={() => { if (!bookMark) { saveCard(); } else { deleteSavedCard(); } setBookMark(!bookMark); if (isLibreria) { onSave(); } }}
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
@@ -307,38 +300,33 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 }
 
 
-                <div className=" d-flex w-100 position-relative h-100" >
-                    <div
-                        data-bs-toggle="modal"
-                        data-bs-target={`#modal-${appunto.id}`}
-                        className="col-4"
-                    >
-
+                <div className=" d-flex w-100 position-relative h-100" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
+                    <div className="col-4">
                         <img className=" anteprima object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
-
-
+                        <span className="anno">{appunto.anno_riferimento}</span>
                     </div>
 
                     <div className="d-flex flex-column ms-2 h-100 w-100 pe-3">
                         {/*Text- break forza il ritorno a capo anche per parole lunghe */}
-                        <div
-                            className="titoloAppunto"
-                            data-bs-toggle="modal"
-                            data-bs-target={`#modal-${appunto.id}`}
-                        >
+                        <div className="titoloAppunto" >
                             <h5 className="text-break">{appunto.titolo}</h5>
                         </div>
 
-                        <span>{appunto.anno_riferimento}</span>
+                        
                         <span>{appunto.corso.facolta.nome}</span>
-                        <span>{stelle} </span>
-                        <span>( {recensioni.length} recensioni)</span>
-
+                        <hr className="linea"/>
+                        <span>{appunto.corso.nome}</span>
+                        <div className="recensioneCnt">
+                            <span>{stelle}</span>
+                            <span>( {recensioni.length} recensioni)</span>
+                        </div>
+                        
                     </div>
                 </div>
 
-
             </div>
+
+
             {/*Modal */}
             <div className="modal fade" id={`modal-${appunto.id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
