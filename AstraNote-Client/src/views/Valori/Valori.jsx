@@ -89,8 +89,8 @@ function Valori() {
                             </div>
 
                             <div>
-                                <div className="content">
-                                    <div className="valoreCnt">
+                                <div className="content row g-4 justify-content-center align-items-center ">
+                                    <div className=" valoreCnt col-lg-4 col-md-6  col-12">
                                         <div>
                                             <img className="valoreSvg" src={centralità} alt="centralità" />
                                         </div>
@@ -102,7 +102,7 @@ function Valori() {
                                         </span>
                                         Un unico sito gratuito e facile da usare su tutti i tuoi dispositivi.
                                     </div>
-                                    <div className="valoreCnt">
+                                    <div className="valoreCnt  col-lg-4 col-md-6 col-12 ">
                                         <div>
                                             <img className="valoreSvg" src={condivisione} alt="condivisione" />
                                         </div>
@@ -114,7 +114,7 @@ function Valori() {
                                         </span>
                                         Traccia e condividi tutti i tuoi dati e i tuoi appunti in sicurezza.
                                     </div>
-                                    <div className="valoreCnt">
+                                    <div className="valoreCnt  col-lg-4 col-md-6 col-12">
                                         <div>
                                             <img className="valoreSvg" src={qualità} alt="Immagine di una stella" />
                                         </div>

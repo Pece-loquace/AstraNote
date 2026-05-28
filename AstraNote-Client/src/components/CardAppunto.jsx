@@ -303,22 +303,27 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                     <div className="col-4">
                         <img className=" anteprima object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
                         <span className="anno">{appunto.anno_riferimento}</span>
+                        <div className="recensioneCnt">
+                            <span>{stelle}</span>
+                            <span>( {recensioni.length} recensioni)</span>
+                        </div>
                     </div>
 
-                    <div className="d-flex flex-column ms-2 h-100 w-100 pe-3">
+                    <div className="d-flex flex-column justify-content-between  ms-2 h-100 w-100 pe-3">
                         {/*Text- break forza il ritorno a capo anche per parole lunghe */}
                         <div className="titoloAppunto" >
                             <h5 className="text-break">{appunto.titolo}</h5>
                         </div>
 
-
-                        <span>{appunto.corso.facolta.nome}</span>
-                        <hr className="linea" />
-                        <span>{appunto.corso.nome}</span>
-                        <div className="recensioneCnt">
-                            <span>{stelle}</span>
-                            <span>( {recensioni.length} recensioni)</span>
+                        <div>
+                            <span>{appunto.corso.facolta.nome}</span>
+                            <hr className="linea" />
+                            <span>{appunto.corso.nome}</span>
                         </div>
+                            
+                        
+                       
+                        
 
                     </div>
                 </div>
