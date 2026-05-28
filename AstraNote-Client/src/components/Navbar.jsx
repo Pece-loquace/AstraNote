@@ -227,6 +227,39 @@ function Navbar({ children }) {
                     <hr />
 
                     <div className="menuOptionsCnt">
+                        <a className="clickCnt" href="/upload" onClick={autoCloseMenu}>
+                            <div className="menuOptions_child">
+                                <div className="optionChild">
+                                    <div className="optionSvgCnt">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="optionSvg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div className="optionContent">
+                                            <span>
+                                                <span className="optionTitle">
+                                                    Aggiungi una nota
+                                                </span>
+                                            </span>
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256">
+                                                    <path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path>
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <p className="optionSubtitle">
+                                            Compila il form e distribuisci online la tua nota
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <hr />
+
+                    <div className="menuOptionsCnt">
                         <a className="clickCnt" href="/impostazioni" onClick={autoCloseMenu}>
                             <div className="menuOptions_child">
                                 <div className="optionChild">
