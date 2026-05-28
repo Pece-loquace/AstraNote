@@ -35,8 +35,9 @@ export default function Libreria() {
     }
 
     const Reload = () => {
-        window.location.reload()
+        caricaLibreria()
     }
+
     const appuntiCaricatiFiltrati = appuntiCaricati.filter(a => {
         if (filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false
         if (filters.corso !== "" && (a.corso.nome) !== filters.corso) return false
