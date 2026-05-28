@@ -273,7 +273,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                     {/* Bookmark */}
                     <div className="bookmarkCnt">
                         <svg className="bookmarkImg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill={bookMark ? "currentColor" : "none"} className="bookmarkImg"
-                            onClick={() => { if (!bookMark) { saveCard(); } else { deleteSavedCard(); } setBookMark(!bookMark); onSave(); }}>
+                            onClick={() => { if (!bookMark) { saveCard(); } else { deleteSavedCard(); } setBookMark(!bookMark); if(isLibreria){onSave();} }}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
                         </svg>
                     </div>
@@ -303,22 +303,27 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                     <div className="col-4">
                         <img className=" anteprima object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
                         <span className="anno">{appunto.anno_riferimento}</span>
+                        <div className="recensioneCnt">
+                            <span>{stelle}</span>
+                            <span>( {recensioni.length} recensioni)</span>
+                        </div>
                     </div>
 
-                    <div className="d-flex flex-column ms-2 h-100 w-100 pe-3">
+                    <div className="d-flex flex-column justify-content-between  ms-2 h-100 w-100 pe-3">
                         {/*Text- break forza il ritorno a capo anche per parole lunghe */}
                         <div className="titoloAppunto" >
                             <h5 className="text-break">{appunto.titolo}</h5>
                         </div>
 
-
-                        <span>{appunto.corso.facolta.nome}</span>
-                        <hr className="linea" />
-                        <span>{appunto.corso.nome}</span>
-                        <div className="recensioneCnt">
-                            <span>{stelle}</span>
-                            <span>( {recensioni.length} recensioni)</span>
+                        <div>
+                            <span>{appunto.corso.facolta.nome}</span>
+                            <hr className="linea" />
+                            <span>{appunto.corso.nome}</span>
                         </div>
+                            
+                        
+                       
+                        
 
                     </div>
                 </div>

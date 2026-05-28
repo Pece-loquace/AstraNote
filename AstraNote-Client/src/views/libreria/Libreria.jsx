@@ -35,7 +35,7 @@ export default function Libreria() {
     }
 
     const Reload = () => {
-        caricaLibreria()
+        window.location.reload()
     }
 
     const appuntiCaricatiFiltrati = appuntiCaricati.filter(a => {
@@ -67,8 +67,8 @@ export default function Libreria() {
                 </li>
                 <li className="appunti nav-item">
                     <button
-                        className={`nav-link ${sezioneAttiva === "scaricati" ? "active" : ""}`}
-                        onClick={() => setSezioneAttiva("scaricati")}
+                        className={`nav-link ${sezioneAttiva === "salvati" ? "active" : ""}`}
+                        onClick={() => setSezioneAttiva("salvati")}
                     >
                         Appunti Salvati ({appuntiSalvatiFiltrati.length})
                     </button>
@@ -91,11 +91,11 @@ export default function Libreria() {
             }
 
             {
-                (sezioneAttiva === "scaricati") &&
+                (sezioneAttiva === "salvati") &&
                 (appuntiSalvatiFiltrati.length === 0 ? <p>Nessun appunto scaricato</p> :
                     <div className="row g-4">
                         {
-                            appuntiSalvatiFiltrati.map((a) => (<CardAppunto key={a.id} appunto={a} onSave={Reload} />))
+                            appuntiSalvatiFiltrati.map((a) => (<CardAppunto key={a.id} appunto={a} onSave={Reload} sectionActivate={sezioneAttiva} />))
                         }
                     </div>)
             }
