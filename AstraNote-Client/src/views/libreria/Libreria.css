@@ -1,22 +1,21 @@
 .nav-link {
     text-decoration: none;
-    color: black;
     border: 2px solid #333;
     border-radius: 8px;
     font-weight: 400;
     background-color: #620821;
+    color: white !important;
 }
 
 .nav .nav-link{
-    color:rgb(216, 42, 42);
     font-weight: 450;
     text-decoration: none;
+    background-color: #620821;
 }
 
 .nav .nav-link:hover{
     background-color: rgb(175, 131, 131);
-    color:black;
-    
+    transform: scale(1.02);
 }
 
 
@@ -25,9 +24,11 @@
     font-weight: 700;
     border-radius: 8px;
     background-color: #620821;
+    z-index: 3;
+    transform: translateY(-5px) scale(1.02);
 }
 
 .nav .nav-link.active {
     color: white;
-    box-shadow: -3px 5px 3px rgba(0, 0, 0, 0.35);
+    box-shadow: -4px 4px 3px rgba(0, 0, 0, 0.25);
 }

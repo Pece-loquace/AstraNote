@@ -26,8 +26,8 @@
 
 
 .bookmarkCnt:hover {
-    background-color: lightgrey; 
     cursor: pointer;
+    transform: translateY(-1px) scale(1.05);
 }
 
 .bookmarkImg {
@@ -43,12 +43,12 @@
     height: 22px;
     margin-top: 8px;
     cursor: pointer;
-    border: 1px solid black;
+    
 }
 
-.pencilImg{
-    background-color: lightgrey; 
+.pencilImg:hover{
     cursor: pointer;
+    transform: scale(1.05);
 }
 
 .anteprima{

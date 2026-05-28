@@ -69,7 +69,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 setStelle(stringaStelle)
             }
 
-            const recensioneUtente = recensioni.find(r => r.utente_valutante === utente.id);
+            const recensioneUtente =  recensioni.find(r => String(r.utente_valutante) === String(ris4.utente.id));
             setValutazioneUtente(recensioneUtente ? recensioneUtente.valutazione : 0);
 
         } catch (error) {

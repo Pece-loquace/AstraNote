@@ -56,7 +56,7 @@ export default function Libreria() {
 
     return (
         <div className="libCnt container my-5 flex-grow-1">
-            <ul className="nav">
+            <ul className="nav gap-3">
                 <li className="appunti nav-item">
                     <button
                         className={`nav-link ${sezioneAttiva === "caricati" ? "active" : ""}`}
