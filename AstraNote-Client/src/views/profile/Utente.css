@@ -42,10 +42,13 @@ body {
 
 /* immagine profilo */
 .immagine-profilo {
-    width: 250px;
-    height: 250px;
+    width: 100%;                  /* Occupa tutto lo spazio disponibile nel contenitore */
+    max-width: 250px;             /* Non diventerà mai più grande di 250px su schermi grandi */
+    height: auto;
+    
     object-fit: cover;
     border: 3px solid var(--bordeaux-dark);
     background-color: var(--bordeaux);
     padding: 4px;
+    aspect-ratio: 1 / 1;
 }

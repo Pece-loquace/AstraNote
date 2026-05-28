@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import '../style/filters.css'
 
 export default function  Filters({filters,setFilters}){
     const [facolta,setFacolta] = useState([])
@@ -46,7 +47,15 @@ export default function  Filters({filters,setFilters}){
 
 
     return(
-        <div className="container text-center">
+        <>
+        <div className="">
+            
+            <div className="">
+
+            </div>
+            
+        </div>
+        <div className="container">
             <div className="row d-flex justify-content-between">
 
                 <div className="col-12 col-md-3 d-flex flex-column align-items-start">
@@ -103,6 +112,7 @@ export default function  Filters({filters,setFilters}){
                 </div>
             </div>
         </div>
+        </>
         );
 
 }

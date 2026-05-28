@@ -299,7 +299,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 }
 
 
-                <div className=" d-flex w-100 position-relative h-100" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
+                <div className=" d-flex 6 w-100 position-relative h-100" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
                     <div className="col-4">
                         <img className=" anteprima object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
                         <span className="anno">{appunto.anno_riferimento}</span>
@@ -309,22 +309,21 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                         </div>
                     </div>
 
-                    <div className="d-flex flex-column justify-content-between  ms-2 h-100 w-100 pe-3">
+                    <div className="sezioneDestra d-flex flex-column  position-relative  ms-2 h-100 w-100 pe-3 overflow-hidden">
                         {/*Text- break forza il ritorno a capo anche per parole lunghe */}
                         <div className="titoloAppunto" >
                             <h5 className="text-break">{appunto.titolo}</h5>
                         </div>
 
-                        <div>
-                            <span>{appunto.corso.facolta.nome}</span>
-                            <hr className="linea" />
-                            <span>{appunto.corso.nome}</span>
-                        </div>
-                            
-                        
-                       
-                        
+                        <span >{appunto.corso.facolta.nome}</span>
 
+                        <hr className="linea" />
+
+                        <div className="dopoLinea">
+                        
+                                
+                                <span >{appunto.corso.nome}</span>
+                        </div>
                     </div>
                 </div>
 
