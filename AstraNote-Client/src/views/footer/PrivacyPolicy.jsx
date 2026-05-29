@@ -20,7 +20,7 @@ export default function Privacy() {
                     <div className="card shadow-lg w-100" style={{ maxWidth: "1000px" }}>
                         <div className="card-body p-4 p-md-5 position-relative">
                             <div className="custom-border"></div>
-                            <h3 className="text-center custom-title mb-1">License</h3>
+                            <h3 className="text-center custom-title mb-1">Licenza</h3>
                             <h5 className="py-4">
                                 Il contenuto di questo sito web è distribuito con licenza Creative Commons (CC BY-NC-ND 4.0) Attribution-NonCommercial-NoDerivatives 4.0 International.<br />
                                 <br />
