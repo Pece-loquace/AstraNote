@@ -75,7 +75,7 @@ export default function Libreria() {
                 </li>
             </ul>
 
-            <div className="mb-4">
+            <div className="mt-4 mb-4">
                 <Filters filters={filters} setFilters={setFilters} />
             </div>
 
