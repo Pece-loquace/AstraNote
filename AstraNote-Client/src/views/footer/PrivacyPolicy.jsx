@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import logo from "../../assets/AstraNote_Banner_IT_720.png"
 import "./PrivacyPolicy.css"
 import "../../style/bootstrap.css"
@@ -7,9 +6,9 @@ export default function Privacy() {
     return (
         <div>
             <div>
-                <Link to="/homepage">
+                <a href="/homepage">
                     <img src={logo} alt="Logo di AstraNote" className="image-fix" />
-                </Link>
+                </a>
                 <hr />
             </div>
 
