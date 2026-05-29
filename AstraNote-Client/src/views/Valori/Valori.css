@@ -1,6 +1,11 @@
-.valoriLogo {
-    width: 350px;
-    height: 200px;
+.image-fix {
+    width: 100%;
+    /* Occupa tutto lo spazio disponibile nel contenitore */
+    max-width: 350px;
+    max-height: 200px;
+    /* Non diventerà mai più grande di 250px su schermi grandi */
+    height: auto;
+    aspect-ratio: 1 / 1;
 }
 
 .title {
@@ -29,24 +34,24 @@
     width: 110px;
 }
 
+.content {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: clamp(10px, 2vw, 40px);
+}
+
+.valoreCnt {
+    padding-left: 15px;
+    padding-right: 15px;
+    flex-direction: column;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
 @media (max-width: 767px) {
     .valoriLogo {
         width: 200px;
         height: 120px;
-    }
-
-    .content {
-        display: flex;
-        flex-direction: column;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: clamp(10px, 2vw, 40px);
-    }
-
-    .valoreCnt {
-        padding-left: 15px;
-        padding-right: 15px;
-        flex-direction: column;
-        overflow: hidden;
-        overflow-wrap: break-word;
     }
 }

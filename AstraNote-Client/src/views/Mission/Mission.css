@@ -1,6 +1,11 @@
-.missionLogo {
-    width: 350px;
-    height: 200px;
+.image-fix {
+    width: 100%;
+    /* Occupa tutto lo spazio disponibile nel contenitore */
+    max-width: 350px;
+    max-height: 200px;
+    /* Non diventerà mai più grande di 250px su schermi grandi */
+    height: auto;
+    aspect-ratio: 1 / 1;
 }
 
 @media (max-width: 768px) {

@@ -10,7 +10,9 @@ function Contattaci() {
         <div>
             <div>
                 <div>
-                    <Link to="/homepage"><img src={logo} alt="logo di AstraNote" className="image-fix" /></Link>
+                    <Link to="/homepage">
+                        <img src={logo} alt="Logo di AstraNote" className="image-fix" />
+                    </Link>
                     <hr />
                 </div>
                 <div className="container d-flex align-items-center justify-content-center py-4">
