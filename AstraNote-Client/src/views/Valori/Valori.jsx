@@ -10,7 +10,7 @@ function Valori() {
         <div className="container py-2">
             <div className="text-center mb-5">
                 <a href="/homepage">
-                    <img src={logo} alt="Logo AstraNote" className="valoriLogo img-fluid" />
+                    <img src={logo} alt="Logo di AstraNote" className="image-fix" />
                 </a>
                 <hr />
                 <h1 className="mt-4">I nostri Valori</h1>

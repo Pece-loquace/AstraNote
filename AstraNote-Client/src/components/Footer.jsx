@@ -7,7 +7,7 @@ export default function Footer() {
       <hr className="border-3" />
       <div className="container text-center">
         <div className="row align-items-start">
-          <div className="col">
+          <div className="col-4">
             <h3>AstraNote</h3>
             <p className="container text- fs-7">
               AstraNote è il sito per le dispense dell'università La Sapienza di Roma.
@@ -16,12 +16,12 @@ export default function Footer() {
               dello stesso corso di laurea.
             </p>
           </div>
-          <div className="col">
+          <div className="col-4">
             <h3>Info</h3>
             <a href="/La_nostra_Mission" className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">La nostra Mission<br /></a>
             <a href="/I_nostri_Valori" className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">I nostri Valori<br /></a>
           </div>
-          <div className="col">
+          <div className="col-4">
             <h3>Chi siamo</h3>
             <i className="fi fi-brands-instagram"></i>
             <a href="/Contattaci" className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Contattaci<br /></a>

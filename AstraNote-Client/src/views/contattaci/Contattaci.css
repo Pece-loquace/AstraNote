@@ -69,6 +69,6 @@ body {
     max-width: 350px;
     max-height: 200px;
     /* Non diventerà mai più grande di 250px su schermi grandi */
-    height: auto;
     aspect-ratio: 1 / 1;
+    height: auto;
 }
