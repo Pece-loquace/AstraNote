@@ -96,7 +96,7 @@ export default function Impostazioni() {
 
     // unico stato feedback, stesso pattern di Login/Register
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] })
-    const [campiInErrore, setCampiInErrore] = useState(() => new Set())
+    const [campiInErrore, setCampiInErrore] = useState(new Set())
     const [tuttiValidi, setTuttiValidi] = useState(false)
 
     // toggle mostra/nascondi per i tre campi password
