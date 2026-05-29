@@ -5,11 +5,13 @@ export default function Segnala({ appuntoId, onClose }) {
     const[errore,setErrore] = useState(false)
     const[invio,setInvio] = useState(false)
     const[messaggio,setMessaggio] = useState("")
+    const[caricamento, setCaricamento] = useState(false)
     const MAX_SEGNALAZIONI_GIORNALIERE = 3;
 
     const handleSubmit = async() => {
             setInvio(false);   
             setErrore(false);
+            setCaricamento(true);
             // qui poi farai la fetch per segnalare
             console.log("APPUNTO ID CHE STO MANDANDO:", appuntoId);
             if(messaggio.length == 0){
@@ -38,7 +40,10 @@ export default function Segnala({ appuntoId, onClose }) {
                 }
             } catch (error) {
                 console.log(error)
+            } finally {
+                setCaricamento(false);
             }
+            
             
         };
     }
@@ -73,35 +78,36 @@ export default function Segnala({ appuntoId, onClose }) {
                 />
 
                 {
-                    errore && <div class="alert alert-danger alert-dismissible fade show mt-4" role="alert  ">
-                        <strong>Errore!</strong>{errore}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
+                    (errore) && <div className="alert alert-danger alert-dismissible fade show mt-4" role="alert  ">
+                                    <strong>Errore!</strong>{errore}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
                 }
                 {
-                    (invio)  && 
-                    <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
-                        <strong>Inviato!</strong> I tuoi dati sono stati trasmessi con successo.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-
-
+                    (invio)  && <div className="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                                    <strong>Inviato!</strong> I tuoi dati sono stati trasmessi con successo.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
                 }
 
                 <div className="d-flex justify-content-end mt-3 gap-2">
-                    <button
-                        className="btn btn-secondary"
-                        onClick={onClose}
-                    >
-                        Annulla
-                    </button>
+                {(!invio && !errore) &&
+                    <div>
+                        <button className="btn btn-secondary" onClick={onClose} disabled={caricamento}>
+                            Annulla
+                        </button>
 
-                    <button
-                        className="btn btn-danger"
-                        onClick={handleSubmit}
-                    >
-                        Invia
-                    </button>
+                        <button className="btn btn-danger" onClick={handleSubmit} disabled={caricamento}>
+                            Invia
+                        </button>
+                    </div>
+                    }
+                    {(!caricamento && (invio||errore)) &&
+                    <div>
+                        <button className="btn btn-secondary" onClick={onClose}>
+                            Chiudi
+                        </button>
+                    </div>}
                 </div>
                
             </div>
