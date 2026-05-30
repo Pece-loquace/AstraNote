@@ -109,7 +109,6 @@ router.post("/api/register", upload.single("file"), async (req, res) => {
     return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
   }
 
-  console.log("Tutti i campi sono stati riempiti");
 
   if (password.length < 8) {
     return res

@@ -6,16 +6,12 @@ const supabase = require("../config/supabase");
 /*Quando faccio il login nel mio sito devo vedere tutti i corsi che ho nella mia facoltà */
 router.get("/api/corsi", async (req, res) => {
   const { facolta_id } = req.query;
-  console.log("Facoltà in ingresso " + facolta_id)
-
-
+  
   const { data, error } = await supabase
     .from("corsi")
     .select("*")
     .eq("facolta", facolta_id);
 
-  console.log(data);
-  console.log(error);
   if (error) {
     return res.status(500).json({ error: "Errore nei corsi" });
   }
@@ -58,7 +54,6 @@ router.get("/api/facolta", async (req, res) => {
   if (error) {
     return res.status(500).json({ error: "Errore nella query al database" });
   }
-  console.log(error);
   res.json(data);
 });
 

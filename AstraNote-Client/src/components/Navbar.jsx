@@ -60,7 +60,6 @@ function Navbar({ children }) {
             if (!res2.ok) throw new Error("Errore nel reperire l'utente loggato");
             const user = await res2.json();
             setUtente(user);
-            console.log(user);
         } catch (error) {
             console.error(error.message);
         }

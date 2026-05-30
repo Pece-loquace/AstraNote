@@ -116,7 +116,6 @@ export default function UploadNota() {
 
             const facoltaData = await response.json();
             setFacolta(facoltaData);
-            console.log(facolta)
         } catch (error) {
             console.error(error);
         } finally {
@@ -215,7 +214,7 @@ export default function UploadNota() {
                 body: payload
             });
 
-            console.log("Risposta " + response.ok)
+            
             if (response.ok) {
                 setFeedback({ show: true, type: "ok", errori: [] });
                 setTimeout(() => navigate("/homepage"), 1000);

@@ -139,7 +139,6 @@ export default function RegistrazioneConFacolta({ setSection }) {
             if (!response.ok) throw new Error('Errore nel caricamento dei corsi')
 
             const facolta = await response.json()
-            console.log(facolta)
 
             setFacolta(facolta)
         } catch (error) {

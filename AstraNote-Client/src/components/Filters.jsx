@@ -16,7 +16,6 @@ export default function  Filters({filters,setFilters}){
         for(let i = 0; i <= 7; i++){
             anni.push((2026)-i);
         }    
-        console.log(anni)
         setAnni(anni);
         
         try {
@@ -24,8 +23,6 @@ export default function  Filters({filters,setFilters}){
             if(!response.ok) throw new Error('Errore nel caricare le facoltà')
 
             const data = await response.json()
-            console.log(data)
-            
             setFacolta(data)
         } catch (error) {
             console.error(error)

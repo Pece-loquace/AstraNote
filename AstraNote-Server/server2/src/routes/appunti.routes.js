@@ -17,19 +17,17 @@ router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
   }
 
   //Upload del file
-  console.log("Upload file")
   const fileName = `${Date.now()}_${file.originalname}`;
   const { error: fileError } = await supabase.storage
     .from("AstraNote-files")
     .upload(fileName, file.buffer, { contentType: file.mimetype });
 
-    console.log(fileError);
+  
   if (fileError) {
 
     return res.status(500).json({ error: "Errore nel caricamento del file" });
   }
 
-  console.log("Upload tthumbanil")
   //Upload della thumbnail
   const thumbName = `${Date.now()}_thumb.png`;
   const { error: thumbError } = await supabase.storage
@@ -70,7 +68,7 @@ router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
       },
     ])
     .select();
-    console.log("Upload file")
+  
   if (dbError) {
     return res.status(500).json({ error: "Errore nell'inserimento dei dati" });
   }
@@ -121,8 +119,7 @@ router.put("/api/appunti/:id", async (req, res) => {
     .eq("id", idAppunto)
     .select();
     
-  console.log(response.error);
-  console.log(response.data);
+
   if (response.error) {
     return res.status(400).json({ error: "Errore nell'update dei dati" });
   }
@@ -210,15 +207,12 @@ router.get("/api/appunti_caricati", async (req, res) => {
 });
 
 router.get("/api/appunti_caricati/:idUtente", async (req, res) => {
-  console.log(req.params.idUtente);
   const { data, error } = await supabase
     .from("appunti")
     .select(`*,corso(*,facolta(*)))`)
     .eq("id_autore", req.params.idUtente);
 
-  console.log(data);
-  console.log(error);
-
+ 
   if (error) {
     return res
       .status(500)

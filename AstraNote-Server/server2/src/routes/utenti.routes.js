@@ -13,8 +13,6 @@ router.get("/api/utenti/:id", async (req, res) => {
     .eq("id", id_utente)
     .single();
 
-  console.log(data)
-  console.log(error)
   if (error) {
     return res.status(500).json({ error: "Errore nella query al database" });
   }
@@ -44,9 +42,6 @@ router.get("/api/utente_loggato", async (req, res) => {
     .eq("id", req.session.user.id)
     .single();
 
-  console.log(data);
-  console.log(error);
-
   if (error) {
     return res.status(500).json({ error: "Errore nella query al database" });
   }
@@ -56,7 +51,6 @@ router.get("/api/utente_loggato", async (req, res) => {
 
 
 router.put("/api/utenti/:id", async (req, res) => {
-  console.log(req.body)
   const { nome, facolta, passwordAttuale, nuovaPassword } = req.body;
   const idUtente = req.params.id;
 
@@ -72,7 +66,6 @@ router.put("/api/utenti/:id", async (req, res) => {
 
 
   const isPasswordCorrect = await bcrypt.compare(passwordAttuale, data.password_hash);
-  console.log()
   if (isPasswordCorrect) {
     if (nuovaPassword) {
       const saltRounds = 10;
@@ -99,7 +92,6 @@ router.put("/api/utenti/:id", async (req, res) => {
         })
         .eq("id", idUtente)
 
-      console.log(error)
       if (error) {
         return res.status(500).json({ error: "Errore nell'aggiornare i 2 campi" });
       }
