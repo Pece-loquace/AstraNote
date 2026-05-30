@@ -1,15 +1,14 @@
 import logo from "../../assets/AstraNote_Banner_IT_720.png"
 import "./Mission.css"
-import { Link } from 'react-router-dom'
 import "../../style/bootstrap.css"
 
 function Mission() {
     return (
         <div>
             <div>
-                <Link to="/homepage">
+                <a href="/homepage">
                     <img src={logo} alt="Logo di AstraNote" className="image-fix" />
-                </Link>
+                </a>
             </div>
 
             <hr />

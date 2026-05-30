@@ -1,7 +1,5 @@
-import { useState, useSyncExternalStore } from 'react'
 import logo from "../../assets/AstraNote_Banner_IT_720.png"
 import "./Contattaci.css"
-import { Link, useNavigate } from 'react-router-dom'
 import "../../style/bootstrap.css"
 import chat from "../../assets/chat.svg"
 
@@ -10,9 +8,9 @@ function Contattaci() {
         <div>
             <div>
                 <div>
-                    <Link to="/homepage">
+                    <a href="/homepage">
                         <img src={logo} alt="Logo di AstraNote" className="image-fix" />
-                    </Link>
+                    </a>
                     <hr />
                 </div>
                 <div className="container d-flex align-items-center justify-content-center py-4">
