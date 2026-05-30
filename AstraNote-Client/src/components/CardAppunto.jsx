@@ -34,7 +34,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
 
     const fetchCard = async () => {
         const appuntoId = appunto.id;
-        console.log(appunto);
         try {
             setCaricamentoCard(true);
             const [res1, res2, res3, res4] = await Promise.all([
@@ -80,7 +79,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
     }
 
     const saveCard = async () => {
-        console.log("Aggiungo l'appunto")
         try {
             const response = await fetch("/api/preferiti", {
                 method: 'POST',
@@ -89,7 +87,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
             })
             if (!response.ok) throw new Error("Errore nel recupero dati");
             
-            console.log("Appunto aggiunto")
         } catch (error) {
             setErrore("Errore nel salvare la card")
             console.log(error)
@@ -98,7 +95,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
 
 
     const deleteSavedCard = async () => {
-        console.log("elimina")
         try {
             const response = await fetch('/api/preferiti', {
                 method: 'DELETE',
@@ -106,7 +102,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                 body: JSON.stringify({ appunto_id: appunto.id })
             })
             if (!response.ok) throw new Error("Errore nel recupero dati");
-            console.log("Appunto eliminato con successo")
+            
         } catch (error) {
             setErrore("Errore nell'eliminare il salvataggio")
             console.log(error)
@@ -125,12 +121,10 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
 
 
     const changeRecensioni = async (stelle) => {
-        console.log("Cambiando la recensione")
         try {
             let response;
             let recensioniAggiornate = [];
             if (valutazioneUtente === 0) {
-                console.log("La creo una")
                 response = await fetch('/api/recensioni', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -140,7 +134,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
 
                 recensioniAggiornate = [...recensioni, { valutazione: stelle, utente_valutante: utente.id }];
             } else {
-                console.log("La modifico una")
                 response = await fetch('/api/recensioni', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -153,16 +146,12 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
 
             setRecensioni(recensioniAggiornate);
             ricalcolaStelle(recensioniAggiornate)
-            console.log("Recensioni" + recensioniAggiornate.forEach(r => console.log(r)) + " finite")
-            console.log("Appunto" + appunto.id + " " + "Stelle nuove" + + stelle)
             setValutazioneUtente(stelle)
 
             /*Aggiorna campo Valutazione :serve per filtrare*/
             const somma = recensioniAggiornate.reduce((acc, rec) => acc + rec.valutazione, 0);
-            console.log(somma);
             const media = somma / recensioniAggiornate.length;
             const valutazioneMedia = Math.round(media);
-            console.log("Quindi valutazione media " + valutazioneMedia)
 
             response = await fetch(`/api/appunti/${appunto.id}`, {
                 method: 'PUT',
@@ -190,7 +179,6 @@ export default function CardAppunto({ appunto, onSave, sectionActivate }) {
                     url_file: appunto.url_file,
                 }),
             });
-            console.log("Errore elimina " + response.error)
             if (!response.ok) throw new Error("Errore nell'eliminazione");
             onSave(); // ricarica lista
         } catch (error) {

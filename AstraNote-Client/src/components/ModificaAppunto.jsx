@@ -99,7 +99,6 @@ export default function ModificaNote({ appunto: appuntoProp, onSave }) {
             if (!response.ok) throw new Error("Errore nel reperire l'appunto");
 
             const nota = await response.json();
-            console.log(nota);
             setFormData({
                 upload: nota.url_file,
                 titolo: nota.titolo,
@@ -130,11 +129,7 @@ export default function ModificaNote({ appunto: appuntoProp, onSave }) {
     const caricaCorsi = async () => {
         if (!formData.facolta) return;
         try {
-            console.log(appunto);
             const response = await fetch(`/api/corsi?facolta_id=${formData.facolta}`)
-
-            console.log("Status:", response.status);
-            console.log("Content-Type:", response.headers.get("content-type"));
             if (!response.ok) throw new Error("Impossibile caricare i corsi")
 
             const corsi = await response.json()

@@ -19,7 +19,6 @@ router.post("/api/preferiti", async (req, res) => {
     .select();
 
   if (error) {
-    console.log(error);
     return res.status(500).json({ error: "Errore nel salvare il" });
   }
 

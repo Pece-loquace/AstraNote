@@ -191,10 +191,8 @@ export default function Impostazioni() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             })
-            console.log("Risposta ok")
-
+            
             if (risposta.ok) {
-                console.log("Risposta ok")
                 setFeedback({ show: true, type: "ok", errori: [] })
                 setTimeout(() => navigate(`/utente/${utente.id}`), 1000)
             } else {

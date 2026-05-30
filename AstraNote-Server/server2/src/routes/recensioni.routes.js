@@ -66,8 +66,6 @@ router.put("/api/recensioni", async (req, res) => {
     .eq("utente_valutante", req.session.user.id)
     .select();
 
-  console.log(data);
-  console.log(error);
   if (error) {
     return res
       .status(500)

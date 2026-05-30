@@ -13,7 +13,6 @@ export default function Segnala({ appuntoId, onClose }) {
             setErrore(false);
             setCaricamento(true);
             // qui poi farai la fetch per segnalare
-            console.log("APPUNTO ID CHE STO MANDANDO:", appuntoId);
             if(messaggio.length == 0){
                 setErrore("Il messaggio è vuoto")
             }else{
@@ -23,7 +22,6 @@ export default function Segnala({ appuntoId, onClose }) {
                 if(!response) throw new Error("Errore nell'ottenere le segnalazioni");
 
                 const segnalazioniUtente = await response.json();
-                segnalazioniUtente.forEach(s=> console.log(s));
                 const currentDate = new Date().toDateString();
 
                 const segnalazioniGiornaliere = segnalazioniUtente.filter(s => new Date(s.created_at).toDateString() === currentDate)

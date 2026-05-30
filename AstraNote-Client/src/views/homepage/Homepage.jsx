@@ -19,7 +19,6 @@ const Homepage = () => {
             if (!response.ok) throw new Error('Errore nel caricamento')
 
             const appunti = await response.json()
-            console.log(appunti.map(a => ({ id: a.id, valutazione: a.valutazione })))
             setAppunti(appunti)
         } catch (error) {
             setErrore(error.message)

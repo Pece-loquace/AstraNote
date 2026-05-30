@@ -17,7 +17,6 @@ export default function Libreria() {
     }, [])
 
     const caricaLibreria = async () => {
-        console.log("Aggiorno preferiti")
         try {
             const [res1, res2] = await Promise.all([
                 fetch('/api/preferiti_utente'),
@@ -29,7 +28,6 @@ export default function Libreria() {
             setAppuntiSalvati(ris1)
             setAppuntiCaricati(ris2)
         } catch (error) {
-            console.log("Errore nella chiamata")
             console.error(error)
         }
     }

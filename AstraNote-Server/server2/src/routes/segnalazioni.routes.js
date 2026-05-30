@@ -6,8 +6,6 @@ const supabase = require("../config/supabase");
 router.post("/api/segnalazioni", async (req, res) => {
   const { messaggio, appuntoId } = req.body;
   const data_creazione = new Date().toISOString();
-  console.log("Body ricevuto:", req.body);
-  console.log("AppuntId , messaggio", appuntoId, req.body.messaggio);
 
   const { data, error } = await supabase
     .from("segnalazioni")
@@ -20,8 +18,7 @@ router.post("/api/segnalazioni", async (req, res) => {
       },
     ])
     .select();
-  console.log(data);
-  console.log(error);
+  
   if (error) {
     return res
       .status(500)
@@ -49,7 +46,5 @@ router.get("/api/segnalazioni_utente", async (req, res) => {
 
   res.json(data);
 });
-
-
 
 module.exports = router;

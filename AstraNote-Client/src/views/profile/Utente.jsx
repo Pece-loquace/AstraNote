@@ -28,7 +28,6 @@ export default function Profilo() {
     }, [])
 
     const fetchUtente = async () => {
-        console.log("Id utente" + id_utente)
         try {
             const res1 = await fetch('/api/me')
             if (!res1.ok) throw new Error('Errore in /api/me')
