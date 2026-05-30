@@ -12,7 +12,6 @@ body {
         var(--paper);
 }
 
-/* Bordo decorativo interno alla card */
 .custom-border {
     position: absolute;
     top: 12px;
@@ -40,12 +39,11 @@ body {
     margin-bottom: 0.3rem;
 }
 
-/* immagine profilo */
 .immagine-profilo {
-    width: 100%;                  /* Occupa tutto lo spazio disponibile nel contenitore */
-    max-width: 250px;             /* Non diventerà mai più grande di 250px su schermi grandi */
+    width: 100%;
+    max-width: 250px;
     height: auto;
-    
+
     object-fit: cover;
     border: 3px solid var(--bordeaux-dark);
     background-color: var(--bordeaux);

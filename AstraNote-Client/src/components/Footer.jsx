@@ -7,7 +7,7 @@ export default function Footer() {
       <hr className="border-3" />
       <div className="container text-center">
         <div className="row align-items-start">
-          <div className="col">
+          <div className="col-4">
             <h3>AstraNote</h3>
             <p className="container text- fs-7">
               AstraNote è il sito per le dispense dell'università La Sapienza di Roma.
@@ -16,17 +16,15 @@ export default function Footer() {
               dello stesso corso di laurea.
             </p>
           </div>
-          <div className="col">
+          <div className="col-4">
             <h3>Info</h3>
-            <span className="text-decoration-none text-primary" >Come funziona</span><br />
-            <Link to="/La_nostra_Mission"><span className="text-decoration-none text-primary">La nostra Mission</span><br /></Link>
-            <Link to="/I_nostri_Valori"><span className="text-decoration-none text-primary">I nostri Valori</span><br /></Link>
+            <a href="/La_nostra_Mission" className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">La nostra Mission<br /></a>
+            <a href="/I_nostri_Valori" className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">I nostri Valori<br /></a>
           </div>
-          <div className="col">
+          <div className="col-4">
             <h3>Chi siamo</h3>
             <i className="fi fi-brands-instagram"></i>
-            <span className="text-decoration-none text-primary" >I membri del team</span><br />
-            <Link to="/Contattaci"><span className="text-decoration-none text-primary">Contattaci</span><br /></Link>
+            <a href="/Contattaci" className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Contattaci<br /></a>
             <span className="text-decoration-none text-primary">
               <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                 <path fill="currentColor" fillRule="evenodd" d="M3 8a5 5 0 0 1 5-5h8a5 5 0 0 1 5 5v8a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5V8Zm5-3a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3V8a3 3 0 0 0-3-3H8Zm7.597 2.214a1 1 0 0 1 1-1h.01a1 1 0 1 1 0 2h-.01a1 1 0 0 1-1-1ZM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm-5 3a5 5 0 1 1 10 0 5 5 0 0 1-10 0Z" clipRule="evenodd" />
@@ -41,12 +39,12 @@ export default function Footer() {
         </div>
       </div>
 
-      <div>
+      <div className="mb-5">
         &#169;2026 Copyright: AstraNote di Simone, Valerio, Alessandro   -
-        <a className="text-decoration-none text-primary" href="/privacy">   Privacy Policy  </a>
+        <a className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="/privacy">   Licenza  </a>
         <span> - </span>
-        <a className="text-decoration-none text-primary"> Termini del servizio</a>
+        <a className="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover" href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.it"> Licenza Completa </a>
       </div>
-    </footer>
+    </footer >
   )
 }

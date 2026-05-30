@@ -14,7 +14,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 const EXTENSION = "application/pdf";
 const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
-const DESCRIZIONE_MAX = 50;
+const DESCRIZIONE_MAX = 100;
 
 function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) {
     const errori = [];
@@ -74,12 +74,11 @@ const initialFormState = {
 
 export default function UploadNota() {
     const [formData, setFormData] = useState(initialFormState);
-    const [campiInErrore, setCampiInErrore] = useState(() => new Set());
+    const [campiInErrore, setCampiInErrore] = useState(new Set());
     const [tuttiValidi, setTuttiValidi] = useState(false);
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] });
     const [facolta, setFacolta] = useState([]);
     const [corso, setCorso] = useState([]);
-    const [materia, setMateria] = useState([]);
     const [caricamento, setCaricamento] = useState(true);
     const [salvataggio, setSalvataggio] = useState(false);
     const fileInputRef = useRef(null);
@@ -163,22 +162,15 @@ export default function UploadNota() {
             setCampiInErrore(new Set());
             setTuttiValidi(true);
 
-            /*---Generazione Thumbnail */
-
             const file = formData.upload;
-
-            //Trasforma il file in un arrayBuffer, cioè una sequenza
-            //grezza di byte in memoria
             const arrayBuffer = await file.arrayBuffer();
 
-            //pdfjs analizza i byte e crea un oggetto pdf con cui interagire
             const pdf = await pdfjsLib.getDocument({
                 data: arrayBuffer,
             }).promise;
 
             const page = await pdf.getPage(1);
 
-            //Calcola le dimensioni della prima pagina 
             const viewport = page.getViewport({
                 scale: 1,
             });
@@ -195,7 +187,6 @@ export default function UploadNota() {
                 viewport,
             }).promise;
 
-            // canvas -> blob png
             const thumbnailBlob = await new Promise((resolve) => {
                 canvas.toBlob(resolve, "image/png");
             });
@@ -244,7 +235,6 @@ export default function UploadNota() {
         return "";
     };
 
-    // render caricamento
     if (caricamento) {
         return <LoadingSpinner />;
     }

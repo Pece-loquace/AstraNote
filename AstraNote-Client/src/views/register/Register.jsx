@@ -13,14 +13,23 @@ const MINUSCOLA_REGEX = /[a-z]/
 const MAIUSCOLA_REGEX = /[A-Z]/
 const SIMBOLO_REGEX = /[^A-Za-z0-9]/
 const NUMBER_REGEX = /[0-9]/
-const API_BASE_URL = "http://localhost:3000/api/facolta"
 
-function normalizzaCognome(cognome) {
-    return cognome
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[\s'’\-]/g, "")
+
+function EyeIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" width="18" height="18">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+    )
+}
+
+function EyeOffIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" width="18" height="18">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+        </svg>
+    )
 }
 
 function validaRegistrazione({ nome, cognome, matricola, email, facolta, password, conferma }) {
@@ -44,12 +53,13 @@ function validaRegistrazione({ nome, cognome, matricola, email, facolta, passwor
         if (!emailLower.endsWith("@" + DOMINIO)) {
             errori.push("L'email deve appartenere al dominio " + DOMINIO); campiInErrore.add("email")
         }
+
         const match = emailLower.match(EMAIL_REGEX)
         if (!match) {
             errori.push("Il formato dell'email non è valido. Usa: cognome.matricola@studenti.uniroma1.it"); campiInErrore.add("email")
         } else {
             const [, cognomeEmail, matricolaEmail] = match
-            const cognomeAtteso = normalizzaCognome(cognome)
+            const cognomeAtteso = (cognome).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[\s'’\-]/g, "")
             if (cognomeAtteso && cognomeEmail !== cognomeAtteso) {
                 errori.push("Il cognome nell'email non corrisponde a quello inserito."); campiInErrore.add("email")
             }
@@ -84,23 +94,6 @@ function validaRegistrazione({ nome, cognome, matricola, email, facolta, passwor
     return { ok: errori.length === 0, errori, campiInErrore }
 }
 
-function EyeIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" width="18" height="18">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-        </svg>
-    )
-}
-
-function EyeOffIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" width="18" height="18">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-        </svg>
-    )
-}
-
 const initialFormState = {
     nome: "", cognome: "", matricola: "", email: "", facolta: "", password: "", confermaPassword: "",
 }
@@ -109,7 +102,7 @@ export default function RegistrazioneConFacolta({ setSection }) {
     const [formData, setFormData] = useState(initialFormState)
     const [showPassword, setShowPassword] = useState(false)
     const [showConferma, setShowConferma] = useState(false)
-    const [campiInErrore, setCampiInErrore] = useState(() => new Set())
+    const [campiInErrore, setCampiInErrore] = useState(new Set())
     const [tuttiValidi, setTuttiValidi] = useState(false)
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] })
     const [facolta, setFacolta] = useState([])
@@ -135,7 +128,7 @@ export default function RegistrazioneConFacolta({ setSection }) {
 
     const caricaFacolta = async () => {
         try {
-            const response = await fetch(API_BASE_URL)
+            const response = await fetch("/api/facolta")
             if (!response.ok) throw new Error('Errore nel caricamento dei corsi')
 
             const facolta = await response.json()

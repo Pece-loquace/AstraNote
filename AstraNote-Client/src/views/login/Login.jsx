@@ -45,7 +45,7 @@ const initialFormState = {
 export default function RegistrazioneConFacolta({ setSection }) {
     const [formData, setFormData] = useState(initialFormState)
     const [showPassword, setShowPassword] = useState(false)
-    const [campiInErrore, setCampiInErrore] = useState(() => new Set())
+    const [campiInErrore, setCampiInErrore] = useState(new Set())
     const [tuttiValidi, setTuttiValidi] = useState(false)
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] })
     const navigate = useNavigate()

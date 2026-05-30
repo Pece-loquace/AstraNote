@@ -212,6 +212,13 @@
     #libraryPC {
         display: flex;
     }
+
+    @media (max-width: 300px) {
+        
+        .logoCnt {
+            display: none;
+        }
+    }
 }
 
 /*Responsive per tablet e ipad*/

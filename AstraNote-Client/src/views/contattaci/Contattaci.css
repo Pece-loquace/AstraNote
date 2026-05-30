@@ -1,8 +1,3 @@
-.contattaciLogo {
-    width: 350px;
-    height: 200px;
-}
-
 @media (max-width: 768px) {
     .missionLogo {
         width: 300px;
@@ -24,7 +19,6 @@ body {
         var(--paper);
 }
 
-/* Bordo decorativo interno alla card */
 .custom-border {
     position: absolute;
     top: 12px;
@@ -56,4 +50,20 @@ body {
 .form-select:focus {
     border-color: var(--bordeaux);
     box-shadow: 0 0 0 0.25rem rgba(120, 47, 64, 0.25);
+}
+
+.text-fix {
+    width: 100%;
+    max-width: 500px;
+    max-height: 200px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+}
+
+.image-fix {
+    width: 100%;
+    max-width: 350px;
+    max-height: 200px;
+    aspect-ratio: 1 / 1;
+    height: auto;
 }
