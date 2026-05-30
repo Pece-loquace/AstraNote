@@ -19,7 +19,6 @@ body {
         var(--paper);
 }
 
-/* Bordo decorativo interno alla card */
 .custom-border {
     position: absolute;
     top: 12px;
@@ -55,20 +54,16 @@ body {
 
 .text-fix {
     width: 100%;
-    /* Occupa tutto lo spazio disponibile nel contenitore */
     max-width: 500px;
     max-height: 200px;
-    /* Non diventerà mai più grande di 250px su schermi grandi */
     height: auto;
     aspect-ratio: 1 / 1;
 }
 
 .image-fix {
     width: 100%;
-    /* Occupa tutto lo spazio disponibile nel contenitore */
     max-width: 350px;
     max-height: 200px;
-    /* Non diventerà mai più grande di 250px su schermi grandi */
     aspect-ratio: 1 / 1;
     height: auto;
 }

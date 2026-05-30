@@ -5,14 +5,13 @@ import "../../style/buttons.css"
 import "./Impostazioni.css"
 import LoadingSpinner from "../../components/LoadingSpinner"
 
-// Modifica Profilo
+// MODIFICA PROFILO
 const PASSWORD_MIN = 8
 const MINUSCOLA_REGEX = /[a-z]/
 const MAIUSCOLA_REGEX = /[A-Z]/
 const SIMBOLO_REGEX = /[^A-Za-z0-9]/
 const NUMBER_REGEX = /[0-9]/
 
-// valida i campi modificabili in impostazioni
 function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPassword }) {
     const errori = []
     const campiInErrore = new Set()
@@ -32,7 +31,6 @@ function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPa
         campiInErrore.add("password")
     }
 
-    // la nuova password è opzionale: se vuota, non cambio password
     if (nuovaPassword) {
         if (nuovaPassword.length < PASSWORD_MIN) {
             errori.push("La nuova password deve essere di almeno " + PASSWORD_MIN + " caratteri.")
@@ -60,7 +58,6 @@ function validaImpostazioni({ nome, facolta, password, nuovaPassword, confermaPa
             campiInErrore.add("confermaPassword")
         }
     } else if (confermaPassword) {
-        // conferma, ma non con nuova password
         errori.push("Inserisci anche la nuova password.")
         campiInErrore.add("nuovaPassword")
     }
@@ -88,18 +85,15 @@ function EyeOffIcon() {
 export default function Impostazioni() {
     const navigate = useNavigate()
 
-    // stati
     const [utente, setUtente] = useState(null)
     const [listaFacolta, setListaFacolta] = useState([])
     const [caricamento, setCaricamento] = useState(true)
     const [salvataggio, setSalvataggio] = useState(false)
 
-    // unico stato feedback, stesso pattern di Login/Register
     const [feedback, setFeedback] = useState({ show: false, type: "", errori: [] })
     const [campiInErrore, setCampiInErrore] = useState(new Set())
     const [tuttiValidi, setTuttiValidi] = useState(false)
 
-    // toggle mostra/nascondi per i tre campi password
     const [showPassword, setShowPassword] = useState(false)
     const [showNuovaPassword, setShowNuovaPassword] = useState(false)
     const [showConfermaPassword, setShowConfermaPassword] = useState(false)
@@ -114,7 +108,6 @@ export default function Impostazioni() {
         confermaPassword: "",
     })
 
-    // fetch dei dati iniziali (utente loggato + lista facoltà)
     useEffect(() => {
         const fetchDati = async () => {
             try {
@@ -130,7 +123,6 @@ export default function Impostazioni() {
                 const facolta = await resFacoltaLista.json()
                 setListaFacolta(facolta)
 
-                // sincronizza il form con i dati dell'utente
                 setForm((statoPrecendete) => ({
                     ...statoPrecendete,
                     nome: user.nome || "",
@@ -149,7 +141,6 @@ export default function Impostazioni() {
         fetchDati()
     }, [])
 
-    // helper: aggiorna un campo e pulisce eventuale stato di errore su di esso
     const setField = (key, value) => {
         setForm((statoPrecendete) => ({ ...statoPrecendete, [key]: value }))
 
@@ -163,14 +154,12 @@ export default function Impostazioni() {
         setFeedback((prev) => (prev.show ? { ...prev, show: false } : prev))
     }
 
-    // helper per assegnare classi is-valid / is-invalid
     const classFor = (field) => {
         if (campiInErrore.has(field)) return "is-invalid"
         if (tuttiValidi) return "is-valid"
         return ""
     }
 
-    // salvataggio
     const handleSubmit = async (evento) => {
         evento.preventDefault()
 
@@ -227,7 +216,6 @@ export default function Impostazioni() {
         }
     }
 
-    // render caricamento
     if (caricamento) {
         return <LoadingSpinner />
     }

@@ -29,7 +29,6 @@ body {
         var(--paper);
 }
 
-/* Bordo decorativo interno alla card */
 .custom-border {
     position: absolute;
     top: 12px;

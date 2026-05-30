@@ -163,22 +163,15 @@ export default function UploadNota() {
             setCampiInErrore(new Set());
             setTuttiValidi(true);
 
-            /*---Generazione Thumbnail */
-
             const file = formData.upload;
-
-            //Trasforma il file in un arrayBuffer, cioè una sequenza
-            //grezza di byte in memoria
             const arrayBuffer = await file.arrayBuffer();
 
-            //pdfjs analizza i byte e crea un oggetto pdf con cui interagire
             const pdf = await pdfjsLib.getDocument({
                 data: arrayBuffer,
             }).promise;
 
             const page = await pdf.getPage(1);
 
-            //Calcola le dimensioni della prima pagina 
             const viewport = page.getViewport({
                 scale: 1,
             });
@@ -195,7 +188,6 @@ export default function UploadNota() {
                 viewport,
             }).promise;
 
-            // canvas -> blob png
             const thumbnailBlob = await new Promise((resolve) => {
                 canvas.toBlob(resolve, "image/png");
             });
@@ -244,7 +236,6 @@ export default function UploadNota() {
         return "";
     };
 
-    // render caricamento
     if (caricamento) {
         return <LoadingSpinner />;
     }
