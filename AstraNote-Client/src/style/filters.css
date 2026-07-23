@@ -1,10 +1,81 @@
+.filtersContainer {
+    background-color: rgb(233, 142, 67);
+    border: 1px black solid;
+
+    >div:hover {
+        >divLabel {
+            color: brown;
+        }
+    }
+}
 
 
-.linea{
-    height: 5px; 
+.form-label {
+    color: rgb(117, 44, 44);
+}
+
+
+.Select:checked>::placeholder {
+    border: 2px solid rgb(168, 70, 70);
+}
+
+.linea {
+    height: 5px;
 }
 
 .form-select {
     max-width: 100%;
     width: 100%;
+}
+
+
+/*Il doppio trattino  si usa perchèé  React-select usa la convenzione BEM (Block Element Modifier).
+quindi con classNamePrefix = "className" genera classi con questo schema
+    .className__control
+*/
+
+.filter:has(.reactSelect__control--menu-is-open) .form-label {
+    color: rgb(84, 28, 28);
+    transform: scale(1.07);
+}
+
+.reactSelect__option--is-focused {
+    background-color: rgb(145, 81, 81) !important;
+    color: white !important;
+}
+
+.reactSelect__option--is-selected {
+    background-color: #620821 !important;
+    color: white !important;
+}
+
+.reactSelect__control {
+    width: 100%;
+    min-width: 150px;
+}
+
+.reactSelect__value-container {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    justify-content: flex-start;
+}
+
+.reactSelect__placeholder {
+    white-space: nowrap;
+    text-align: left;
+}
+
+.anno-select__single-value {
+    white-space: nowrap;
+}
+
+
+.anno-select__option--is-focused {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+
+.anno-select__menu-portal {
+    z-index: 9;
 }

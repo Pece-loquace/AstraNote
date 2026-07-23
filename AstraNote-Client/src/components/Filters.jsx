@@ -1,115 +1,181 @@
 import { useEffect, useState } from "react";
 import '../style/filters.css'
+import Select from 'react-select';
 
-export default function  Filters({filters,setFilters}){
-    const [facolta,setFacolta] = useState([])
-    const [corsi,setCorsi] = useState([])
-    const [anni,setAnni] = useState([])
-    const [stelle,setStelle] = useState("---Select option----")
-    
-    useEffect(() => {
+export default function Filters({ filters, setFilters })
+{
+    const [facolta, setFacolta] = useState([])
+    const [corsi, setCorsi] = useState([])
+    const [anni, setAnni] = useState([])
+    const [stelle, setStelle] = useState("---Select option----")
+    const placeholderValutazione = "Seleziona una valutazione"
+    const placeholderAnno = "Seleziona un anno"
+    const placeholderCorso = "Seleziona un corso"
+    const placeholderFacolta = "Seleziona una facoltà"
+
+
+
+    const selectStyles = { menuPortal: (base) => ({ ...base, zIndex: 999999, }), };
+
+    useEffect(() =>
+    {
         loadFilters()
-    },[])
+    }, [])
 
-    const loadFilters = async() =>{
+    const loadFilters = async () =>
+    {
         const anni = [];
-        for(let i = 0; i <= 7; i++){
-            anni.push((2026)-i);
-        }    
+        for (let i = 0; i <= 7; i++)
+        {
+            anni.push((2026) - i);
+        }
         setAnni(anni);
-        
-        try {
+
+        try
+        {
             const response = await fetch('/api/facolta')
-            if(!response.ok) throw new Error('Errore nel caricare le facoltà')
+            if (!response.ok) throw new Error('Errore nel caricare le facoltà')
 
             const data = await response.json()
             setFacolta(data)
-        } catch (error) {
+        } catch (error)
+        {
             console.error(error)
         }
 
     }
 
-    const loadCorsi = async(facoltaId) => {
-        try {
+    const loadCorsi = async (facoltaId) =>
+    {
+        try
+        {
             const response = await fetch(`/api/corsi?facolta_id=${facoltaId}`)
-            if(!response.ok) throw new Error('Errore nel caricare i corsi')
+            if (!response.ok) throw new Error('Errore nel caricare i corsi')
 
             const data = await response.json();
             setCorsi(data);
-        } catch (error) {
+        } catch (error)
+        {
             console.error("Errore nel caricamento dei corsi");
         }
     }
 
 
-    return(
+    return (
         <>
-        <div className="">
-            
-            <div className="">
 
+            <div className="filterContainer">
+                <div className="filters row d-flex justify-content-between">
+
+                    <div className="filter col-12 col-md-3 d-flex flex-column align-items-stretch border-end">
+                        <label htmlFor="facolta" className="form-label fw-bold mb-1">Facoltà:</label>
+                        <Select
+                            className="reactSelect w-100"
+                            classNamePrefix="reactSelect"
+                            options={[
+                                { value: "", label: placeholderFacolta },
+                                ...facolta.map(f => ({ value: f.id, label: f.nome }))
+                            ]}
+                            onChange={(selected) =>
+                            {
+                                if (selected.value !== "")
+                                {
+                                    loadCorsi(selected.value);
+                                    setFilters(prev => ({ ...prev, facolta: selected.value }));
+                                } else
+                                {
+                                    setCorsi([]);
+                                    setFilters(prev => ({ ...prev, facolta: "", corso: "" }));
+                                }
+                            }}
+                            placeholder={placeholderFacolta}
+                            styles={selectStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+                    <div className=" filter col-12 col-md-3 d-flex flex-column align-items-stretch border-end">
+                        <label htmlFor="corsi" className="form-label fw-bold mb-1">Corso:</label>
+                        <Select
+                            className="reactSelect"
+                            classNamePrefix="reactSelect"
+                            options={[
+                                { value: "", label: placeholderCorso },
+                                ...corsi.map(corso => ({ value: corso.nome, label: corso.nome }))
+                            ]}
+
+                            onChange={(selected) =>
+                            {
+                                setFilters(prev => ({
+                                    ...prev,
+                                    corso: selected ? selected.value : ""
+                                }));
+                            }}
+
+                            placeholder={placeholderCorso}
+                            styles={selectStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                        <small className="d-block mb-1" style={{ color: 'grey' }}>
+                            (I corsi vengono caricati solo dopo aver selezionato la facoltà)
+                        </small>
+                    </div>
+
+
+                    <div className=" filter col-12 col-md-3 d-flex flex-column align-items-stretch border-end">
+                        <label htmlFor="anno" className="form-label fw-bold mb-1">Anno:</label>
+
+                        <Select
+                            className="reactSelect w-100"
+                            classNamePrefix="reactSelect"
+                            options={[
+                                { value: "", label: placeholderAnno },
+                                ...anni.map(anno => ({ value: anno, label: anno }))
+                            ]}
+                            onChange={(selected) =>
+                            {
+                                setFilters(prev => ({ ...prev, anno: selected ? selected.value : "" }));
+                            }}
+                            placeholder={placeholderAnno}
+                            styles={selectStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+
+
+                    <div className=" filter col-12 col-md-3 d-flex flex-column align-items-stretch">
+                        <label className="form-label fw-bold mb-1" htmlFor="stelle">Valutazione: </label>
+                        <Select
+                            className="reactSelect"
+                            classNamePrefix="reactSelect"
+                            options={[
+                                { value: "", label: placeholderValutazione },
+                                { value: 1, label: "⭐" },
+                                { value: 2, label: "⭐⭐" },
+                                { value: 3, label: "⭐⭐⭐" },
+                                { value: 4, label: "⭐⭐⭐⭐" },
+                                { value: 5, label: "⭐⭐⭐⭐⭐" },
+                            ]}
+
+                            onChange={(selected) =>
+                            {
+                                setFilters(prev => ({ ...prev, stelle: selected ? selected.value : "" }));
+
+                            }}
+                            placeholder={placeholderValutazione}
+                            styles={selectStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+                    <br></br>
+                </div>
             </div>
-            
-        </div>
-        <div className="container">
-            <div className="row d-flex justify-content-between">
-
-                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
-                   <label htmlFor ="facolta" className="form-label fw-bold mb-1">Facoltà:</label>
-                   <select className="form-select" name = "facolta" id= "facolta" onChange={(e) => {
-                        if(e.target.value !== ""){
-                            loadCorsi(e.target.value); 
-                            setFilters(prev => ({...prev, facolta: e.target.value}));
-                        }else{
-                            setCorsi([]);
-                            setFilters(prev => ({...prev,facolta: "",corso: ""}));
-                        }
-                    }}>
-                    <option value={""}>---Seleziona una facoltà---</option>
-                    {
-                        facolta.map(f => <option value = {f.id} key={f.id}>{f.nome}</option>)
-                    }
-                   </select>
-                </div>
-
-                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
-                    <label htmlFor ="corsi" className="form-label fw-bold mb-1">Corso:</label>
-                    <select  className="form-select" name = "corsi" id= "corsi"  onChange={(e)=>{
-                        setFilters(prev => ({...prev, corso: e.target.value}));
-                        }}>
-                        <option value={""}>---Seleziona un corso----</option>
-                        {
-                            corsi.map((corso) => (<option value = {corso.nome} key={corso.id} >{corso.nome}</option>))
-                        }
-                    </select>
-                </div>
-                
-                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
-                    <label htmlFor ="anno" className="form-label fw-bold mb-1">Anno:</label>
-                    <select  className="form-select" name = "anno" id= "anno" onChange={(e)=>{
-                        setFilters(prev => ({...prev, anno: e.target.value}
-                        ))}}>
-                        <option value={""}>---Seleziona un anno----</option>
-                        {
-                            anni.map((anno) => (<option value = {anno} key={anno} >{anno}</option>))
-                        }
-                    </select>
-                </div>
-                <div className="col-12 col-md-3 d-flex flex-column align-items-start">
-                    <label className="form-label fw-bold mb-1" htmlFor = "stelle">Valutazione: </label>
-                    <select  className="form-select" name = "stelle" id = "stelle" onChange={(e) => setFilters(prev => ({...prev, stelle: e.target.value}))}>
-                        <option value = "">----------</option>
-                        <option value="1">⭐</option>
-                        <option value="2">⭐⭐</option>
-                        <option value="3">⭐⭐⭐</option>
-                        <option value="4">⭐⭐⭐⭐</option>
-                        <option value="5">⭐⭐⭐⭐⭐</option>
-                    </select>
-                </div>
-            </div>
-        </div>
         </>
-        );
+    );
 
 }

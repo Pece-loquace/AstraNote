@@ -4,29 +4,35 @@ import { Link } from "react-router-dom"
 import CardAppunto from "../../components/CardAppunto"
 import Filters from "../../components/Filters"
 
-const Homepage = () => {
+const Homepage = () =>
+{
     const [appuntiFacolta, setAppunti] = useState([])
     const [errore, setErrore] = useState(null)
     const [filters, setFilters] = useState({ facolta: "", corso: "", anno: "", stelle: "" })
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         caricaAppunti()
     }, [])
 
-    const caricaAppunti = async () => {
-        try {
+    const caricaAppunti = async () =>
+    {
+        try
+        {
             const response = await fetch('/api/appunti')
             if (!response.ok) throw new Error('Errore nel caricamento')
 
             const appunti = await response.json()
             setAppunti(appunti)
-        } catch (error) {
+        } catch (error)
+        {
             setErrore(error.message)
             console.error(error.message)
         }
     }
 
-    const appuntiFiltrati = appuntiFacolta.filter(a => {
+    const appuntiFiltrati = appuntiFacolta.filter(a =>
+    {
         if (filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false
         if (filters.corso !== "" && (a.corso.nome) !== filters.corso) return false
         if (filters.anno !== "" && String(a.anno_riferimento) !== String(filters.anno)) return false
@@ -46,7 +52,7 @@ const Homepage = () => {
             <div className="row g-4 m-3">
                 {
                     appuntiFiltrati.map((a) => (
-                    <CardAppunto key={a.id} appunto={a} onSave={caricaAppunti} />))
+                        <CardAppunto key={a.id} appunto={a} onSave={caricaAppunti} />))
                 }
             </div>
 

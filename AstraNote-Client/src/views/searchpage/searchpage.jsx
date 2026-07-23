@@ -4,29 +4,34 @@ import LoadingSpinner from "../../components/LoadingSpinner"
 import CardAppunto from "../../components/CardAppunto"
 import Filters from "../../components/Filters"
 
-export default function Searchpage() {
+export default function Searchpage()
+{
     const [appunti, setAppunti] = useState([])
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(true)
-    const [filters, setFilters] = useState({ facolta: "", anno: "", stelle: "" })
+    const [filters, setFilters] = useState({ facolta: "", corso: "", anno: "", stelle: "" })
 
     /*Recupera il valore di q dall'URL */
     const [searchParams] = useSearchParams()
     const query = searchParams.get('q') || ''
 
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         caricaRisultato()
     }, [query])
 
-    const caricaRisultato = async () => {
-        try {
+    const caricaRisultato = async () =>
+    {
+        try
+        {
             const response = await fetch('/api/appunti')
             if (!response.ok) throw new Error("Impossibile caricare il risultato")
 
             const data = await response.json()
 
-            const dataFiltrati = data.filter((a) => {
+            const dataFiltrati = data.filter((a) =>
+            {
                 const paroleTitolo = a.titolo.toLowerCase().split(" ")
                 const queryLower = query.toLowerCase()
 
@@ -34,22 +39,27 @@ export default function Searchpage() {
             })
 
             setAppunti(dataFiltrati)
-        } catch (err) {
+        } catch (err)
+        {
             setError(err.message)
             console.error(err)
-        } finally {
+        } finally
+        {
             setLoading(false)
         }
     }
 
-    if (loading) {
+    if (loading)
+    {
         return <LoadingSpinner />
     }
 
-    const appuntiFiltrati = appunti.filter(a => {
-        if (filters.facolta !== "" && a.facolta !== filters.facolta) return false
-        if (filters.anno !== "" && a.anno !== filters.anno) return false
-        if (filters.stelle !== "" && a.valutazione !== filters.stelle) return false
+    const appuntiFiltrati = appunti.filter(a =>
+    {
+        if (filters.facolta !== "" && String(a.corso.facolta.id) !== String(filters.facolta)) return false
+        if (filters.corso !== "" && (a.corso.nome) !== filters.corso) return false
+        if (filters.anno !== "" && String(a.anno_riferimento) !== String(filters.anno)) return false
+        if (filters.stelle !== "" && String(a.valutazione) !== String(filters.stelle)) return false
         return true
     })
 
