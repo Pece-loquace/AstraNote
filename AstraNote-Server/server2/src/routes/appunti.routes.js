@@ -5,14 +5,16 @@ const upload = require("../middlewares/upload");
 
 
 router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
-    { name: "thumbnail", maxCount: 1 }]), async (req, res) => {
+{ name: "thumbnail", maxCount: 1 }]), async (req, res) =>
+{
 
   const file = req.files.file?.[0];
   const thumbnail = req.files.thumbnail?.[0];
-  const { titolo, descrizione, corso, anno_riferimento} = req.body;
+  const { titolo, descrizione, corso, anno_riferimento } = req.body;
 
 
-  if (!titolo || !corso || !file || !anno_riferimento) {
+  if (!titolo || !corso || !file || !anno_riferimento)
+  {
     return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
   }
 
@@ -22,8 +24,9 @@ router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
     .from("AstraNote-files")
     .upload(fileName, file.buffer, { contentType: file.mimetype });
 
-  
-  if (fileError) {
+
+  if (fileError)
+  {
 
     return res.status(500).json({ error: "Errore nel caricamento del file" });
   }
@@ -31,35 +34,36 @@ router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
   //Upload della thumbnail
   const thumbName = `${Date.now()}_thumb.png`;
   const { error: thumbError } = await supabase.storage
-      .from("thumbnails")
-      .upload(thumbName, thumbnail.buffer, {
-        contentType: "image/png",
-      });
+    .from("thumbnails")
+    .upload(thumbName, thumbnail.buffer, {
+      contentType: "image/png",
+    });
 
-    if (thumbError) {
-      return res.status(500).json({ error: "Errore upload thumbnail" });
-    }
+  if (thumbError)
+  {
+    return res.status(500).json({ error: "Errore upload thumbnail" });
+  }
 
 
-    const { data: pdfUrlData } = supabase.storage
-      .from("AstraNote-files")
-      .getPublicUrl(fileName);
+  const { data: pdfUrlData } = supabase.storage
+    .from("AstraNote-files")
+    .getPublicUrl(fileName);
 
-    const { data: thumbUrlData } = supabase.storage
-      .from("thumbnails")
-      .getPublicUrl(thumbName);
+  const { data: thumbUrlData } = supabase.storage
+    .from("thumbnails")
+    .getPublicUrl(thumbName);
 
-    const url_file = pdfUrlData.publicUrl;
-    const url_thumbnail = thumbUrlData.publicUrl;
+  const url_file = pdfUrlData.publicUrl;
+  const url_thumbnail = thumbUrlData.publicUrl;
 
- 
+
   const { data, error: dbError } = await supabase
     .from("appunti")
     .insert([
       {
         titolo,
-        data_creazione:new Date().toISOString(),
-        id_autore:req.session.user.id,
+        data_creazione: new Date().toISOString(),
+        id_autore: req.session.user.id,
         url_file: url_file,
         descrizione,
         corso,
@@ -68,8 +72,9 @@ router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
       },
     ])
     .select();
-  
-  if (dbError) {
+
+  if (dbError)
+  {
     return res.status(500).json({ error: "Errore nell'inserimento dei dati" });
   }
 
@@ -78,13 +83,50 @@ router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
     .json({ message: "Appunto aggiunto con successo!", appunto: data[0] });
 });
 
+/*Endpoint per il fetch della card appunto */
+router.get("/api/appunti/:id/dettagli", async (req, res) =>
+{
+  const appuntoId = req.params.id;
+
+  const { data, error } = await supabase
+    .from("appunti")
+    .select(`
+      id,
+      preferiti (*),
+      recensioni (*),
+      autore:id_autore ( id, nome, cognome )
+    `)
+    .eq("id", appuntoId)
+    .single();
+
+  if (error)
+  {
+    console.error(error);
+    return res.status(500).json({ error: "Errore nel recupero dei dati" });
+  }
+
+  if (!data)
+  {
+    return res.status(404).json({ error: "Appunto non trovato" });
+  }
+
+  res.json({
+    preferiti: data.preferiti,
+    recensioni: data.recensioni,
+    autore: data.autore,
+  });
+});
+
+
 /*Get per prendere il corso e la facoltà dell'appunto */
-router.get("/api/appunti", async (req, res) => {
+router.get("/api/appunti", async (req, res) =>
+{
   const { error, data } = await supabase
     .from("appunti")
     .select("*,corso(*,facolta(*))");
 
-  if (error) {
+  if (error)
+  {
     return res
       .status(500)
       .json({ error: "Errore durante il  recupero dei dati" });
@@ -92,16 +134,18 @@ router.get("/api/appunti", async (req, res) => {
   res.json(data);
 });
 
-router.get("/api/appunti/:id", async(req,res) =>{
+router.get("/api/appunti/:id", async (req, res) =>
+{
   const idAppunto = req.params.id;
 
-  const{data,error} = await supabase 
+  const { data, error } = await supabase
     .from("appunti")
     .select("*,corso(*,facolta(*))")
-    .eq("id",idAppunto)
+    .eq("id", idAppunto)
     .single()
 
-  if (error) {
+  if (error)
+  {
     return res.status(400).json({ error: "Errore nell'update dei dati" });
   }
 
@@ -109,7 +153,8 @@ router.get("/api/appunti/:id", async(req,res) =>{
 })
 
 
-router.put("/api/appunti/:id", async (req, res) => {
+router.put("/api/appunti/:id", async (req, res) =>
+{
   const idAppunto = req.params.id;
   const newData = req.body;
 
@@ -118,16 +163,18 @@ router.put("/api/appunti/:id", async (req, res) => {
     .update(newData)
     .eq("id", idAppunto)
     .select();
-    
 
-  if (response.error) {
+
+  if (response.error)
+  {
     return res.status(400).json({ error: "Errore nell'update dei dati" });
   }
 
   res.json(response.data);
 });
 
-function storagePathFromPublicUrl(publicUrl, bucket) {
+function storagePathFromPublicUrl(publicUrl, bucket)
+{
   if (!publicUrl || typeof publicUrl !== "string") return null;
   const marker = `/public/${bucket}/`;
   const idx = publicUrl.indexOf(marker);
@@ -135,16 +182,19 @@ function storagePathFromPublicUrl(publicUrl, bucket) {
   return decodeURIComponent(publicUrl.slice(idx + marker.length));
 }
 
-router.delete("/api/appunti/:id", async (req, res) => {
+router.delete("/api/appunti/:id", async (req, res) =>
+{
   const idAppunto = req.params.id;
   const { url_thumbnail, url_file } = req.body;
 
-  if (!url_file) {
+  if (!url_file)
+  {
     return res.status(400).json({ error: "url_file obbligatorio" });
   }
 
   const filePath = storagePathFromPublicUrl(url_file, "AstraNote-files");
-  if (!filePath) {
+  if (!filePath)
+  {
     return res.status(400).json({ error: "url_file non valido" });
   }
 
@@ -154,21 +204,25 @@ router.delete("/api/appunti/:id", async (req, res) => {
     .from("AstraNote-files")
     .remove([filePath]);
 
-  if (fileError) {
+  if (fileError)
+  {
     console.error(fileError);
     return res
       .status(500)
       .json({ error: "Errore durante l'eliminazione del file" });
   }
 
-  if (url_thumbnail) {
+  if (url_thumbnail)
+  {
     const thumbPath = storagePathFromPublicUrl(url_thumbnail, "thumbnails");
-    if (thumbPath) {
+    if (thumbPath)
+    {
       const { error: thumbError } = await supabase.storage
         .from("thumbnails")
         .remove([thumbPath]);
 
-      if (thumbError) {
+      if (thumbError)
+      {
         console.error(thumbError);
         return res.status(500).json({
           error: "Errore durante l'eliminazione della thumbnail",
@@ -182,7 +236,8 @@ router.delete("/api/appunti/:id", async (req, res) => {
     .delete()
     .eq("id", idAppunto);
 
-  if (dbError) {
+  if (dbError)
+  {
     console.error(dbError);
     return res
       .status(500)
@@ -192,13 +247,15 @@ router.delete("/api/appunti/:id", async (req, res) => {
   res.status(200).json({ message: "Appunto eliminato con successo" });
 });
 
-router.get("/api/appunti_caricati", async (req, res) => {
+router.get("/api/appunti_caricati", async (req, res) =>
+{
   const { data, error } = await supabase
     .from("appunti")
     .select(`*,corso(*,facolta(*)))`)
     .eq("id_autore", req.session.user.id);
 
-  if (error) {
+  if (error)
+  {
     return res
       .status(500)
       .json({ error: "Errore durante l'eliminazione dell'appunto" });
@@ -206,14 +263,16 @@ router.get("/api/appunti_caricati", async (req, res) => {
   res.json(data);
 });
 
-router.get("/api/appunti_caricati/:idUtente", async (req, res) => {
+router.get("/api/appunti_caricati/:idUtente", async (req, res) =>
+{
   const { data, error } = await supabase
     .from("appunti")
     .select(`*,corso(*,facolta(*)))`)
     .eq("id_autore", req.params.idUtente);
 
- 
-  if (error) {
+
+  if (error)
+  {
     return res
       .status(500)
       .json({ error: "Errore durante l'eliminazione dell'appunto" });

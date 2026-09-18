@@ -68,33 +68,54 @@ export default function Filters({ filters, setFilters })
                 <div className="filters row d-flex justify-content-between">
 
                     <div className="filter col-12 col-md-3 d-flex flex-column align-items-stretch border-end">
-                        <label htmlFor="facolta" className="form-label fw-bold mb-1">Facoltà:</label>
+                        <label htmlFor="facolta" className="form-label fw-bold mb-1">
+                            Facoltà:
+                        </label>
+
                         <Select
-                            className="reactSelect w-100"
+                            inputId="facolta"
+                            className="reactSelect"
                             classNamePrefix="reactSelect"
                             options={[
-                                { value: "", label: placeholderFacolta },
-                                ...facolta.map(f => ({ value: f.id, label: f.nome }))
+                                {
+                                    value: "",
+                                    label: placeholderFacolta
+                                },
+                                ...facolta.map(f => ({
+                                    value: f.id,
+                                    label: f.nome
+                                }))
                             ]}
                             onChange={(selected) =>
                             {
-                                if (selected.value !== "")
+                                const value = selected ? selected.value : "";
+
+                                if (value !== "")
                                 {
-                                    loadCorsi(selected.value);
-                                    setFilters(prev => ({ ...prev, facolta: selected.value }));
+                                    loadCorsi(value);
+
+                                    setFilters(prev => ({
+                                        ...prev,
+                                        facolta: value
+                                    }));
                                 } else
                                 {
                                     setCorsi([]);
-                                    setFilters(prev => ({ ...prev, facolta: "", corso: "" }));
+
+                                    setFilters(prev => ({
+                                        ...prev,
+                                        facolta: "",
+                                        corso: ""
+                                    }));
                                 }
                             }}
                             placeholder={placeholderFacolta}
                             styles={selectStyles}
                             menuPortalTarget={document.body}
                             menuPosition="fixed"
+                            isClearable
                         />
                     </div>
-
                     <div className=" filter col-12 col-md-3 d-flex flex-column align-items-stretch border-end">
                         <label htmlFor="corsi" className="form-label fw-bold mb-1">Corso:</label>
                         <Select

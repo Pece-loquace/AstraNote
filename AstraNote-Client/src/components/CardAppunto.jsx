@@ -9,12 +9,12 @@ import StelleValutazioni from "./StelleValutazioni";
 import ModificaNote from "./ModificaAppunto";
 import Matita from "../assets/matita.svg"
 import profile from "../assets/profile-circle.svg";
+import { useAuth } from "./AuthContext"
 
 
 export default function CardAppunto({ appunto, onSave, sectionActivate })
 {
     const [stelle, setStelle] = useState("");
-    const [utente, setUtente] = useState([])
     const [autore, setAutore] = useState([])
     const [showSegnala, setShowSegnala] = useState(false);
     const [showModifica, setShowModifica] = useState(false);
@@ -24,6 +24,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
     const [recensioni, setRecensioni] = useState([]);
     const [caricamentoCard, setCaricamentoCard] = useState(true);
     const navigate = useNavigate();
+    const { utente, caricamentoAuth } = useAuth();
 
     /*Controlla se l'URL corrente è libreria */
     const location = useLocation();
@@ -40,26 +41,13 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
         try
         {
             setCaricamentoCard(true);
-            const [res1, res2, res3, res4] = await Promise.all([
-                fetch(`/api/appunti/${appuntoId}/preferiti`),
-                fetch(`/api/recensioni/${appuntoId}`),
-                fetch(`/api/utenti/${appunto.id_autore}`),   /*Per caricare nome e cognome dell'utente*/
-                fetch('/api/me')
-            ])
-
-            if (!res1.ok || !res2.ok || !res3.ok || !res4.ok)
-            {
-                throw new Error("Errore nel recupero dati");
-            }
-
-            const [preferiti, recensioni, autore, ris4] = await Promise.all([res1.json(), res2.json(), res3.json(), res4.json()])
+            const response = await fetch(`/api/appunti/${appuntoId}/dettagli`);
+            if (!response.ok) throw new Error("Errore nel recupero dati");
+            const { preferiti, recensioni, autore } = await response.json();
             setAutore(autore);
-            /*Setta l'utente */
-            setUtente(ris4.utente);
             /* Controllo se l'utente corrente ha salvato l'appunto*/
-            const isPresente = preferiti.some(p => String(p.user_id) === String(ris4.utente.id));
+            const isPresente = preferiti.some(p => String(p.user_id) === String(utente?.id));
             setBookMark(isPresente);
-
             setRecensioni(recensioni);
 
             /*Setta le stelle */
@@ -75,7 +63,7 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
                 setStelle(stringaStelle)
             }
 
-            const recensioneUtente = recensioni.find(r => String(r.utente_valutante) === String(ris4.utente.id));
+            const recensioneUtente = recensioni.find(r => String(r.utente_valutante) === String(utente?.id));
             setValutazioneUtente(recensioneUtente ? recensioneUtente.valutazione : 0);
 
         } catch (error)
@@ -398,6 +386,12 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
                                     Elimina
                                 </button>
                             }
+                            <button
+                                className="btn-quiz"
+                                onClick={() => navigate(`/quiz/${appunto.id}`)}
+                            >
+                                Fai il quiz su questo argomento
+                            </button>
                             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>

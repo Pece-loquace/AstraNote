@@ -54,7 +54,7 @@
 
 .pencilImg:hover {
     cursor: pointer;
-    transform: scale(1.05);
+    background-color: #e597a4;
 }
 
 .anteprima {
