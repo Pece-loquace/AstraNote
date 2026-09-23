@@ -12,14 +12,14 @@ const Homepage = () =>
 
     useEffect(() =>
     {
-        caricaAppunti()
+        caricaAppunti(true)
     }, [])
 
-    const caricaAppunti = async () =>
+    const caricaAppunti = async (mostraLoading = false) =>
     {
         try
         {
-            setCaricamento(true)
+            if (mostraLoading) setCaricamento(true)
             const response = await fetch('/api/appunti')
             if (!response.ok) throw new Error('Errore nel caricamento')
 
@@ -31,7 +31,7 @@ const Homepage = () =>
             console.error(error.message)
         } finally
         {
-            setCaricamento(false)
+            if (mostraLoading) setCaricamento(false)
         }
     }
 

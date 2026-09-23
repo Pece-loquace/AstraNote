@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import Segnala from "./Segnala";
@@ -29,6 +29,28 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
     /*Controlla se l'URL corrente è libreria */
     const location = useLocation();
     const isLibreria = location.pathname === "/libreria";
+
+    //Variabili di riferimento per il modal
+    const modalRef = useRef(null);
+    const [modalAperto, setModalAperto] = useState(false);
+    useEffect(() =>
+    {
+        const modalEl = modalRef.current;
+        if (!modalEl) return;
+
+        const handleShow = () => setModalAperto(true);
+        const handleHide = () => setModalAperto(false);
+
+        modalEl.addEventListener('shown.bs.modal', handleShow);
+        modalEl.addEventListener('hidden.bs.modal', handleHide);
+
+        return () =>
+        {
+            modalEl.removeEventListener('shown.bs.modal', handleShow);
+            modalEl.removeEventListener('hidden.bs.modal', handleHide);
+        };
+    }, [caricamentoCard]);
+
 
     useEffect(() =>
     {
@@ -132,53 +154,86 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
         {
             let response;
             let recensioniAggiornate = [];
+
             if (valutazioneUtente === 0)
             {
                 response = await fetch('/api/recensioni', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ stelle, appunto_id: appunto.id })
+                    body: JSON.stringify({
+                        stelle,
+                        appunto_id: appunto.id
+                    })
                 });
-                if (!response.ok) throw new Error("Errore nel creare la recensione");
 
-                recensioniAggiornate = [...recensioni, { valutazione: stelle, utente_valutante: utente.id }];
+                if (!response.ok)
+                {
+                    throw new Error("Errore nel creare la recensione");
+                }
+
+                recensioniAggiornate = [
+                    ...recensioni,
+                    {
+                        valutazione: stelle,
+                        utente_valutante: utente.id
+                    }
+                ];
             } else
             {
                 response = await fetch('/api/recensioni', {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ stelle, appunto_id: appunto.id })
-                })
-                if (!response.ok) throw new Error("Errore nel modificare la recensione");
+                    body: JSON.stringify({
+                        stelle,
+                        appunto_id: appunto.id
+                    })
+                });
+
+                if (!response.ok)
+                {
+                    throw new Error("Errore nel modificare la recensione");
+                }
+
                 recensioniAggiornate = recensioni.map(r =>
-                    r.utente_valutante === utente.id ? { ...r, valutazione: stelle } : r);
+                    String(r.utente_valutante) === String(utente?.id)
+                        ? { ...r, valutazione: stelle }
+                        : r
+                );
             }
 
             setRecensioni(recensioniAggiornate);
-            ricalcolaStelle(recensioniAggiornate)
-            setValutazioneUtente(stelle)
+            ricalcolaStelle(recensioniAggiornate);
+            setValutazioneUtente(stelle);
 
-            /*Aggiorna campo Valutazione :serve per filtrare*/
-            const somma = recensioniAggiornate.reduce((acc, rec) => acc + rec.valutazione, 0);
+            const somma = recensioniAggiornate.reduce(
+                (acc, rec) => acc + rec.valutazione,
+                0
+            );
+
             const media = somma / recensioniAggiornate.length;
             const valutazioneMedia = Math.round(media);
 
             response = await fetch(`/api/appunti/${appunto.id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ valutazione: valutazioneMedia })
-            })
-            if (!response.ok) throw new Error("Errore nell'aggiornare la valutazione");
+                body: JSON.stringify({
+                    valutazione: valutazioneMedia
+                })
+            });
 
+            if (!response.ok)
+            {
+                throw new Error("Errore nell'aggiornare la valutazione");
+            }
 
-            //Ricarica gli appunti nel container padre
-            onSave();
+            // NON ricaricare tutta la Homepage qui
+            // onSave();
 
         } catch (error)
         {
-            alert(error.message)
+            alert(error.message);
         }
-    }
+    };
 
     const eliminaAppunto = async () =>
     {
@@ -306,7 +361,14 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
             </div>
 
             {/*Modal */}
-            <div className="modal fade" id={`modal-${appunto.id}`} tabIndex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div
+                ref={modalRef}
+                className="modal fade"
+                id={`modal-${appunto.id}`}
+                tabIndex="-1"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+            >
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <div className="modal-header">
