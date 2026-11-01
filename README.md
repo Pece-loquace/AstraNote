@@ -123,7 +123,7 @@ npm run dev          # il server serve API e frontend su http://localhost:3000
 ```
 
 ## Possibili sviluppi
-
+- Implementazione dell'IA per costruire schede di quiz.
 - Test automatici (al momento non sono presenti) e pipeline CI.
 - Spostare il segreto di sessione in una variabile d'ambiente.
 - Limitare la registrazione ad altre università e gestire la moderazione delle segnalazioni.
