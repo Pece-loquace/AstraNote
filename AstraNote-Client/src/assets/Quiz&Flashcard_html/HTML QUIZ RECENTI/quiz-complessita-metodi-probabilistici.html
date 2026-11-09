@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autoverifica · Logica, Modelli di Calcolo e Metodi Probabilistici</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+/* ---------- token system ---------- */
+:root{
+  --paper:#E9EDF4; --surface:#FBFCFE; --surface-2:#F2F5FA;
+  --grid:rgba(31,58,147,.07);
+  --ink:#14203A; --ink-soft:#4C5A75; --ink-faint:#7C89A3;
+  --rule:#C6CEDE; --rule-strong:#9DA9C1;
+  --blue:#1F3A93; --blue-tint:#E1E8F9;
+  --red:#AF2118; --red-tint:#FAE2E0;
+  --green:#186248; --green-tint:#DCF0E6;
+  --shadow:0 1px 0 var(--rule);
+}
+[data-theme="dark"]{
+  --paper:#0E1524; --surface:#172034; --surface-2:#1D2740;
+  --grid:rgba(143,169,255,.055);
+  --ink:#E5EAF4; --ink-soft:#A2AEC6; --ink-faint:#78859F;
+  --rule:#2C3854; --rule-strong:#3E4C6E;
+  --blue:#93ACFF; --blue-tint:#1F2B4B;
+  --red:#FF9186; --red-tint:#39222A;
+  --green:#71D6A6; --green-tint:#14322B;
+  --shadow:0 1px 0 var(--rule);
+}
+@media (prefers-color-scheme: dark){
+  [data-theme="auto"]{
+    --paper:#0E1524; --surface:#172034; --surface-2:#1D2740;
+    --grid:rgba(143,169,255,.055);
+    --ink:#E5EAF4; --ink-soft:#A2AEC6; --ink-faint:#78859F;
+    --rule:#2C3854; --rule-strong:#3E4C6E;
+    --blue:#93ACFF; --blue-tint:#1F2B4B;
+    --red:#FF9186; --red-tint:#39222A;
+    --green:#71D6A6; --green-tint:#14322B;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:26px 26px;
+  color:var(--ink);
+  font-family:'Source Serif 4',Georgia,'Times New Roman',serif;
+  font-size:17px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+.wrap{max-width:780px;margin:0 auto;padding:0 20px 80px}
+h1,h2,h3,.ui{font-family:'Space Grotesk','Segoe UI',system-ui,sans-serif}
+.m{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:.92em;letter-spacing:-.01em}
+sup,sub{font-size:.7em;line-height:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--blue);outline-offset:2px;border-radius:2px}
+
+/* ---------- header ---------- */
+header{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  padding:26px 0 18px;border-bottom:1px solid var(--rule-strong);
+}
+.brand h1{
+  font-size:21px;font-weight:700;margin:0;letter-spacing:-.02em;line-height:1.2;
+}
+.brand p{margin:5px 0 0;font-size:13.5px;color:var(--ink-soft);font-family:'Space Grotesk',sans-serif}
+.themebtn{
+  background:var(--surface);border:1px solid var(--rule-strong);border-radius:20px;
+  padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;
+  display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0;
+}
+.themebtn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ---------- start screen ---------- */
+.lede{margin:30px 0 6px;font-size:19px;line-height:1.5;max-width:60ch}
+.lede em{color:var(--blue);font-style:italic}
+.stat{
+  display:flex;gap:28px;margin:22px 0 34px;padding-bottom:22px;
+  border-bottom:1px solid var(--rule);flex-wrap:wrap;
+}
+.stat div{font-family:'Space Grotesk',sans-serif}
+.stat b{display:block;font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.stat span{font-size:12.5px;color:var(--ink-soft)}
+
+.sechead{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 4px;
+}
+.sechead h2{font-size:15px;font-weight:700;margin:0;letter-spacing:-.01em}
+.linkbtn{
+  background:none;border:none;padding:0;font-family:'Space Grotesk',sans-serif;
+  font-size:12.5px;color:var(--blue);text-decoration:underline;text-underline-offset:3px;
+}
+
+/* lecture spine */
+.spine{list-style:none;margin:14px 0 0;padding:0;position:relative}
+.spine::before{
+  content:"";position:absolute;left:14px;top:16px;bottom:16px;width:1px;background:var(--rule-strong);
+}
+.lec{position:relative;display:flex;gap:14px;align-items:flex-start;padding:8px 0}
+.lec input{position:absolute;opacity:0;width:1px;height:1px}
+.lec label{display:flex;gap:14px;align-items:flex-start;cursor:pointer;width:100%}
+.dot{
+  position:relative;z-index:1;flex-shrink:0;width:29px;height:29px;border-radius:50%;
+  background:var(--paper);border:1.5px solid var(--rule-strong);color:var(--ink-faint);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  transition:background-color .12s, border-color .12s, color .12s;
+}
+.lec input:checked + .dot{background:var(--blue);border-color:var(--blue);color:var(--surface)}
+[data-theme="dark"] .lec input:checked + .dot{color:#0E1524}
+@media (prefers-color-scheme:dark){[data-theme="auto"] .lec input:checked + .dot{color:#0E1524}}
+.lec input:focus-visible + .dot{outline:2.5px solid var(--blue);outline-offset:2px}
+.lecbody{flex:1;min-width:0;padding-top:2px}
+.lectitle{font-size:16.5px;line-height:1.35}
+.lecmeta{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);margin-top:2px}
+.lec input:not(:checked) ~ .lecbody{opacity:.42}
+
+/* controls */
+.controls{margin:30px 0 0;padding-top:22px;border-top:1px solid var(--rule)}
+.row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.row > span{font-family:'Space Grotesk',sans-serif;font-size:13.5px;color:var(--ink-soft);min-width:112px}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{
+  background:var(--surface);border:1px solid var(--rule-strong);border-radius:18px;
+  padding:6px 14px;font-family:'Space Grotesk',sans-serif;font-size:13px;
+}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--surface)}
+[data-theme="dark"] .chip[aria-pressed="true"]{color:#0E1524}
+@media (prefers-color-scheme:dark){[data-theme="auto"] .chip[aria-pressed="true"]{color:#0E1524}}
+
+.go{
+  width:100%;margin-top:12px;padding:17px;border:none;border-radius:4px;
+  background:var(--blue);color:var(--surface);
+  font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.01em;
+}
+[data-theme="dark"] .go{color:#0E1524}
+@media (prefers-color-scheme:dark){[data-theme="auto"] .go{color:#0E1524}}
+.go:disabled{background:var(--rule-strong);cursor:not-allowed}
+.go:not(:disabled):hover{filter:brightness(1.1)}
+
+/* ---------- quiz ---------- */
+.bar{display:flex;gap:3px;margin:24px 0 6px}
+.tick{flex:1;height:4px;background:var(--rule);border-radius:2px}
+.tick.ok{background:var(--green)}
+.tick.ko{background:var(--red)}
+.tick.now{background:var(--blue)}
+.qmeta{
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  font-family:'Space Grotesk',sans-serif;font-size:12.5px;color:var(--ink-faint);margin-bottom:22px;
+}
+.qmeta .topic{color:var(--blue);font-weight:500}
+.qtext{font-size:21px;line-height:1.45;margin:0 0 22px;max-width:62ch}
+
+.opts{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
+.opt{
+  display:flex;gap:13px;align-items:flex-start;text-align:left;width:100%;
+  background:var(--surface);border:1px solid var(--rule-strong);border-radius:4px;
+  padding:13px 15px;line-height:1.45;
+  transition:border-color .1s, background-color .1s;
+}
+.opt:not(:disabled):hover{border-color:var(--blue);background:var(--surface-2)}
+.key{
+  flex-shrink:0;width:23px;height:23px;border:1px solid var(--rule-strong);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--ink-faint);
+}
+.opt.correct{border-color:var(--green);background:var(--green-tint)}
+.opt.correct .key{background:var(--green);border-color:var(--green);color:var(--green-tint)}
+.opt.wrong{border-color:var(--red);background:var(--red-tint)}
+.opt.wrong .key{background:var(--red);border-color:var(--red);color:var(--red-tint)}
+.opt:disabled{cursor:default;opacity:1}
+.opt.dim{opacity:.5}
+
+.verdict{
+  border-left:3px solid var(--blue);padding:2px 0 2px 16px;margin:0 0 22px;
+  animation:in .18s ease-out;
+}
+.verdict.ok{border-color:var(--green)}
+.verdict.ko{border-color:var(--red)}
+.verdict h3{
+  font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em;
+}
+.verdict.ok h3{color:var(--green)}
+.verdict.ko h3{color:var(--red)}
+.verdict p{margin:0;max-width:62ch;line-height:1.6}
+.ref{
+  font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);margin-top:9px;
+}
+@keyframes in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.next{
+  padding:13px 26px;border:none;border-radius:4px;background:var(--blue);color:var(--surface);
+  font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;
+}
+[data-theme="dark"] .next{color:#0E1524}
+@media (prefers-color-scheme:dark){[data-theme="auto"] .next{color:#0E1524}}
+.next:hover{filter:brightness(1.1)}
+.quit{background:none;border:none;font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--ink-faint);text-decoration:underline;text-underline-offset:3px}
+.hint{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);margin-left:auto}
+
+/* ---------- results ---------- */
+.score{display:flex;align-items:baseline;gap:6px;margin:34px 0 4px}
+.score b{font-family:'Space Grotesk',sans-serif;font-size:64px;font-weight:700;letter-spacing:-.04em;line-height:.9}
+.score span{font-family:'Space Grotesk',sans-serif;font-size:24px;color:var(--ink-faint)}
+.score-note{font-size:18px;margin:12px 0 30px;max-width:56ch}
+
+.tbl{width:100%;border-collapse:collapse;margin-bottom:34px}
+.tbl td{padding:9px 0;border-bottom:1px solid var(--rule);vertical-align:middle;font-size:15px}
+.tbl td:first-child{width:22px;font-family:'Space Grotesk',sans-serif;font-size:12.5px;color:var(--ink-faint)}
+.tbl td:last-child{width:86px;text-align:right;font-family:'Space Grotesk',sans-serif;font-size:13px;white-space:nowrap}
+.meter{height:5px;background:var(--rule);border-radius:3px;overflow:hidden;margin-top:5px;max-width:320px}
+.meter i{display:block;height:100%;background:var(--green)}
+.meter i.low{background:var(--red)}
+.meter i.mid{background:var(--blue)}
+
+.review{margin-bottom:34px}
+.rev{border-top:1px solid var(--rule);padding:16px 0}
+.rev p{margin:0 0 8px;line-height:1.5}
+.rev .yours{color:var(--red);font-size:15px;margin-bottom:3px}
+.rev .right{color:var(--green);font-size:15px;margin-bottom:8px}
+.rev .why{font-size:15.5px;color:var(--ink-soft);max-width:62ch}
+.rev .tag{font-family:'Space Grotesk',sans-serif;font-size:11.5px;color:var(--ink-faint);margin-bottom:7px}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions button{
+  padding:13px 22px;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:14.5px;font-weight:500;
+  border:1px solid var(--rule-strong);background:var(--surface);
+}
+.actions button.primary{background:var(--blue);border-color:var(--blue);color:var(--surface);font-weight:700}
+[data-theme="dark"] .actions button.primary{color:#0E1524}
+@media (prefers-color-scheme:dark){[data-theme="auto"] .actions button.primary{color:#0E1524}}
+.actions button:hover{border-color:var(--blue)}
+
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--rule);font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);line-height:1.7}
+
+@media (max-width:600px){
+  body{font-size:16px}
+  .wrap{padding:0 16px 60px}
+  .qtext{font-size:19px}
+  .score b{font-size:52px}
+  .stat{gap:20px}
+  .hint{display:none}
+  .row > span{min-width:100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <h1>Autoverifica d'esame</h1>
+    <p>Logica, Modelli di Calcolo e Metodi Probabilistici · A.A. 2025/26</p>
+  </div>
+  <button class="themebtn ui" id="themebtn" aria-label="Cambia tema"><span id="themeicon">◐</span><span id="themelabel">Auto</span></button>
+</header>
+
+<!-- ============ SCHERMATA INIZIALE ============ -->
+<section id="start">
+  <p class="lede">Domande a risposta chiusa sulle otto lezioni del corso, con la correzione ragionata e il rimando al punto del programma. Scegli cosa ripassare.</p>
+
+  <div class="stat">
+    <div><b id="ntot">—</b><span>domande</span></div>
+    <div><b>8</b><span>lezioni</span></div>
+    <div><b id="nsel">—</b><span>selezionate</span></div>
+  </div>
+
+  <div class="sechead">
+    <h2>Argomenti</h2>
+    <button class="linkbtn" id="toggleall">Deseleziona tutto</button>
+  </div>
+  <ul class="spine" id="spine"></ul>
+
+  <div class="controls">
+    <div class="row">
+      <span>Quante domande</span>
+      <div class="chips" id="lenchips">
+        <button class="chip" data-len="10">10</button>
+        <button class="chip" data-len="20">20</button>
+        <button class="chip" data-len="35">35</button>
+        <button class="chip" data-len="0" aria-pressed="true">Tutte</button>
+      </div>
+    </div>
+    <div class="row">
+      <span>Ordine</span>
+      <div class="chips" id="ordchips">
+        <button class="chip" data-ord="shuffle" aria-pressed="true">Casuale</button>
+        <button class="chip" data-ord="lesson">Per lezione</button>
+      </div>
+    </div>
+    <button class="go" id="go">Inizia</button>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz" hidden>
+  <div class="bar" id="bar"></div>
+  <div class="qmeta">
+    <span class="topic" id="qtopic"></span>
+    <span id="qcount"></span>
+  </div>
+  <p class="qtext" id="qtext"></p>
+  <div class="opts" id="opts"></div>
+  <div id="verdictslot"></div>
+  <div class="nav">
+    <button class="next" id="next" hidden>Avanti</button>
+    <button class="quit" id="quit">Termina e vedi il riepilogo</button>
+    <span class="hint">1–5 per rispondere · Invio per proseguire</span>
+  </div>
+</section>
+
+<!-- ============ RISULTATI ============ -->
+<section id="results" hidden>
+  <div class="score"><b id="rscore">0</b><span id="rof">/0</span></div>
+  <p class="score-note" id="rnote"></p>
+  <div class="sechead"><h2>Per argomento</h2></div>
+  <table class="tbl"><tbody id="rtable"></tbody></table>
+  <div id="revwrap" class="review"></div>
+  <div class="actions">
+    <button class="primary" id="again">Rifai le sbagliate</button>
+    <button id="restart">Torna alla scelta degli argomenti</button>
+  </div>
+</section>
+
+<footer>
+  Contenuti ricavati dal log delle lezioni, dalle slide, dalle note su Quicksort randomizzato e dagli esercizi del corso.<br>
+  Riferimenti: ITC = Sipser · AD = Kleinberg–Tardos · PC = Mitzenmacher–Upfal.
+</footer>
+
+</div>
+
+<script>
+/* ==================== DATI ==================== */
+const TEMI = [
+  {n:1, data:"25 novembre", titolo:"Modelli di calcolo e la classe P"},
+  {n:2, data:"26 novembre", titolo:"NP, riduzioni e NP-completezza"},
+  {n:3, data:"2 dicembre",  titolo:"Clique e Vertex Cover"},
+  {n:4, data:"3 dicembre",  titolo:"Subset Sum e algoritmi di approssimazione"},
+  {n:5, data:"9 dicembre",  titolo:"Test di primalità randomizzato"},
+  {n:6, data:"10 dicembre", titolo:"Markov, Max-Cut, Max-3-SAT, Quicksort"},
+  {n:7, data:"16 dicembre", titolo:"Chernoff, alta probabilità e Min-Cut"},
+  {n:8, data:"17 dicembre", titolo:"Independent Set e grafi sparsi"}
+];
+
+const Q = [
+/* ---------- 1 · Modelli di calcolo e classe P ---------- */
+{t:1, q:`Un linguaggio <span class="m">A</span> è deciso in tempo <span class="m">O(t(n))</span> da una macchina di Turing deterministica a <span class="m">k</span> nastri, con <span class="m">t(n) ≥ n</span>. Qual è il limite che si ottiene passando a una macchina deterministica a un solo nastro?`,
+ o:[`<span class="m">O(t(n))</span>: nessun rallentamento`,`<span class="m">O(t(n) log t(n))</span>`,`<span class="m">O(t²(n))</span>`,`<span class="m">2<sup>O(t(n))</sup></span>`],
+ c:2,
+ e:`Si simulano i <span class="m">k</span> nastri affiancandone i contenuti su un unico nastro, separati da delimitatori. Ogni singolo passo simulato richiede di scorrere tutta la porzione di nastro usata, che è lunga <span class="m">O(t(n))</span>: <span class="m">O(t(n))</span> passi × <span class="m">O(t(n))</span> costo l'uno dà <span class="m">O(t²(n))</span>. È un rallentamento solo quadratico, quindi il numero di nastri non cambia l'appartenenza a P.`,
+ r:`ITC, Teorema 7.8 (enunciato senza dimostrazione)`},
+
+{t:1, q:`Se <span class="m">A</span> è deciso in tempo <span class="m">t(n) ≥ n</span> da una macchina di Turing <em>non</em> deterministica, qual è il limite per una macchina deterministica equivalente?`,
+ o:[`<span class="m">O(t²(n))</span>`,`<span class="m">O(t³(n))</span>`,`<span class="m">2<sup>O(t(n))</sup></span>`,`<span class="m">O(t(n) log t(n))</span>`],
+ c:2,
+ e:`La macchina deterministica visita l'albero di computazione della macchina non deterministica. Il fattore di diramazione è limitato da una costante <span class="m">b</span> e la profondità è <span class="m">t(n)</span>, quindi le foglie sono <span class="m">O(b<sup>t(n)</sup>) = 2<sup>O(t(n))</sup></span>. Il divario è esponenziale, non polinomiale: è esattamente qui che si annida la questione P contro NP.`,
+ r:`ITC, Teorema 7.11 (enunciato senza dimostrazione)`},
+
+{t:1, q:`Come si definisce la complessità temporale di una macchina di Turing non deterministica?`,
+ o:[`Il numero totale di nodi dell'albero di computazione`,`La lunghezza del ramo più lungo, cioè l'altezza dell'albero`,`La lunghezza del più corto ramo accettante`,`La media della lunghezza dei rami accettanti`],
+ c:1,
+ e:`Si prende il caso peggiore fra tutti i rami: il costo è l'altezza dell'albero di computazione su input di lunghezza <span class="m">n</span>. Si conta il ramo più lungo anche quando la macchina accetta molto prima su un altro ramo.`,
+ r:`ITC 7.1 · Lezione 1`},
+
+{t:1, q:`Qual è la definizione della classe P?`,
+ o:[`<span class="m">P = ⋃<sub>k</sub> TIME(n<sup>k</sup>)</span>`,`<span class="m">P = ⋂<sub>k</sub> TIME(n<sup>k</sup>)</span>`,`<span class="m">P = TIME(n)</span>`,`<span class="m">P = ⋃<sub>k</sub> TIME(k<sup>n</sup>)</span>`],
+ c:0,
+ e:`P è l'unione, al variare della costante <span class="m">k</span>, delle classi <span class="m">TIME(n<sup>k</sup>)</span>: i linguaggi decidibili in tempo polinomiale da una macchina di Turing deterministica. L'intersezione sarebbe invece la classe dei problemi risolvibili in tempo <span class="m">O(n)</span>, e <span class="m">k<sup>n</sup></span> è tempo esponenziale.`,
+ r:`ITC 7.2 · Lezione 1`},
+
+{t:1, q:`Per quale motivo la classe P viene considerata "robusta"?`,
+ o:[`Perché è chiusa rispetto all'unione di linguaggi`,`Perché tutti i modelli di calcolo deterministici ragionevoli si simulano a vicenda con un rallentamento solo polinomiale`,`Perché contiene soltanto problemi risolvibili in tempo lineare`,`Perché ogni problema in P ammette un algoritmo greedy`],
+ c:1,
+ e:`Nastro singolo, nastri multipli, RAM: tutti questi modelli si simulano a vicenda pagando al più un fattore polinomiale, e i polinomi sono chiusi per composizione. Per questo si può parlare di "algoritmo polinomiale" senza specificare il modello, e ragionare con pseudocodice invece che con quintuple.`,
+ r:`ITC 7.2 · Lezione 1`},
+
+{t:1, q:`Per il linguaggio <span class="m">A = {0<sup>k</sup>1<sup>k</sup> : k ≥ 0}</span>, cosa si è mostrato a lezione?`,
+ o:[`Su un nastro solo non si può fare meglio di <span class="m">Θ(n²)</span>`,`Con un nastro si arriva a <span class="m">O(n log n)</span>, con due nastri a <span class="m">O(n)</span>`,`Serve una macchina non deterministica per scendere sotto <span class="m">O(n²)</span>`,`Il linguaggio non è decidibile in tempo polinomiale`],
+ c:1,
+ e:`L'algoritmo ingenuo cancella uno <span class="m">0</span> e un <span class="m">1</span> alla volta e costa <span class="m">O(n²)</span>. Cancellando invece un simbolo ogni due si controlla la parità dei due blocchi e si dimezza il conteggio a ogni passata: <span class="m">O(log n)</span> passate da <span class="m">O(n)</span> ciascuna, cioè <span class="m">O(n log n)</span>. Con un secondo nastro usato come contatore si scende a <span class="m">O(n)</span>. In tutti i casi <span class="m">A ∈ P</span>.`,
+ r:`ITC 7.1 · Lezione 1`},
+
+{t:1, q:`Cosa significa esattamente <span class="m">A ∈ TIME(t(n))</span>?`,
+ o:[`Esiste una macchina di Turing deterministica che decide <span class="m">A</span> in tempo <span class="m">O(t(n))</span>`,`Ogni macchina che decide <span class="m">A</span> impiega tempo <span class="m">Θ(t(n))</span>`,`Esiste un verificatore per <span class="m">A</span> che gira in tempo <span class="m">O(t(n))</span>`,`<span class="m">A</span> è riconosciuto (ma non necessariamente deciso) in tempo <span class="m">O(t(n))</span>`],
+ c:0,
+ e:`<span class="m">TIME(t(n))</span> raccoglie i linguaggi per cui <em>esiste</em> almeno una macchina deterministica che li <em>decide</em> (si ferma sempre) entro <span class="m">O(t(n))</span> passi. Non è un vincolo su tutte le macchine possibili, ed è deterministico per definizione.`,
+ r:`ITC 7.1 · Lezione 1`},
+
+{t:1, q:`<span class="m">f(n) = O(g(n))</span> significa che:`,
+ o:[`esistono <span class="m">c &gt; 0</span> e <span class="m">n<sub>0</sub></span> tali che <span class="m">f(n) ≤ c·g(n)</span> per ogni <span class="m">n ≥ n<sub>0</sub></span>`,`per ogni <span class="m">c &gt; 0</span> esiste <span class="m">n<sub>0</sub></span> tale che <span class="m">f(n) ≤ c·g(n)</span> per ogni <span class="m">n ≥ n<sub>0</sub></span>`,`<span class="m">f(n)/g(n)</span> tende a 1`,`<span class="m">f(n) ≥ c·g(n)</span> definitivamente`],
+ c:0,
+ e:`La <span class="m">O</span> grande è un limite superiore asintotico a meno di una costante moltiplicativa fissata. La seconda opzione, con il quantificatore universale su <span class="m">c</span>, è la definizione di <span class="m">o</span> piccolo, che è una condizione più forte; l'ultima descrive <span class="m">Ω</span>.`,
+ r:`Lezione 1`},
+
+/* ---------- 2 · NP, riduzioni, NP-completezza ---------- */
+{t:2, q:`Nella definizione di NP tramite verificatore, quale requisito sul certificato <span class="m">c</span> è essenziale?`,
+ o:[`Deve essere unico per ogni istanza accettata`,`Deve avere lunghezza polinomiale nella lunghezza dell'input`,`Deve essere calcolabile in tempo polinomiale a partire dall'input`,`Deve essere una stringa binaria di lunghezza esattamente <span class="m">n</span>`],
+ c:1,
+ e:`<span class="m">A ∈ NP</span> se esiste un verificatore <span class="m">V</span> polinomiale e un polinomio <span class="m">p</span> tali che <span class="m">w ∈ A</span> se e solo se esiste <span class="m">c</span> con <span class="m">|c| ≤ p(|w|)</span> e <span class="m">V(w,c)</span> accetta. Il certificato può non essere unico. Se invece fosse <em>calcolabile</em> in tempo polinomiale, potremmo generarlo da soli e avremmo <span class="m">A ∈ P</span>: proprio quella richiesta manca.`,
+ r:`ITC 7.3 · Lezione 2`},
+
+{t:2, q:`Le due definizioni equivalenti di NP viste a lezione sono:`,
+ o:[`verificatore polinomiale e macchina di Turing non deterministica polinomiale`,`macchina non deterministica polinomiale e algoritmo randomizzato polinomiale`,`verificatore polinomiale e riducibilità a SAT`,`macchina deterministica esponenziale e circuito di taglia polinomiale`],
+ c:0,
+ e:`Da un verificatore si costruisce una macchina non deterministica che "indovina" il certificato e poi lo verifica; viceversa, il ramo accettante di una macchina non deterministica polinomiale è esso stesso un certificato di lunghezza polinomiale, e simularlo è la verifica.`,
+ r:`ITC 7.3, Teorema 7.20 · Lezione 2`},
+
+{t:2, q:`Perché <span class="m">P ⊆ NP</span>?`,
+ o:[`Perché ogni problema in P ha un unico certificato`,`Perché l'algoritmo polinomiale che decide il problema funziona da verificatore che ignora il certificato`,`Perché ogni problema in P si riduce a 3-SAT`,`Perché ogni macchina deterministica è anche non deterministica con un solo ramo`],
+ c:1,
+ e:`Se <span class="m">A ∈ P</span>, il verificatore riceve <span class="m">(w,c)</span>, butta via <span class="m">c</span> ed esegue l'algoritmo polinomiale su <span class="m">w</span>. L'ultima risposta è vera ma è l'argomento per la definizione con macchina non deterministica, non quello dato a lezione a partire dal verificatore; in ogni caso l'inclusione inversa resta il problema aperto.`,
+ r:`ITC 7.3 · Lezione 2`},
+
+{t:2, q:`Quale certificato si usa per dimostrare che HAM-PATH appartiene a NP?`,
+ o:[`La matrice di adiacenza del grafo`,`La sequenza ordinata dei nodi che forma il cammino`,`Un albero di copertura del grafo`,`Il numero di archi del grafo`],
+ c:1,
+ e:`Il testimone è l'ordinamento dei nodi. Il verificatore controlla in tempo polinomiale che compaiano tutti i nodi esattamente una volta e che ogni coppia consecutiva sia un arco. La matrice di adiacenza fa già parte dell'input e non aiuta a decidere.`,
+ r:`ITC 7.3 · Lezione 2`},
+
+{t:2, q:`Nel corso si usa la definizione di riduzione di Kleinberg–Tardos. Secondo questa definizione, <span class="m">X ≤<sub>p</sub> Y</span> quando:`,
+ o:[`esiste una funzione <span class="m">f</span> calcolabile in tempo polinomiale tale che <span class="m">x ∈ X</span> se e solo se <span class="m">f(x) ∈ Y</span>`,`istanze arbitrarie di <span class="m">X</span> si risolvono con un numero polinomiale di passi di calcolo più un numero polinomiale di chiamate a una scatola nera che risolve <span class="m">Y</span>`,`ogni algoritmo per <span class="m">X</span> si può trasformare in un algoritmo per <span class="m">Y</span>`,`<span class="m">X</span> e <span class="m">Y</span> hanno la stessa complessità computazionale`],
+ c:1,
+ e:`È la riduzione "con oracolo": si può interrogare la scatola nera per <span class="m">Y</span> un numero polinomiale di volte e usarne le risposte come si vuole (anche negandole). La prima opzione è la riduzione per mappatura usata da Sipser: è più restrittiva, ma entrambe soddisfano l'implicazione che ci serve. Il log delle lezioni segnala esplicitamente questa scelta.`,
+ r:`AD 8.1 · Lezione 2`},
+
+{t:2, q:`Se <span class="m">X ≤<sub>p</sub> Y</span>, quale implicazione è corretta?`,
+ o:[`<span class="m">X ∈ P ⟹ Y ∈ P</span>`,`<span class="m">Y ∈ P ⟹ X ∈ P</span>`,`<span class="m">X ∈ NP ⟹ Y ∈ P</span>`,`<span class="m">Y ∉ P ⟹ X ∉ P</span>`],
+ c:1,
+ e:`La riduzione dice che <span class="m">Y</span> è <em>almeno tanto difficile</em> quanto <span class="m">X</span>: se sappiamo risolvere <span class="m">Y</span> in tempo polinomiale, allora sappiamo risolvere anche <span class="m">X</span>. La forma contronominale utile è <span class="m">X ∉ P ⟹ Y ∉ P</span>, che è il verso che si usa per dimostrare le difficoltà.`,
+ r:`AD 8.1 · Lezione 2`},
+
+{t:2, q:`Se <span class="m">X ≤<sub>p</sub> Y</span> e <span class="m">Y ≤<sub>p</sub> Z</span>, cosa si può concludere?`,
+ o:[`<span class="m">X ≤<sub>p</sub> Z</span>`,`<span class="m">Z ≤<sub>p</sub> X</span>`,`Niente, la riducibilità non è transitiva`,`<span class="m">X</span> e <span class="m">Z</span> sono entrambi NP-completi`],
+ c:0,
+ e:`La riducibilità polinomiale è transitiva, perché la composizione di due polinomi è ancora un polinomio. È questa proprietà che permette di dimostrare che 3-SAT è NP-completo passando per CIRCUIT-SAT senza ripetere la costruzione del verificatore.`,
+ r:`AD 8.1 · Lezione 2`},
+
+{t:2, q:`Un problema <span class="m">X</span> è NP-completo quando:`,
+ o:[`<span class="m">X ∈ NP</span> e <span class="m">X ≤<sub>p</sub> Y</span> per ogni <span class="m">Y ∈ NP</span>`,`<span class="m">X ∈ NP</span> e <span class="m">Y ≤<sub>p</sub> X</span> per ogni <span class="m">Y ∈ NP</span>`,`<span class="m">X ∉ P</span> e <span class="m">X ∈ NP</span>`,`<span class="m">X ≤<sub>p</sub> 3\u2011SAT</span>`],
+ c:1,
+ e:`Servono entrambe le condizioni: appartenenza a NP e NP-difficoltà, cioè <em>tutti</em> i problemi di NP si riducono a <span class="m">X</span>. La prima opzione ha il verso invertito e direbbe che <span class="m">X</span> è fra i più facili. La terza non si può usare come definizione: nessuno sa se esistano problemi in NP fuori da P.`,
+ r:`AD 8.4 · Lezione 2`},
+
+{t:2, q:`Supponiamo che qualcuno trovi un algoritmo polinomiale per un singolo problema NP-completo. Cosa ne segue?`,
+ o:[`Che quel problema non era davvero NP-completo`,`Che <span class="m">P = NP</span>`,`Che <span class="m">P ≠ NP</span>`,`Niente sugli altri problemi di NP`],
+ c:1,
+ e:`Ogni <span class="m">Y ∈ NP</span> si riduce a <span class="m">X</span>; se <span class="m">X</span> si risolve in tempo polinomiale, la riduzione risolve in tempo polinomiale anche <span class="m">Y</span>, quindi <span class="m">NP ⊆ P</span>. Con l'inclusione già nota <span class="m">P ⊆ NP</span> si ottiene l'uguaglianza. Simmetricamente, se <span class="m">P ≠ NP</span> allora nessun problema NP-completo sta in P.`,
+ r:`AD 8.4 · Lezione 2`},
+
+{t:2, q:`Su cosa si basa la dimostrazione che CIRCUIT-SAT è NP-completo?`,
+ o:[`Su una riduzione da 3-SAT a CIRCUIT-SAT`,`Sulla codifica della computazione di un verificatore polinomiale come circuito booleano di taglia polinomiale`,`Sul fatto che i circuiti booleani sono più potenti delle macchine di Turing`,`Su una enumerazione di tutte le possibili assegnazioni degli ingressi`],
+ c:1,
+ e:`Preso <span class="m">Y ∈ NP</span> con il suo verificatore <span class="m">V</span>, si costruisce un circuito che simula <span class="m">V</span> sull'input fissato, lasciando liberi gli ingressi corrispondenti al certificato. Il circuito è soddisfacibile esattamente quando esiste un certificato che fa accettare <span class="m">V</span>. La prima opzione è il verso opposto e serve invece a dimostrare che 3-SAT è NP-completo.`,
+ r:`AD 8.3 e 8.4 (fino al Teorema 8.15) · Lezione 2`},
+
+{t:2, q:`Per dimostrare che un nuovo problema <span class="m">X</span> è NP-completo, la strategia corretta è:`,
+ o:[`mostrare <span class="m">X ∈ NP</span> e ridurre <span class="m">X</span> a un problema NP-completo noto`,`mostrare <span class="m">X ∈ NP</span> e ridurre un problema NP-completo noto a <span class="m">X</span>`,`mostrare che <span class="m">X ∉ P</span>`,`mostrare che <span class="m">X</span> non ammette algoritmi di approssimazione`],
+ c:1,
+ e:`La riduzione va <em>dal</em> problema difficile noto <em>al</em> nuovo problema: così la difficoltà si trasferisce a <span class="m">X</span>. Ridurre <span class="m">X</span> a un problema NP-completo dimostrerebbe soltanto che <span class="m">X</span> non è più difficile, cosa già garantita da <span class="m">X ∈ NP</span>. È l'errore di verso più frequente agli esami.`,
+ r:`AD 8.4 · Lezione 2`},
+
+/* ---------- 3 · Clique e Vertex Cover ---------- */
+{t:3, q:`Come si formula la versione decisionale di CLIQUE?`,
+ o:[`Dato un grafo <span class="m">G</span>, trovare il sottografo completo più grande`,`Dati un grafo <span class="m">G</span> e un intero <span class="m">k</span>, decidere se <span class="m">G</span> contiene <span class="m">k</span> nodi a due a due adiacenti`,`Dati un grafo <span class="m">G</span> e un intero <span class="m">k</span>, decidere se <span class="m">G</span> ha esattamente <span class="m">k</span> componenti connesse`,`Dato un grafo <span class="m">G</span>, decidere se è completo`],
+ c:1,
+ e:`Una <span class="m">k</span>-clique è un sottoinsieme di <span class="m">k</span> nodi il cui sottografo indotto è completo. La versione con "trovare il più grande" è la versione di ottimizzazione: le classi P e NP sono definite su linguaggi, quindi si lavora sempre con la versione decisionale.`,
+ r:`ITC 7.4 · Lezione 3`},
+
+{t:3, q:`Qual è il certificato che mette CLIQUE in NP e quanto costa verificarlo?`,
+ o:[`L'insieme dei <span class="m">k</span> nodi; si controllano le <span class="m">k(k−1)/2</span> coppie, quindi tempo <span class="m">O(k²)</span>`,`La lista di tutti i sottoinsiemi di <span class="m">k</span> nodi; tempo esponenziale`,`Il grado massimo del grafo; tempo <span class="m">O(n)</span>`,`Un ordinamento dei nodi; tempo <span class="m">O(n log n)</span>`],
+ c:0,
+ e:`Il testimone è il sottoinsieme candidato. Il verificatore controlla la cardinalità e che ogni coppia sia un arco: polinomiale nella dimensione dell'input. Enumerare tutti i sottoinsiemi non è un certificato, è la ricerca esaustiva che vogliamo evitare.`,
+ r:`ITC 7.4 · Lezione 3`},
+
+{t:3, q:`Nella riduzione da 3-SAT a CLIQUE, a partire da una formula con <span class="m">l</span> clausole si costruisce un grafo con <span class="m">3l</span> nodi. Come si scelgono gli archi e il parametro <span class="m">k</span>?`,
+ o:[`Si collegano i nodi dentro la stessa tripletta; <span class="m">k = 3</span>`,`Si collegano due nodi di triplette diverse se i letterali non sono uno la negazione dell'altro; <span class="m">k = l</span>`,`Si collegano tutti i nodi con lo stesso letterale; <span class="m">k = 3l</span>`,`Si collegano i nodi corrispondenti a letterali contraddittori; <span class="m">k = l/2</span>`],
+ c:1,
+ e:`Un nodo per ogni occorrenza di letterale, raggruppati in <span class="m">l</span> triplette. Gli archi collegano nodi <em>compatibili</em> di triplette <em>diverse</em>. Una <span class="m">l</span>-clique deve quindi prendere esattamente un letterale per clausola senza contraddizioni: è un'assegnazione che soddisfa la formula, e viceversa.`,
+ r:`ITC, Teorema 7.32 · Lezione 3`},
+
+{t:3, q:`Cos'è un vertex cover di un grafo <span class="m">G = (V,E)</span>?`,
+ o:[`Un insieme <span class="m">S ⊆ V</span> tale che ogni arco ha almeno un estremo in <span class="m">S</span>`,`Un insieme <span class="m">S ⊆ V</span> tale che ogni arco ha entrambi gli estremi in <span class="m">S</span>`,`Un insieme <span class="m">S ⊆ E</span> che tocca ogni nodo`,`Un sottografo connesso che contiene tutti i nodi`],
+ c:0,
+ e:`Il vertex cover "copre" gli archi usando i nodi: nessun arco può restare completamente fuori. L'ultima opzione descrive un albero di copertura, che si trova invece in tempo polinomiale.`,
+ r:`ITC 7.5 · Lezione 3`},
+
+{t:3, q:`Nella riduzione da 3-SAT a VERTEX-COVER vista a lezione, con <span class="m">m</span> variabili e <span class="m">l</span> clausole si costruisce un grafo con <span class="m">2m + 3l</span> nodi. Quale soglia <span class="m">k</span> si pone?`,
+ o:[`<span class="m">k = m + l</span>`,`<span class="m">k = m + 2l</span>`,`<span class="m">k = 2m + l</span>`,`<span class="m">k = 3l</span>`],
+ c:1,
+ e:`Un nodo per ciascun gadget-variabile (<span class="m">x</span> e <span class="m">¬x</span> uniti da un arco: uno dei due va preso, e sceglierlo equivale ad assegnare il valore di verità) più due nodi per ogni triangolo-clausola (un triangolo richiede almeno due nodi per essere coperto). Totale <span class="m">m + 2l</span>: un budget che non lascia margine e obbliga la corrispondenza esatta con le assegnazioni soddisfacenti.`,
+ r:`ITC, Teorema 7.44 · Lezione 3`},
+
+{t:3, q:`Nella stessa riduzione, a cosa serve l'arco fra i due nodi <span class="m">x</span> e <span class="m">¬x</span> del gadget-variabile?`,
+ o:[`A rendere il grafo connesso`,`A forzare il cover a contenere almeno uno dei due, così che il budget determini una scelta coerente del valore di verità`,`A collegare fra loro i triangoli delle clausole`,`Ad aumentare il grado dei nodi per far funzionare l'approssimazione`],
+ c:1,
+ e:`Un arco va coperto, quindi almeno uno fra <span class="m">x</span> e <span class="m">¬x</span> entra nel cover; visto che il budget concede esattamente un nodo per variabile, entra esattamente uno dei due. Questo è ciò che impedisce di assegnare contemporaneamente vero a un letterale e alla sua negazione.`,
+ r:`ITC, Teorema 7.44 · Lezione 3`},
+
+{t:3, q:`Perché si richiede che la trasformazione usata in una riduzione sia calcolabile in tempo polinomiale?`,
+ o:[`Perché altrimenti non si preserverebbe la correttezza della risposta`,`Perché altrimenti il costo della trasformazione potrebbe dominare e l'algoritmo composto non sarebbe polinomiale`,`Perché le macchine di Turing non possono eseguire trasformazioni esponenziali`,`Perché il grafo risultante deve avere dimensione costante`],
+ c:1,
+ e:`La correttezza della corrispondenza fra istanze sì-sì e no-no è un requisito separato e resterebbe valida. Il punto è l'efficienza: la riduzione serve a trasferire la trattabilità, e se costruire l'istanza costasse tempo esponenziale non trasferirebbe proprio niente.`,
+ r:`AD 8.1 · Lezione 3`},
+
+{t:3, q:`Sia <span class="m">G = (V,E)</span> con <span class="m">|V| = n</span>. Quale equivalenza è corretta?`,
+ o:[`<span class="m">S</span> è un vertex cover di cardinalità <span class="m">k</span> se e solo se <span class="m">V ∖ S</span> è una clique di cardinalità <span class="m">n − k</span>`,`<span class="m">S</span> è un vertex cover di cardinalità <span class="m">k</span> se e solo se <span class="m">V ∖ S</span> è un insieme indipendente di cardinalità <span class="m">n − k</span>`,`<span class="m">S</span> è un vertex cover se e solo se <span class="m">S</span> è un insieme indipendente`,`<span class="m">S</span> è un vertex cover se e solo se <span class="m">S</span> contiene tutti i nodi di grado massimo`],
+ c:1,
+ e:`Se ogni arco ha un estremo in <span class="m">S</span>, allora nessun arco ha entrambi gli estremi fuori da <span class="m">S</span>, cioè <span class="m">V ∖ S</span> è indipendente; e il ragionamento si inverte. Questa dualità è il cuore della riduzione fra VERTEX-COVER e INDEPENDENT SET. La clique si ottiene invece passando per il grafo complemento.`,
+ r:`AD 8.1 · Esercizio 1(b)`},
+
+/* ---------- 4 · Subset Sum e approssimazione ---------- */
+{t:4, q:`Come si formula SUBSET-SUM?`,
+ o:[`Data una lista di interi e un target <span class="m">t</span>, decidere se esiste un sottoinsieme la cui somma è esattamente <span class="m">t</span>`,`Data una lista di interi, trovare la somma massima di un sottoinsieme`,`Dati due insiemi di interi, decidere se hanno la stessa somma`,`Data una lista di interi, decidere se la somma totale è pari`],
+ c:0,
+ e:`Input: la lista <span class="m">x<sub>1</sub>,…,x<sub>n</sub></span> e il target <span class="m">t</span>. Output: sì se esiste <span class="m">S</span> con <span class="m">Σ<sub>i∈S</sub> x<sub>i</sub> = t</span>. Nella formulazione vista gli elementi sono interi positivi e il sottoinsieme può essere qualunque.`,
+ r:`ITC 7.5 · Lezione 4`},
+
+{t:4, q:`Come si misura la dimensione dell'input di SUBSET-SUM?`,
+ o:[`<span class="m">O(n · max<sub>i</sub> x<sub>i</sub>)</span>, perché bisogna memorizzare ogni valore`,`<span class="m">O(n · log(max<sub>i</sub> x<sub>i</sub>))</span>, perché i numeri sono scritti in notazione posizionale`,`<span class="m">O(n)</span>, perché ogni intero occupa una cella`,`<span class="m">O(t)</span>, perché il target domina`],
+ c:1,
+ e:`Un intero <span class="m">x</span> si scrive con <span class="m">⌈log x⌉</span> cifre, quindi l'input è lungo <span class="m">O(n log(max x<sub>i</sub>))</span>: <em>logaritmico</em> nel valore dei numeri. È per questo che il classico algoritmo di programmazione dinamica in tempo <span class="m">O(n·t)</span> non è polinomiale ma solo pseudo-polinomiale: <span class="m">t</span> è esponenziale nella dimensione dell'input.`,
+ r:`ITC 7.5 · Lezione 4 · Terzo appello, domanda 1.2`},
+
+{t:4, q:`Nella riduzione da 3-SAT a SUBSET-SUM si costruiscono numeri in base 10 con <span class="m">m + l</span> cifre (<span class="m">m</span> variabili, <span class="m">l</span> clausole). Perché la base 10?`,
+ o:[`Perché è la base in cui gli esseri umani leggono i numeri`,`Per evitare i riporti, così ogni colonna si somma in modo indipendente dalle altre`,`Perché in base 2 la riduzione non sarebbe polinomiale`,`Per rendere il target <span class="m">t</span> un numero primo`],
+ c:1,
+ e:`In ogni colonna la somma delle cifre è limitata (al più 5 nella costruzione di Sipser), quindi scegliendo una base abbastanza grande non si generano mai riporti. Senza questa accortezza, colonne diverse potrebbero interferire e la corrispondenza fra somme e assegnazioni si romperebbe.`,
+ r:`ITC, Teorema 7.56 · Lezione 4`},
+
+{t:4, q:`Nella stessa riduzione, il target <span class="m">t</span> ha cifra 1 nelle colonne delle variabili e cifra 3 in quelle delle clausole. A cosa servono i due numeri di riempimento aggiunti per ogni clausola?`,
+ o:[`A garantire che ogni clausola sia soddisfatta da esattamente tre letterali`,`A permettere di raggiungere il totale 3 anche quando la clausola è soddisfatta da uno o due letterali soltanto`,`A evitare che la stessa variabile compaia in due clausole`,`A rendere tutti i numeri distinti fra loro`],
+ c:1,
+ e:`Una clausola soddisfatta contribuisce con 1, 2 o 3 alla propria colonna. I due numeri di riempimento, ciascuno con un 1 in quella colonna, consentono di colmare la differenza fino a 3. Se invece la clausola non è soddisfatta il contributo è 0 e anche con entrambi i riempimenti si arriva solo a 2: l'istanza va rifiutata, come deve essere.`,
+ r:`ITC, Teorema 7.56 · Lezione 4`},
+
+{t:4, q:`Quale di questi problemi <em>non</em> è stato presentato a lezione come NP-completo?`,
+ o:[`Problema del commesso viaggiatore (TSP)`,`3-colorabilità di un grafo`,`MAX-CUT`,`Trovare il cammino minimo fra due nodi in un grafo pesato con pesi non negativi`],
+ c:3,
+ e:`Il cammino minimo si risolve in tempo polinomiale con Dijkstra, quindi sta in P. TSP, 3-colorabilità, MAX-CUT, knapsack e cammino hamiltoniano sono invece tutti NP-completi nelle rispettive versioni decisionali.`,
+ r:`ITC 7.5 · Lezione 4`},
+
+{t:4, q:`Descrivi l'algoritmo di 2-approssimazione per VERTEX-COVER visto a lezione.`,
+ o:[`Si prende ripetutamente il nodo di grado massimo finché tutti gli archi sono coperti`,`Si sceglie un arco ancora scoperto, si mettono nella soluzione <em>entrambi</em> i suoi estremi, si eliminano gli archi incidenti e si ripete`,`Si prende un nodo a caso per ogni arco scoperto`,`Si calcola un albero di copertura e se ne prendono le foglie`],
+ c:1,
+ e:`Gli archi scelti formano un matching: non condividono estremi. L'ottimo deve contenere almeno un estremo per ciascuno di questi archi, quindi <span class="m">|OPT|</span> è almeno il numero di archi scelti, mentre l'algoritmo ne usa il doppio. Da qui il fattore 2. Il greedy sul grado massimo, benché intuitivo, non garantisce il fattore 2.`,
+ r:`ITC 10.1 · Lezione 4`},
+
+{t:4, q:`L'algoritmo di ricerca locale per MAX-CUT sposta un nodo dall'altra parte del taglio finché questo lo aumenta. Quale garanzia si ottiene, e perché?`,
+ o:[`Trova il taglio ottimo, perché la ricerca locale converge al massimo globale`,`Trova un taglio di valore almeno <span class="m">m/2</span>, perché al termine ogni nodo ha almeno metà dei suoi archi incidenti nel taglio`,`Trova un taglio di valore almeno <span class="m">m/4</span>, perché ogni arco entra nel taglio con probabilità <span class="m">1/4</span>`,`Non dà alcuna garanzia, serve solo a velocizzare la ricerca esaustiva`],
+ c:1,
+ e:`Se un nodo avesse più della metà dei suoi archi <em>non</em> nel taglio, spostarlo aumenterebbe il taglio e l'algoritmo non si sarebbe fermato. Sommando su tutti i nodi e dividendo per due (ogni arco è contato due volte) si ottiene <span class="m">|cut| ≥ m/2</span>. Poiché l'ottimo non può superare <span class="m">m</span>, questo è un taglio di valore almeno <span class="m">OPT/2</span>.`,
+ r:`ITC 10.1 · Lezione 4`},
+
+{t:4, q:`Cosa garantisce esattamente un algoritmo di <span class="m">ρ</span>-approssimazione?`,
+ o:[`Che su <em>ogni</em> istanza, in tempo polinomiale, restituisce una soluzione entro il fattore <span class="m">ρ</span> dall'ottimo`,`Che su <em>quasi tutte</em> le istanze restituisce l'ottimo`,`Che restituisce l'ottimo in tempo <span class="m">O(ρ · n)</span>`,`Che il valore atteso della soluzione è entro il fattore <span class="m">ρ</span> dall'ottimo`],
+ c:0,
+ e:`La garanzia è deterministica, vale su ogni istanza ed è nel caso peggiore: è il modo classico di convivere con la NP-difficoltà senza rinunciare al tempo polinomiale. Una garanzia solo in valore atteso caratterizza invece gli algoritmi randomizzati, che il corso tratta separatamente.`,
+ r:`ITC 10.1 · Lezione 4`},
+
+/* ---------- 5 · Test di primalità ---------- */
+{t:5, q:`Perché l'algoritmo che prova a dividere <span class="m">p</span> per tutti gli interi fino a <span class="m">√p</span> è considerato inefficiente?`,
+ o:[`Perché <span class="m">√p</span> operazioni sono esponenziali nella dimensione dell'input, che è <span class="m">n ≈ log p</span> cifre`,`Perché ogni divisione costa tempo esponenziale`,`Perché non è corretto sui numeri pari`,`Perché richiede di conoscere in anticipo i fattori di <span class="m">p</span>`],
+ c:0,
+ e:`L'input è il numero <em>scritto</em>, quindi lungo <span class="m">n ≈ log p</span>. Allora <span class="m">√p = 2<sup>n/2</sup></span>: il ciclo fa un numero esponenziale di iterazioni nella dimensione dell'input, anche se ogni singola divisione è efficiente. È lo stesso fenomeno visto con la dimensione dell'input in SUBSET-SUM.`,
+ r:`ITC 10.2 · Lezione 5`},
+
+{t:5, q:`Cosa afferma il piccolo teorema di Fermat, usato come primo filtro dell'algoritmo?`,
+ o:[`Se <span class="m">p</span> è primo, allora <span class="m">a<sup>p</sup> ≡ a (mod p)</span> solo per <span class="m">a = 1</span>`,`Se <span class="m">p</span> è primo, allora <span class="m">a<sup>p−1</sup> ≡ 1 (mod p)</span> per ogni <span class="m">a ∈ {1,…,p−1}</span>`,`Se <span class="m">a<sup>p−1</sup> ≡ 1 (mod p)</span> per qualche <span class="m">a</span>, allora <span class="m">p</span> è primo`,`Se <span class="m">p</span> è composto, allora esiste <span class="m">a</span> con <span class="m">a<sup>p−1</sup> ≡ 1 (mod p)</span>`],
+ c:1,
+ e:`Il teorema vale in un solo verso: la primalità implica la congruenza. La terza opzione è il suo inverso, ed è falso — è esattamente questo che rende il test di Fermat da solo insufficiente.`,
+ r:`ITC 10.2 · Lezione 5`},
+
+{t:5, q:`Cosa sono i numeri di Carmichael e perché contano in questo contesto?`,
+ o:[`Numeri primi che il test di Fermat rifiuta erroneamente`,`Numeri composti che superano il test di Fermat per ogni base coprima con essi`,`Numeri composti per cui il test di Miller–Rabin fallisce sempre`,`Numeri primi che ammettono radici non banali dell'unità`],
+ c:1,
+ e:`Sono composti indistinguibili dai primi con il solo test di Fermat: il più piccolo è 561. Per questo l'algoritmo aggiunge il test sulle radici dell'unità, e nel notebook del corso tutti i numeri di Carmichael provati vengono infatti correttamente riconosciuti come composti.`,
+ r:`ITC 10.2 · Lezione 5 · Notebook del corso`},
+
+{t:5, q:`Su quale proprietà si basa il test delle radici dell'unità?`,
+ o:[`Se <span class="m">p</span> è primo, le uniche soluzioni di <span class="m">x² ≡ 1 (mod p)</span> sono <span class="m">x ≡ 1</span> e <span class="m">x ≡ −1</span>`,`Se <span class="m">p</span> è primo, <span class="m">x² ≡ 1 (mod p)</span> non ha soluzioni`,`Se <span class="m">p</span> è composto, <span class="m">x² ≡ 1 (mod p)</span> ha esattamente due soluzioni`,`Se <span class="m">p</span> è primo, ogni <span class="m">x</span> è una radice dell'unità modulo <span class="m">p</span>`],
+ c:0,
+ e:`Da <span class="m">x² ≡ 1</span> segue <span class="m">p | (x−1)(x+1)</span>; se <span class="m">p</span> è primo deve dividere uno dei due fattori, quindi <span class="m">x ≡ ±1</span>. Trovare una radice quadrata non banale di 1 è perciò una prova che <span class="m">p</span> è composto, ed è il secondo filtro dell'algoritmo.`,
+ r:`ITC 10.2, Teorema 10.6 · Lezione 5`},
+
+{t:5, q:`Qual è il comportamento dell'algoritmo randomizzato di primalità con <span class="m">k</span> basi estratte a caso?`,
+ o:[`Se <span class="m">p</span> è primo accetta con probabilità <span class="m">1</span>; se è composto accetta con probabilità al più <span class="m">2<sup>−k</sup></span>`,`Sbaglia con probabilità al più <span class="m">2<sup>−k</sup></span> sia sui primi sia sui composti`,`Se <span class="m">p</span> è primo accetta con probabilità <span class="m">1 − 2<sup>−k</sup></span>; se è composto rifiuta sempre`,`Accetta sempre, ma il tempo di esecuzione è aleatorio`],
+ c:0,
+ e:`L'errore è unilaterale: un primo supera sempre entrambi i test, per ogni base, quindi non c'è alcun rischio di falsi negativi. L'unico errore possibile è dichiarare primo un composto, e la sua probabilità crolla esponenzialmente con <span class="m">k</span>.`,
+ r:`ITC, Teorema 10.6 · Lezione 5`},
+
+{t:5, q:`Qual è il lemma chiave che limita a <span class="m">1/2</span> la probabilità di errore di una singola iterazione su un numero composto?`,
+ o:[`Le basi che fanno accettare sono al più <span class="m">√p</span>`,`A ogni base "cattiva" (che fa accettare) se ne associa in modo iniettivo almeno una distinta che fa rifiutare, quindi le basi che rifiutano sono almeno metà`,`Le basi coprime con <span class="m">p</span> sono almeno metà di quelle possibili`,`Ogni composto ha almeno una radice non banale dell'unità`],
+ c:1,
+ e:`Si esibisce un'iniezione dall'insieme delle basi ingannevoli a quello delle basi che smascherano <span class="m">p</span>. Ne segue che queste ultime sono almeno tante quante le prime, cioè almeno metà del totale: una base estratta uniformemente rifiuta con probabilità almeno <span class="m">1/2</span>.`,
+ r:`ITC, Teorema 10.6 · Lezione 5`},
+
+{t:5, q:`Come si calcola in modo efficiente <span class="m">a<sup>s</sup> mod p</span> per esponenti grandi?`,
+ o:[`Moltiplicando <span class="m">a</span> per sé stesso <span class="m">s</span> volte`,`Con l'esponenziazione veloce per quadrati ripetuti, con <span class="m">O(log s)</span> moltiplicazioni modulari`,`Calcolando prima <span class="m">a<sup>s</sup></span> e poi il resto della divisione per <span class="m">p</span>`,`Con il teorema cinese del resto, in tempo costante`],
+ c:1,
+ e:`I quadrati ripetuti riducono l'esponente a ogni passo, quindi il numero di moltiplicazioni è logaritmico in <span class="m">s</span>. Calcolare prima <span class="m">a<sup>s</sup></span> per intero è impraticabile: il numero avrebbe un numero esponenziale di cifre. La riduzione modulo <span class="m">p</span> va fatta a ogni passaggio.`,
+ r:`Lezione 5 · Notebook del corso`},
+
+{t:5, q:`Esiste un algoritmo deterministico in tempo polinomiale per decidere se un numero è primo?`,
+ o:[`No, il problema è NP-completo`,`No, si conoscono solo algoritmi randomizzati`,`Sì, PRIMES è in P, ma in pratica si preferisce il test randomizzato perché è molto più veloce`,`Sì, la divisione per tentativi fino a <span class="m">√p</span>`],
+ c:2,
+ e:`Il test AKS (2002) ha dimostrato che PRIMES appartiene a P. Le costanti in gioco però sono tali che nelle applicazioni reali, come la generazione di chiavi crittografiche, si usa Miller–Rabin: la probabilità di errore <span class="m">2<sup>−k</sup></span> si rende trascurabile a costo bassissimo.`,
+ r:`ITC 10.2 · Lezione 5`},
+
+/* ---------- 6 · Markov, Max-Cut, Max-3-SAT, Quicksort ---------- */
+{t:6, q:`La linearità del valore atteso, <span class="m">E[X + Y] = E[X] + E[Y]</span>:`,
+ o:[`vale sempre, anche quando <span class="m">X</span> e <span class="m">Y</span> sono dipendenti`,`richiede che <span class="m">X</span> e <span class="m">Y</span> siano indipendenti`,`richiede che <span class="m">X</span> e <span class="m">Y</span> siano non negative`,`vale solo per variabili aleatorie a valori in <span class="m">{0,1}</span>`],
+ c:0,
+ e:`Nessuna ipotesi di indipendenza: è ciò che rende la tecnica delle variabili indicatrici così potente. Nell'analisi di Quicksort le <span class="m">X<sub>i,j</sub></span> sono fortemente dipendenti fra loro, eppure si sommano i loro valori attesi senza problemi. Con il <em>prodotto</em> <span class="m">E[XY] = E[X]E[Y]</span> l'indipendenza invece serve.`,
+ r:`PC, primi capitoli · Lezione 6`},
+
+{t:6, q:`Enunciato della disuguaglianza di Markov: sia <span class="m">X</span> una variabile aleatoria <em>non negativa</em> e <span class="m">t &gt; 0</span>. Allora:`,
+ o:[`<span class="m">P(X ≥ t) ≤ E[X]/t</span>`,`<span class="m">P(X ≥ t) ≤ t/E[X]</span>`,`<span class="m">P(X ≥ t) ≤ Var(X)/t²</span>`,`<span class="m">P(|X − E[X]| ≥ t) ≤ E[X]/t</span>`],
+ c:0,
+ e:`L'ipotesi di non negatività è indispensabile: senza di essa la disuguaglianza è falsa. La terza opzione è Chebyshev, che usa la varianza e limita gli scostamenti dalla media in entrambe le direzioni.`,
+ r:`PC, primi capitoli · Lezione 6`},
+
+{t:6, q:`Algoritmo randomizzato per MAX-CUT: ogni nodo entra in <span class="m">S</span> con probabilità <span class="m">1/2</span>, indipendentemente. Qual è il valore atteso del taglio su un grafo con <span class="m">m</span> archi?`,
+ o:[`<span class="m">m/4</span>`,`<span class="m">m/2</span>`,`<span class="m">3m/4</span>`,`dipende dalla struttura del grafo`],
+ c:1,
+ e:`Fissato un arco, i suoi due estremi hanno 4 configurazioni equiprobabili e due di queste li separano: l'arco è nel taglio con probabilità <span class="m">1/2</span>. Per linearità del valore atteso, <span class="m">E[|cut(S)|] = m/2</span>, indipendentemente dal grafo. Poiché <span class="m">OPT ≤ m</span>, questa è una 2-approssimazione in valore atteso, ottenuta in tempo <span class="m">O(n)</span>.`,
+ r:`AD 13.4 · Lezione 6`},
+
+{t:6, q:`Algoritmo randomizzato per MAX-3-SAT: ogni variabile è posta vera con probabilità <span class="m">1/2</span>, indipendentemente. Con <span class="m">m</span> clausole di 3 letterali distinti, qual è il numero atteso di clausole soddisfatte?`,
+ o:[`<span class="m">m/2</span>`,`<span class="m">2m/3</span>`,`<span class="m">7m/8</span>`,`<span class="m">m − 3</span>`],
+ c:2,
+ e:`Una clausola con 3 letterali distinti resta insoddisfatta in una sola delle 8 configurazioni dei suoi letterali, quindi è soddisfatta con probabilità <span class="m">7/8</span>. Sommando con la linearità del valore atteso su tutte le clausole si ottiene <span class="m">7m/8</span>.`,
+ r:`AD 13.4 · Lezione 6 · Quarto appello, domanda 1.2`},
+
+{t:6, q:`Dal risultato <span class="m">E[X] = 7m/8</span> si deduce che <em>esiste</em> un'assegnazione deterministica che soddisfa almeno <span class="m">7m/8</span> clausole. Qual è l'argomento?`,
+ o:[`Una media non può superare il massimo: se il valore atteso è <span class="m">7m/8</span>, almeno una realizzazione raggiunge quel valore`,`Perché l'algoritmo randomizzato è corretto con probabilità 1`,`Perché <span class="m">7m/8</span> è un intero`,`Perché ogni formula 3-CNF è soddisfacibile`],
+ c:0,
+ e:`È il metodo probabilistico: se tutte le assegnazioni soddisfacessero meno di <span class="m">7m/8</span> clausole, anche la media sarebbe minore di <span class="m">7m/8</span>, contraddizione. Il risultato è puramente esistenziale e vale anche per formule non soddisfacibili — nota che è un enunciato di combinatoria dimostrato con la probabilità.`,
+ r:`AD 13.4 · Lezione 6 · Quarto appello, domanda 1.3`},
+
+{t:6, q:`Per passare da una garanzia in valore atteso a una garanzia in probabilità, la tecnica usata a lezione è:`,
+ o:[`applicare Chernoff direttamente al valore della soluzione`,`applicare Markov alla variabile "deficit" <span class="m">Y = OPT − X</span>, che è non negativa, e poi ripetere l'algoritmo in modo indipendente`,`applicare Markov direttamente a <span class="m">X</span> nella forma <span class="m">P(X ≥ c·OPT)</span>`,`calcolare la varianza di <span class="m">X</span> e usare Chebyshev`],
+ c:1,
+ e:`Markov limita la coda <em>superiore</em>, mentre a noi serve garantire che <span class="m">X</span> sia <em>grande</em>. Si passa allora al deficit <span class="m">Y = OPT − X ≥ 0</span>: dire che <span class="m">X</span> è grande equivale a dire che <span class="m">Y</span> è piccola, e su <span class="m">Y</span> Markov funziona. Poi si ripete <span class="m">k</span> volte, tenendo la soluzione migliore: la probabilità di fallire sempre è il prodotto delle probabilità di fallimento.`,
+ r:`AD 13.4 · Lezione 6`},
+
+{t:6, q:`Nell'analisi di Quicksort randomizzato, gli elementi <span class="m">z<sub>i</sub></span> e <span class="m">z<sub>j</sub></span> (con <span class="m">i &lt; j</span>, ordinati) vengono confrontati se e solo se:`,
+ o:[`sono adiacenti nell'ordinamento finale`,`il primo pivot estratto dall'insieme <span class="m">S<sub>i,j</sub> = {z<sub>i</sub>,…,z<sub>j</sub>}</span> è <span class="m">z<sub>i</sub></span> oppure <span class="m">z<sub>j</sub></span>`,`entrambi finiscono nella stessa chiamata ricorsiva almeno una volta`,`uno dei due è il pivot della chiamata iniziale`],
+ c:1,
+ e:`Gli elementi di <span class="m">S<sub>i,j</sub></span> restano insieme finché non viene scelto come pivot uno di loro. Se quel primo pivot è un elemento intermedio, <span class="m">z<sub>i</sub></span> e <span class="m">z<sub>j</sub></span> si separano e non si confronteranno mai; se è uno dei due estremi, il confronto avviene. Condizionando, i <span class="m">j − i + 1</span> elementi sono equiprobabili, quindi <span class="m">P(X<sub>i,j</sub> = 1) = 2/(j − i + 1)</span>.`,
+ r:`PC 2.5 · Note su Quicksort, eq. (1) · Lezione 6`},
+
+{t:6, q:`Sommando i valori attesi delle indicatrici, il numero atteso di confronti di Quicksort randomizzato si stima con:`,
+ o:[`la serie geometrica, ottenendo <span class="m">O(n)</span>`,`la serie armonica, ottenendo <span class="m">≤ 2n log n</span>`,`il teorema di Chernoff, ottenendo <span class="m">O(n log n)</span> in alta probabilità`,`l'induzione sulla profondità dell'albero, ottenendo <span class="m">O(n²)</span>`],
+ c:1,
+ e:`<span class="m">Σ<sub>i&lt;j</sub> 2/(j−i+1)</span> si riscrive, ponendo <span class="m">k = j − i</span>, come una somma di serie armoniche: <span class="m">≤ 2n Σ<sub>k=1</sub><sup>n</sup> 1/k ≤ 2n log n</span>. Chernoff serve invece per il risultato in alta probabilità, che è una seconda analisi, più fine.`,
+ r:`PC 2.5 · Note su Quicksort, Teorema 1`},
+
+{t:6, q:`Qual è il tempo di esecuzione di Quicksort randomizzato nel caso peggiore?`,
+ o:[`<span class="m">Θ(n log n)</span>, la randomizzazione elimina il caso peggiore`,`<span class="m">Θ(n²)</span>, ma si verifica solo per una scelta molto sfortunata dei pivot, non per un input avverso`,`<span class="m">Θ(n log n)</span> in probabilità e <span class="m">Θ(n)</span> nel caso migliore`,`<span class="m">Θ(n²)</span> su ogni input già ordinato`],
+ c:1,
+ e:`Esiste ancora una realizzazione in cui tutti i pivot sono pessimi e il costo è quadratico: la randomizzazione non la elimina, la rende improbabile. La differenza sostanziale è che il caso peggiore non dipende più dall'input ma solo dalle monete interne, quindi nessun avversario può costruire un'istanza cattiva.`,
+ r:`Note su Quicksort, §1.1 · Primo appello, domanda 1.2`},
+
+/* ---------- 7 · Chernoff, alta probabilità, Min-Cut ---------- */
+{t:7, q:`Sotto quali ipotesi si applica la disuguaglianza di Chernoff nella forma vista a lezione?`,
+ o:[`<span class="m">X<sub>1</sub>,…,X<sub>m</sub></span> indipendenti a valori in <span class="m">{0,1}</span>, <span class="m">X</span> la loro somma e <span class="m">μ = E[X]</span>`,`<span class="m">X<sub>1</sub>,…,X<sub>m</sub></span> non negative, anche dipendenti`,`<span class="m">X<sub>1</sub>,…,X<sub>m</sub></span> identicamente distribuite, anche dipendenti`,`<span class="m">X<sub>1</sub>,…,X<sub>m</sub></span> geometriche indipendenti`],
+ c:0,
+ e:`Servono indipendenza e valori in <span class="m">{0,1}</span>; non è invece richiesto che siano identicamente distribuite. Nella Proposizione 1 delle note, per trattare una somma di variabili <em>geometriche</em>, si è dovuto riformulare l'evento in termini di un numero fissato di lanci proprio perché Chernoff non si applicava direttamente.`,
+ r:`PC cap. 4 · Note su Quicksort, Teorema 2`},
+
+{t:7, q:`Nella versione vista a lezione, per <span class="m">δ ∈ (0,1)</span> la coda superiore di Chernoff è:`,
+ o:[`<span class="m">P(X ≥ (1+δ)μ) ≤ e<sup>−μδ²/3</sup></span>`,`<span class="m">P(X ≥ (1+δ)μ) ≤ e<sup>−μδ²/2</sup></span>`,`<span class="m">P(X ≥ (1+δ)μ) ≤ μ/(δ(1+δ))</span>`,`<span class="m">P(X ≥ (1+δ)μ) ≤ 2e<sup>−μδ²/3</sup></span>`],
+ c:0,
+ e:`Coda superiore con il 3 al denominatore, coda inferiore <span class="m">P(X ≤ (1−δ)μ) ≤ e<sup>−μδ²/2</sup></span> con il 2, e il fattore <span class="m">2</span> davanti compare solo nella versione bilatera, che somma le due code.`,
+ r:`Note su Quicksort, Teorema 2 · Lezione 7`},
+
+{t:7, q:`Qual è la differenza sostanziale fra Markov e Chernoff?`,
+ o:[`Markov dà un decadimento esponenziale, Chernoff solo lineare`,`Chernoff dà un decadimento esponenziale in <span class="m">μ</span> ma richiede indipendenza, mentre Markov decade linearmente e non richiede altro che la non negatività`,`Markov vale solo per somme di Bernoulli`,`Sono equivalenti, cambia solo la notazione`],
+ c:1,
+ e:`Markov è debolissimo come stima ma quasi privo di ipotesi, e infatti è quello che si applica al deficit negli algoritmi di approssimazione. Chernoff è molto più preciso, ma il prezzo è la struttura richiesta: somma di Bernoulli indipendenti.`,
+ r:`Lezione 6 e 7`},
+
+{t:7, q:`Nell'analisi in alta probabilità di Quicksort, quando una chiamata ricorsiva si dice "buona"?`,
+ o:[`Quando il pivot è la mediana esatta`,`Quando il pivot divide il vettore di taglia <span class="m">s</span> in due parti entrambe di taglia al più <span class="m">(2/3)s</span>, il che accade con probabilità <span class="m">1/3</span>`,`Quando il pivot è il minimo o il massimo`,`Quando la chiamata riceve meno di <span class="m">log n</span> elementi`],
+ c:1,
+ e:`Il pivot è buono se cade nel terzo centrale del vettore ordinato: un terzo dei possibili pivot. Ogni nodo buono riduce la taglia di un fattore <span class="m">2/3</span>, quindi lungo un cammino radice-foglia i nodi buoni sono al più <span class="m">c log<sub>2</sub> n</span> con <span class="m">c = 1/log<sub>2</sub>(3/2)</span>.`,
+ r:`Note su Quicksort, Lemma 1 · Lezione 7`},
+
+{t:7, q:`Nelle note, si dimostra che un singolo cammino radice-foglia è corto con probabilità <span class="m">1 − 1/n²</span>. Come si conclude che <em>tutti</em> i cammini lo sono con probabilità <span class="m">1 − 1/n</span>?`,
+ o:[`Con l'indipendenza fra cammini distinti`,`Con le leggi di De Morgan e lo union bound, notando che i cammini radice-foglia sono al più <span class="m">n</span>`,`Con la disuguaglianza di Chebyshev`,`Osservando che il cammino più lungo domina tutti gli altri`],
+ c:1,
+ e:`Si passa al complementare: la probabilità che <em>almeno un</em> cammino sia lungo è al più la somma delle singole probabilità, cioè <span class="m">n · 1/n² = 1/n</span>. Lo union bound non richiede indipendenza, che qui del resto non ci sarebbe: i cammini condividono nodi.`,
+ r:`Note su Quicksort, Lemma 3 · Lezione 7`},
+
+{t:7, q:`In cosa consiste l'algoritmo randomizzato di contrazione per MIN-CUT?`,
+ o:[`Si rimuove ripetutamente un arco scelto a caso finché il grafo si disconnette`,`Si contrae ripetutamente un arco scelto uniformemente a caso, fondendo i due estremi in un super-nodo ed eliminando i self-loop, finché restano due super-nodi`,`Si assegna ogni nodo a caso a uno dei due lati e si conta il taglio`,`Si calcola il flusso massimo fra due nodi estratti a caso`],
+ c:1,
+ e:`I multi-archi vanno conservati, perché la loro molteplicità è ciò che rende meno probabile contrarre un arco del taglio minimo. Alla fine i due super-nodi individuano la partizione dei nodi originari e gli archi rimasti sono il taglio restituito. La terza opzione descrive l'algoritmo per MAX-CUT, che è un altro problema.`,
+ r:`AD cap. 13 · Lezione 7`},
+
+{t:7, q:`Qual è la probabilità che una singola esecuzione dell'algoritmo di contrazione restituisca un taglio minimo, su un grafo con <span class="m">n</span> nodi?`,
+ o:[`almeno <span class="m">1/2</span>`,`almeno <span class="m">2/(n(n−1))</span>`,`almeno <span class="m">1/n</span>`,`almeno <span class="m">1 − 1/n</span>`],
+ c:1,
+ e:`È una probabilità piccola, ma solo polinomialmente piccola: basta ripetere l'algoritmo <span class="m">O(n² log n)</span> volte, tenendo il taglio migliore trovato, per avere successo con alta probabilità. Questo è lo schema standard di amplificazione.`,
+ r:`AD cap. 13 · Lezione 7`},
+
+{t:7, q:`Nella dimostrazione, si stima la probabilità di contrarre per sbaglio un arco del taglio minimo. Qual è il passaggio chiave?`,
+ o:[`Se il taglio minimo ha <span class="m">k</span> archi, ogni nodo ha grado almeno <span class="m">k</span>, quindi <span class="m">|E| ≥ nk/2</span> e la probabilità di sbagliare al primo passo è al più <span class="m">2/n</span>`,`Il taglio minimo ha al più <span class="m">n</span> archi, quindi la probabilità è al più <span class="m">n/|E|</span>`,`Gli archi del taglio minimo sono scelti con probabilità <span class="m">1/2</span> ciascuno`,`Ogni contrazione riduce il valore del taglio minimo`],
+ c:0,
+ e:`Se un nodo avesse grado minore di <span class="m">k</span>, isolarlo darebbe un taglio più piccolo del minimo: assurdo. Quindi <span class="m">|E| ≥ nk/2</span> e la probabilità di pescare uno dei <span class="m">k</span> archi del taglio è <span class="m">k/|E| ≤ 2/n</span>. L'argomento si ripete a ogni passo, con <span class="m">n − i + 1</span> nodi residui, e le probabilità condizionate si moltiplicano.`,
+ r:`AD cap. 13 · Lezione 7`},
+
+{t:7, q:`Un algoritmo randomizzato ha probabilità di successo <span class="m">p</span> per esecuzione. Ripetendolo <span class="m">k</span> volte in modo indipendente, la probabilità di fallire sempre è:`,
+ o:[`<span class="m">1 − kp</span>`,`<span class="m">(1 − p)<sup>k</sup></span>`,`<span class="m">p<sup>k</sup></span>`,`<span class="m">1 − p<sup>k</sup></span>`],
+ c:1,
+ e:`Per indipendenza le probabilità di fallimento si moltiplicano. Con <span class="m">k = (1/p) ln n</span> si ottiene <span class="m">(1−p)<sup>k</sup> ≤ e<sup>−pk</sup> = 1/n</span>: ecco da dove vengono le <span class="m">O(n² log n)</span> ripetizioni di Min-Cut, usando <span class="m">p ≈ 2/n²</span>.`,
+ r:`AD 13.4 e cap. 13 · Lezioni 6 e 7`},
+
+/* ---------- 8 · Independent Set ---------- */
+{t:8, q:`Cos'è un insieme indipendente in un grafo <span class="m">G = (V,E)</span>?`,
+ o:[`Un insieme <span class="m">S ⊆ V</span> tale che ogni arco di <span class="m">E</span> contiene al più un nodo di <span class="m">S</span>`,`Un insieme <span class="m">S ⊆ V</span> i cui nodi sono a due a due adiacenti`,`Un insieme di archi che non condividono estremi`,`Un insieme di nodi che copre tutti gli archi`],
+ c:0,
+ e:`Nessun arco può avere entrambi gli estremi in <span class="m">S</span>. La seconda opzione descrive una clique (ed è l'insieme indipendente nel grafo complemento), la terza un matching, la quarta un vertex cover.`,
+ r:`AD 8.1 · Esercizio 1 · Lezione 8`},
+
+{t:8, q:`Qual è il certificato che mette INDEPENDENT SET in NP?`,
+ o:[`L'insieme <span class="m">S</span> stesso: si verifica che <span class="m">|S| ≥ k</span> e che nessun arco abbia entrambi gli estremi in <span class="m">S</span>`,`Il complemento <span class="m">V ∖ S</span>, con la verifica che sia una clique`,`La lista di tutti gli insiemi indipendenti del grafo`,`Il grado massimo del grafo`],
+ c:0,
+ e:`Il testimone ha lunghezza polinomiale e la verifica scorre gli archi una volta sola, in tempo <span class="m">O(|E|)</span>. È esattamente la struttura richiesta dalla definizione di NP tramite verificatore.`,
+ r:`Esercizio 1(a) · Lezione 8`},
+
+{t:8, q:`Come si riduce VERTEX-COVER a INDEPENDENT SET?`,
+ o:[`Si mappa l'istanza <span class="m">(G, k)</span> in <span class="m">(G, n − k)</span>, dove <span class="m">n = |V|</span>`,`Si mappa <span class="m">(G, k)</span> in <span class="m">(Ḡ, k)</span>, dove <span class="m">Ḡ</span> è il grafo complemento`,`Si mappa <span class="m">(G, k)</span> in <span class="m">(G, k)</span>: i due problemi coincidono`,`Non si può: la riduzione va nel verso opposto`],
+ c:0,
+ e:`Poiché <span class="m">S</span> è indipendente se e solo se <span class="m">V ∖ S</span> è un vertex cover, <span class="m">G</span> ha un vertex cover di taglia <span class="m">k</span> se e solo se ha un insieme indipendente di taglia <span class="m">n − k</span>. Il grafo resta lo stesso e cambia solo la soglia: la trasformazione è immediata, quindi polinomiale. Il complemento serve invece per il legame con CLIQUE.`,
+ r:`Esercizio 1(c) · Lezione 8`},
+
+{t:8, q:`Sia <span class="m">G</span> un grafo con <span class="m">n</span> nodi e <span class="m">2n</span> archi. Ogni nodo viene inserito in <span class="m">S</span> con probabilità <span class="m">1/4</span>, indipendentemente. Quanto vale <span class="m">E[|S|]</span>?`,
+ o:[`<span class="m">n/2</span>`,`<span class="m">n/4</span>`,`<span class="m">n/8</span>`,`<span class="m">n/16</span>`],
+ c:1,
+ e:`Somma di <span class="m">n</span> indicatrici, ciascuna con valore atteso <span class="m">1/4</span>: per linearità <span class="m">E[|S|] = n/4</span>.`,
+ r:`Esercizio 2(a) · Lezione 8`},
+
+{t:8, q:`Nello stesso esperimento, sia <span class="m">X</span> il numero di archi con <em>entrambi</em> gli estremi in <span class="m">S</span>. Quanto vale <span class="m">E[X]</span>?`,
+ o:[`<span class="m">n/4</span>`,`<span class="m">n/8</span>`,`<span class="m">n/16</span>`,`<span class="m">n/32</span>`],
+ c:1,
+ e:`Un arco fissato è interno a <span class="m">S</span> se entrambi i suoi estremi vengono scelti, cosa che per indipendenza accade con probabilità <span class="m">1/4 · 1/4 = 1/16</span>. Con <span class="m">2n</span> archi e per linearità: <span class="m">E[X] = 2n/16 = n/8</span>.`,
+ r:`Esercizio 2(b) · Lezione 8`},
+
+{t:8, q:`Per ogni arco interno a <span class="m">S</span> si rimuove arbitrariamente uno dei due estremi, ottenendo <span class="m">S'</span>. Quale garanzia si ottiene?`,
+ o:[`<span class="m">S'</span> è indipendente e <span class="m">E[|S'|] ≥ n/8</span>`,`<span class="m">S'</span> è indipendente e <span class="m">|S'| ≥ n/8</span> sempre`,`<span class="m">S'</span> è un vertex cover di cardinalità attesa <span class="m">n/8</span>`,`<span class="m">S'</span> è indipendente ma il suo valore atteso può essere nullo`],
+ c:0,
+ e:`<span class="m">S'</span> è indipendente per costruzione: ogni arco problematico ha perso un estremo. Sulla cardinalità: si parte da <span class="m">n/4</span> nodi attesi e se ne tolgono al più uno per ciascuno degli <span class="m">n/8</span> archi attesi, quindi <span class="m">E[|S'|] ≥ n/4 − n/8 = n/8</span>. È una garanzia <em>in valore atteso</em>, non su ogni realizzazione.`,
+ r:`Esercizio 2(c) · Lezione 8`},
+
+{t:8, q:`Cosa si deduce dal fatto che <span class="m">E[|S'|] ≥ n/8</span>?`,
+ o:[`Che l'algoritmo trova sempre un insieme indipendente di <span class="m">n/8</span> nodi`,`Che in ogni grafo con <span class="m">n</span> nodi e <span class="m">2n</span> archi <em>esiste</em> un insieme indipendente con almeno <span class="m">n/8</span> nodi`,`Che l'insieme indipendente massimo ha esattamente <span class="m">n/8</span> nodi`,`Che il problema è risolvibile in tempo polinomiale`],
+ c:1,
+ e:`Ancora il metodo probabilistico: il valore atteso è una media pesata sulle cardinalità degli insiemi indipendenti generabili, quindi almeno uno di essi raggiunge la media. È un enunciato di esistenza puramente combinatorio, dimostrato per via probabilistica.`,
+ r:`Esercizio 2(d) · Lezione 8`},
+
+{t:8, q:`Per ottenere un insieme indipendente di almeno <span class="m">n/16</span> nodi con alta probabilità, si procede così:`,
+ o:[`si applica Chernoff a <span class="m">|S'|</span>, che è somma di indicatrici indipendenti`,`si applica Markov alla variabile non negativa <span class="m">Y = n − |S'|</span> per limitare <span class="m">P(|S'| &lt; n/16)</span>, e poi si ripete la procedura più volte`,`si calcola la varianza di <span class="m">|S'|</span> e si usa Chebyshev`,`si enumerano tutti i sottoinsiemi di cardinalità <span class="m">n/16</span>`],
+ c:1,
+ e:`Come per Max-Cut e Max-3-SAT, si trasforma "<span class="m">|S'|</span> è piccolo" nell'evento equivalente "<span class="m">Y = n − |S'|</span> è grande", su cui Markov si applica. Si ottiene una probabilità di successo costante per esecuzione, che le ripetizioni indipendenti portano a <span class="m">1 − 1/n</span>. Chernoff non è applicabile direttamente: dopo il post-processing le indicatrici dei nodi di <span class="m">S'</span> non sono più indipendenti.`,
+ r:`Esercizio 2(e) · Lezione 8 · Febbraio, domanda 17(e)`}
+];
+
+/* ==================== STATO ==================== */
+let selected = new Set(TEMI.map(t => t.n));
+let maxLen = 0;           // 0 = tutte
+let order  = "shuffle";
+let deck   = [];
+let idx    = 0;
+let answers = [];         // {q, given, ok}
+let theme  = "auto";
+
+const $ = id => document.getElementById(id);
+
+/* ==================== TEMA ==================== */
+const THEMES = [
+  {v:"auto",  icon:"◐", label:"Auto"},
+  {v:"light", icon:"○", label:"Chiaro"},
+  {v:"dark",  icon:"●", label:"Scuro"}
+];
+$("themebtn").addEventListener("click", () => {
+  const i = THEMES.findIndex(t => t.v === theme);
+  const nx = THEMES[(i + 1) % THEMES.length];
+  theme = nx.v;
+  document.documentElement.setAttribute("data-theme", theme);
+  $("themeicon").textContent = nx.icon;
+  $("themelabel").textContent = nx.label;
+});
+
+/* ==================== SCHERMATA INIZIALE ==================== */
+function countFor(n){ return Q.filter(q => q.t === n).length; }
+
+function buildSpine(){
+  $("spine").innerHTML = TEMI.map(t => `
+    <li class="lec">
+      <label>
+        <input type="checkbox" data-tema="${t.n}" checked>
+        <span class="dot">${t.n}</span>
+        <span class="lecbody">
+          <span class="lectitle">${t.titolo}</span>
+          <span class="lecmeta">Lezione del ${t.data} · ${countFor(t.n)} domande</span>
+        </span>
+      </label>
+    </li>`).join("");
+  $("spine").querySelectorAll("input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const n = +cb.dataset.tema;
+      cb.checked ? selected.add(n) : selected.delete(n);
+      refreshStart();
+    });
+  });
+}
+
+function pool(){ return Q.filter(q => selected.has(q.t)); }
+
+function refreshStart(){
+  const p = pool().length;
+  $("nsel").textContent = p;
+  $("go").disabled = p === 0;
+  $("go").textContent = p === 0 ? "Seleziona almeno un argomento"
+    : `Inizia · ${maxLen === 0 ? p : Math.min(maxLen, p)} domande`;
+  $("toggleall").textContent = selected.size === TEMI.length ? "Deseleziona tutto" : "Seleziona tutto";
+}
+
+$("toggleall").addEventListener("click", () => {
+  const all = selected.size === TEMI.length;
+  selected = all ? new Set() : new Set(TEMI.map(t => t.n));
+  $("spine").querySelectorAll("input").forEach(cb => cb.checked = !all);
+  refreshStart();
+});
+
+$("lenchips").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if(!b) return;
+  maxLen = +b.dataset.len;
+  [...$("lenchips").children].forEach(c => c.setAttribute("aria-pressed", c === b));
+  refreshStart();
+});
+$("ordchips").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if(!b) return;
+  order = b.dataset.ord;
+  [...$("ordchips").children].forEach(c => c.setAttribute("aria-pressed", c === b));
+});
+
+/* ==================== AVVIO QUIZ ==================== */
+function shuffle(a){
+  a = a.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* mescola anche le opzioni, tenendo traccia della risposta giusta */
+function prepare(q){
+  const perm = shuffle(q.o.map((_, i) => i));
+  return {
+    src: q,
+    tema: q.t,
+    text: q.q,
+    opts: perm.map(i => q.o[i]),
+    correct: perm.indexOf(q.c),
+    exp: q.e,
+    ref: q.r
+  };
+}
+
+function start(list){
+  deck = list;
+  idx = 0;
+  answers = [];
+  $("start").hidden = true;
+  $("results").hidden = true;
+  $("quiz").hidden = false;
+  buildBar();
+  render();
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+$("go").addEventListener("click", () => {
+  let list = pool();
+  list = order === "shuffle" ? shuffle(list) : list.slice();
+  if(maxLen > 0) list = list.slice(0, maxLen);
+  if(order === "lesson") list.sort((a,b) => a.t - b.t);
+  start(list.map(prepare));
+});
+
+/* ==================== RENDER DOMANDA ==================== */
+function buildBar(){
+  $("bar").innerHTML = deck.map(() => `<span class="tick"></span>`).join("");
+}
+function paintBar(){
+  const ticks = $("bar").children;
+  for(let i = 0; i < deck.length; i++){
+    ticks[i].className = "tick" +
+      (answers[i] ? (answers[i].ok ? " ok" : " ko") : (i === idx ? " now" : ""));
+  }
+}
+
+function render(){
+  const q = deck[idx];
+  const tema = TEMI.find(t => t.n === q.tema);
+  $("qtopic").textContent = `Lezione ${tema.n} · ${tema.titolo}`;
+  $("qcount").textContent = `${idx + 1} di ${deck.length}`;
+  $("qtext").innerHTML = q.text;
+  $("verdictslot").innerHTML = "";
+  $("next").hidden = true;
+  paintBar();
+
+  const letters = ["A","B","C","D","E"];
+  $("opts").innerHTML = q.opts.map((o, i) =>
+    `<button class="opt" data-i="${i}"><span class="key">${letters[i]}</span><span>${o}</span></button>`
+  ).join("");
+  $("opts").querySelectorAll(".opt").forEach(b => {
+    b.addEventListener("click", () => answer(+b.dataset.i));
+  });
+}
+
+function answer(i){
+  const q = deck[idx];
+  if(answers[idx]) return;
+  const ok = i === q.correct;
+  answers[idx] = {q, given:i, ok};
+
+  const btns = $("opts").querySelectorAll(".opt");
+  btns.forEach((b, j) => {
+    b.disabled = true;
+    if(j === q.correct) b.classList.add("correct");
+    else if(j === i) b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+
+  $("verdictslot").innerHTML = `
+    <div class="verdict ${ok ? "ok" : "ko"}">
+      <h3>${ok ? "Corretta" : "Non ci siamo"}</h3>
+      <p>${q.exp}</p>
+      <div class="ref">${q.ref}</div>
+    </div>`;
+
+  $("next").hidden = false;
+  $("next").textContent = idx === deck.length - 1 ? "Vedi il riepilogo" : "Avanti";
+  $("next").focus({preventScroll:true});
+  paintBar();
+}
+
+$("next").addEventListener("click", () => {
+  if(idx === deck.length - 1) finish();
+  else { idx++; render(); window.scrollTo({top:0, behavior:"instant"}); }
+});
+$("quit").addEventListener("click", finish);
+
+/* tastiera: 1-5 per rispondere, Invio/Spazio per avanzare */
+document.addEventListener("keydown", e => {
+  if($("quiz").hidden) return;
+  if(/^[1-5]$/.test(e.key)){
+    const b = $("opts").querySelector(`.opt[data-i="${+e.key - 1}"]`);
+    if(b && !b.disabled){ e.preventDefault(); b.click(); }
+  }
+  if((e.key === "Enter" || e.key === " ") && !$("next").hidden){
+    e.preventDefault(); $("next").click();
+  }
+});
+
+/* ==================== RISULTATI ==================== */
+function finish(){
+  const done = answers.filter(Boolean);
+  const right = done.filter(a => a.ok).length;
+
+  $("quiz").hidden = true;
+  $("results").hidden = false;
+
+  $("rscore").textContent = right;
+  $("rof").textContent = `/${done.length}`;
+
+  const pct = done.length ? right / done.length : 0;
+  let note;
+  if(done.length === 0) note = "Nessuna risposta registrata.";
+  else if(pct === 1) note = "Tutte corrette. Vale la pena passare alle domande aperte dei temi d'esame, dove serve scrivere le dimostrazioni per esteso.";
+  else if(pct >= .8) note = "Base solida. Concentrati sugli argomenti in fondo alla lista qui sotto.";
+  else if(pct >= .6) note = "Le definizioni ci sono, le dimostrazioni meno. Rileggi le riduzioni e le analisi probabilistiche prima di rifare il quiz.";
+  else note = "Conviene tornare sulle slide degli argomenti più deboli prima di riprovare: sotto trovi la ripartizione per lezione.";
+  $("rnote").textContent = note;
+
+  // tabella per argomento
+  const rows = TEMI.map(t => {
+    const a = done.filter(x => x.q.tema === t.n);
+    if(!a.length) return null;
+    const ok = a.filter(x => x.ok).length;
+    const f = ok / a.length;
+    const cls = f >= .75 ? "" : (f >= .5 ? "mid" : "low");
+    return {t, ok, tot:a.length, f, cls};
+  }).filter(Boolean).sort((a,b) => a.f - b.f);
+
+  $("rtable").innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.t.n}</td>
+      <td>${r.t.titolo}<div class="meter"><i class="${r.cls}" style="width:${Math.round(r.f*100)}%"></i></div></td>
+      <td>${r.ok}/${r.tot}</td>
+    </tr>`).join("");
+
+  // ripasso degli errori
+  const wrong = done.filter(a => !a.ok);
+  $("revwrap").innerHTML = wrong.length ? `
+    <div class="sechead"><h2>Da rivedere (${wrong.length})</h2></div>
+    ${wrong.map(a => `
+      <div class="rev">
+        <div class="tag">Lezione ${a.q.tema} · ${a.q.ref}</div>
+        <p>${a.q.text}</p>
+        <div class="yours">✗ La tua risposta: ${a.q.opts[a.given]}</div>
+        <div class="right">✓ Corretta: ${a.q.opts[a.q.correct]}</div>
+        <div class="why">${a.q.exp}</div>
+      </div>`).join("")}` : "";
+
+  $("again").hidden = wrong.length === 0;
+  $("again").onclick = () => start(shuffle(wrong.map(a => prepare(a.q.src))));
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+$("restart").addEventListener("click", () => {
+  $("results").hidden = true;
+  $("quiz").hidden = true;
+  $("start").hidden = false;
+  refreshStart();
+  window.scrollTo({top:0, behavior:"instant"});
+});
+
+/* ==================== INIT ==================== */
+$("ntot").textContent = Q.length;
+buildSpine();
+refreshStart();
+</script>
+</body>
+</html>

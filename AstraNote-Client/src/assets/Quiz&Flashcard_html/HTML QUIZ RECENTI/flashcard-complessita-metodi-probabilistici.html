@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="auto">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcard · Logica, Modelli di Calcolo e Metodi Probabilistici</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9EDF4; --surface:#FBFCFE; --surface-2:#F2F5FA;
+  --grid:rgba(31,58,147,.07);
+  --ink:#14203A; --ink-soft:#4C5A75; --ink-faint:#7C89A3;
+  --rule:#C6CEDE; --rule-strong:#9DA9C1;
+  --blue:#1F3A93; --blue-tint:#E1E8F9;
+  --red:#AF2118; --red-tint:#FAE2E0;
+  --green:#186248; --green-tint:#DCF0E6;
+  --on-accent:#FBFCFE;
+  --lift:0 2px 0 var(--rule-strong);
+}
+[data-theme="dark"]{
+  --paper:#0E1524; --surface:#172034; --surface-2:#1D2740;
+  --grid:rgba(143,169,255,.055);
+  --ink:#E5EAF4; --ink-soft:#A2AEC6; --ink-faint:#78859F;
+  --rule:#2C3854; --rule-strong:#3E4C6E;
+  --blue:#93ACFF; --blue-tint:#1F2B4B;
+  --red:#FF9186; --red-tint:#39222A;
+  --green:#71D6A6; --green-tint:#14322B;
+  --on-accent:#0E1524;
+  --lift:0 2px 0 rgba(0,0,0,.35);
+}
+@media (prefers-color-scheme: dark){
+  [data-theme="auto"]{
+    --paper:#0E1524; --surface:#172034; --surface-2:#1D2740;
+    --grid:rgba(143,169,255,.055);
+    --ink:#E5EAF4; --ink-soft:#A2AEC6; --ink-faint:#78859F;
+    --rule:#2C3854; --rule-strong:#3E4C6E;
+    --blue:#93ACFF; --blue-tint:#1F2B4B;
+    --red:#FF9186; --red-tint:#39222A;
+    --green:#71D6A6; --green-tint:#14322B;
+    --on-accent:#0E1524;
+    --lift:0 2px 0 rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+  color:var(--ink);
+  font-family:'Source Serif 4',Georgia,'Times New Roman',serif;
+  font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px 70px}
+h1,h2,h3,.ui{font-family:'Space Grotesk','Segoe UI',system-ui,sans-serif}
+.m{font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace;font-size:.92em;letter-spacing:-.01em}
+sup,sub{font-size:.7em;line-height:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2.5px solid var(--blue);outline-offset:3px;border-radius:3px}
+
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:26px 0 18px;border-bottom:1px solid var(--rule-strong)}
+.brand h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-.02em;line-height:1.2}
+.brand p{margin:5px 0 0;font-size:13.5px;color:var(--ink-soft);font-family:'Space Grotesk',sans-serif}
+.themebtn{background:var(--surface);border:1px solid var(--rule-strong);border-radius:20px;padding:7px 14px;font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;flex-shrink:0}
+.themebtn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ---- setup ---- */
+.lede{margin:30px 0 26px;font-size:19px;line-height:1.5;max-width:60ch}
+.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 12px}
+.sechead h2{font-size:15px;font-weight:700;margin:0;letter-spacing:-.01em}
+.linkbtn{background:none;border:none;padding:0;font-family:'Space Grotesk',sans-serif;font-size:12.5px;color:var(--blue);text-decoration:underline;text-underline-offset:3px}
+
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:28px}
+.tile{position:relative}
+.tile input{position:absolute;opacity:0;width:1px;height:1px}
+.tile label{display:flex;gap:12px;align-items:flex-start;cursor:pointer;background:var(--surface);border:1px solid var(--rule-strong);border-radius:4px;padding:12px 14px;height:100%;transition:border-color .12s}
+.tile label:hover{border-color:var(--blue)}
+.tile input:checked ~ label{border-color:var(--blue);background:var(--blue-tint)}
+.tile input:focus-visible ~ label{outline:2.5px solid var(--blue);outline-offset:2px}
+.num{flex-shrink:0;width:24px;height:24px;border-radius:3px;border:1px solid var(--rule-strong);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;color:var(--ink-faint)}
+.tile input:checked ~ label .num{background:var(--blue);border-color:var(--blue);color:var(--on-accent)}
+.tname{font-size:15.5px;line-height:1.3;display:block}
+.tmeta{font-family:'Space Grotesk',sans-serif;font-size:11.5px;color:var(--ink-faint);margin-top:3px;display:block}
+.tile input:not(:checked) ~ label .tname,.tile input:not(:checked) ~ label .tmeta{opacity:.5}
+
+.row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.row > span{font-family:'Space Grotesk',sans-serif;font-size:13.5px;color:var(--ink-soft);min-width:96px}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{background:var(--surface);border:1px solid var(--rule-strong);border-radius:18px;padding:6px 14px;font-family:'Space Grotesk',sans-serif;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-accent)}
+.go{width:100%;margin-top:8px;padding:17px;border:none;border-radius:4px;background:var(--blue);color:var(--on-accent);font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.go:disabled{background:var(--rule-strong);cursor:not-allowed}
+.go:not(:disabled):hover{filter:brightness(1.1)}
+
+/* ---- studio ---- */
+.statusline{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-family:'Space Grotesk',sans-serif;font-size:12.5px;margin:22px 0 8px}
+.statusline .lesson{color:var(--blue);font-weight:500}
+.statusline .tally{color:var(--ink-faint)}
+.segs{display:flex;gap:2px;margin-bottom:22px}
+.seg{flex:1;height:3px;background:var(--rule);border-radius:2px}
+.seg.seen{background:var(--rule-strong)}
+.seg.known{background:var(--green)}
+.seg.review{background:var(--red)}
+.seg.now{background:var(--blue);height:5px;margin-top:-1px}
+
+.stage{perspective:1600px;margin-bottom:18px}
+.card{position:relative;width:100%;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.4,.1,.25,1);cursor:pointer;min-height:280px}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1px solid var(--rule-strong);border-radius:6px;box-shadow:var(--lift);overflow:hidden}
+.face.back{transform:rotateY(180deg);background:var(--surface-2)}
+.pad{padding:26px 28px 30px;display:flex;flex-direction:column;gap:14px;min-height:280px}
+.face.front .pad{justify-content:center}
+.tag{font-family:'Space Grotesk',sans-serif;font-size:11.5px;color:var(--ink-faint);letter-spacing:.02em}
+.prompt{font-size:23px;line-height:1.35;margin:0;font-weight:600}
+.echo{font-family:'Space Grotesk',sans-serif;font-size:12.5px;color:var(--ink-faint);border-bottom:1px solid var(--rule);padding-bottom:11px;line-height:1.4}
+.ans{font-size:17px;line-height:1.6}
+.ans p{margin:0 0 11px}
+.ans p:last-child{margin-bottom:0}
+.ans ul{margin:0 0 11px;padding-left:20px}
+.ans li{margin-bottom:5px}
+.ans .lead{font-weight:600}
+.ans .note{color:var(--ink-soft);font-size:16px;border-left:2px solid var(--rule-strong);padding-left:12px;margin-top:14px}
+.flipcue{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);margin-top:auto;padding-top:12px}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+
+.deck{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.deck button{padding:12px 18px;border-radius:4px;border:1px solid var(--rule-strong);background:var(--surface);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:500}
+.deck button:hover:not(:disabled){border-color:var(--blue)}
+.deck button:disabled{opacity:.4;cursor:not-allowed}
+.deck .know{border-color:var(--green);color:var(--green)}
+.deck .know:hover{background:var(--green-tint)}
+.deck .again{border-color:var(--red);color:var(--red)}
+.deck .again:hover{background:var(--red-tint)}
+.deck .arrow{width:44px;padding:12px 0;text-align:center}
+.deck .spacer{flex:1}
+.deck .quit{border:none;background:none;color:var(--ink-faint);font-size:13px;text-decoration:underline;text-underline-offset:3px;padding:12px 4px}
+.keys{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);margin-top:16px;line-height:1.7}
+
+/* ---- riepilogo ---- */
+.score{display:flex;align-items:baseline;gap:6px;margin:34px 0 4px}
+.score b{font-family:'Space Grotesk',sans-serif;font-size:60px;font-weight:700;letter-spacing:-.04em;line-height:.9}
+.score span{font-family:'Space Grotesk',sans-serif;font-size:22px;color:var(--ink-faint)}
+.score-note{font-size:18px;margin:12px 0 30px;max-width:56ch}
+.list{margin-bottom:32px}
+.item{border-top:1px solid var(--rule);padding:13px 0;display:flex;gap:14px;align-items:baseline}
+.item .ln{font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);flex-shrink:0;width:22px}
+.item .tx{font-size:16px;line-height:1.45}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+.actions button{padding:13px 22px;border-radius:4px;font-family:'Space Grotesk',sans-serif;font-size:14.5px;font-weight:500;border:1px solid var(--rule-strong);background:var(--surface)}
+.actions button.primary{background:var(--blue);border-color:var(--blue);color:var(--on-accent);font-weight:700}
+.actions button:hover{border-color:var(--blue)}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--rule);font-family:'Space Grotesk',sans-serif;font-size:12px;color:var(--ink-faint);line-height:1.7}
+
+@media (max-width:620px){
+  body{font-size:16px}
+  .wrap{padding:0 15px 55px}
+  .tiles{grid-template-columns:1fr}
+  .prompt{font-size:20px}
+  .pad{padding:22px 20px 26px}
+  .score b{font-size:50px}
+  .row > span{min-width:100%}
+  .deck .spacer{display:none}
+  .deck .quit{width:100%;text-align:left}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <h1>Flashcard del corso</h1>
+    <p>Logica, Modelli di Calcolo e Metodi Probabilistici · A.A. 2025/26</p>
+  </div>
+  <button class="themebtn ui" id="themebtn" aria-label="Cambia tema"><span id="themeicon">◐</span><span id="themelabel">Auto</span></button>
+</header>
+
+<section id="setup">
+  <p class="lede"><b id="ncards">—</b> carte in ordine di lezione, dalla prima definizione di macchina di Turing all'ultimo esercizio sugli insiemi indipendenti. Fronte: lo stimolo. Retro: l'enunciato, la costruzione o l'idea della dimostrazione.</p>
+
+  <div class="sechead">
+    <h2>Lezioni nel mazzo</h2>
+    <button class="linkbtn" id="toggleall">Deseleziona tutto</button>
+  </div>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="row">
+    <span>Ordine</span>
+    <div class="chips" id="ordchips">
+      <button class="chip" data-ord="lesson" aria-pressed="true">Per lezione</button>
+      <button class="chip" data-ord="shuffle" aria-pressed="false">Casuale</button>
+    </div>
+  </div>
+  <button class="go" id="go">Inizia</button>
+</section>
+
+<section id="study" hidden>
+  <div class="statusline">
+    <span class="lesson" id="slesson"></span>
+    <span class="tally" id="stally"></span>
+  </div>
+  <div class="segs" id="segs"></div>
+
+  <div class="stage">
+    <div class="card" id="card" role="button" tabindex="0" aria-label="Carta: premi spazio per girarla">
+      <div class="face front"><div class="pad" id="padFront"></div></div>
+      <div class="face back"><div class="pad" id="padBack"></div></div>
+    </div>
+  </div>
+
+  <div class="deck">
+    <button class="arrow" id="prev" aria-label="Carta precedente">←</button>
+    <button class="again" id="again">Da rivedere</button>
+    <button class="know" id="know">La sapevo</button>
+    <button class="arrow" id="next" aria-label="Carta successiva">→</button>
+    <span class="spacer"></span>
+    <button class="quit" id="quit">Chiudi il mazzo</button>
+  </div>
+  <p class="keys">Spazio o Invio per girare · ← → per spostarti · <b>1</b> da rivedere, <b>2</b> la sapevo</p>
+</section>
+
+<section id="done" hidden>
+  <div class="score"><b id="dknown">0</b><span id="dof">/0</span></div>
+  <p class="score-note" id="dnote"></p>
+  <div id="dlist" class="list"></div>
+  <div class="actions">
+    <button class="primary" id="redo">Ripassa le segnate</button>
+    <button id="restart">Torna alla scelta delle lezioni</button>
+  </div>
+</section>
+
+<footer>
+  Carte ricavate dal log delle lezioni, dalle slide, dalle note su Quicksort randomizzato e dagli esercizi del corso.<br>
+  Riferimenti: ITC = Sipser · AD = Kleinberg–Tardos · PC = Mitzenmacher–Upfal.
+</footer>
+
+</div>
+
+<script>
+/* ==================== LEZIONI ==================== */
+const TEMI = [
+  {n:1, data:"25 novembre", titolo:"Modelli di calcolo e la classe P"},
+  {n:2, data:"26 novembre", titolo:"NP, riduzioni e NP-completezza"},
+  {n:3, data:"2 dicembre",  titolo:"Clique e Vertex Cover"},
+  {n:4, data:"3 dicembre",  titolo:"Subset Sum e approssimazione"},
+  {n:5, data:"9 dicembre",  titolo:"Test di primalità randomizzato"},
+  {n:6, data:"10 dicembre", titolo:"Markov, Max-Cut, Max-3-SAT, Quicksort"},
+  {n:7, data:"16 dicembre", titolo:"Chernoff, alta probabilità, Min-Cut"},
+  {n:8, data:"17 dicembre", titolo:"Independent Set e grafi sparsi"}
+];
+
+/* ==================== CARTE ==================== */
+const CARDS = [
+/* ---------------- Lezione 1 ---------------- */
+{t:1, g:"Definizione", f:`<span class="m">A ∈ TIME(t(n))</span>`, b:`
+<p class="lead">Esiste una macchina di Turing <em>deterministica</em> che <em>decide</em> <span class="m">A</span> in tempo <span class="m">O(t(n))</span>.</p>
+<p>Il tempo si misura nel caso peggiore sugli input di lunghezza <span class="m">n</span>, e la macchina deve fermarsi sempre.</p>
+<div class="note">ITC 7.1</div>`},
+
+{t:1, g:"Definizione", f:`<span class="m">f(n) = O(g(n))</span> e <span class="m">f(n) = o(g(n))</span>`, b:`
+<p><span class="lead"><span class="m">O</span>:</span> esistono <span class="m">c &gt; 0</span> e <span class="m">n<sub>0</sub></span> tali che <span class="m">f(n) ≤ c·g(n)</span> per ogni <span class="m">n ≥ n<sub>0</sub></span>.</p>
+<p><span class="lead"><span class="m">o</span>:</span> <em>per ogni</em> <span class="m">c &gt; 0</span> esiste <span class="m">n<sub>0</sub></span> tale che <span class="m">f(n) ≤ c·g(n)</span> per ogni <span class="m">n ≥ n<sub>0</sub></span>. Equivalentemente <span class="m">f(n)/g(n) → 0</span>.</p>
+<div class="note">Il quantificatore su <span class="m">c</span> è tutta la differenza.</div>`},
+
+{t:1, g:"Teorema", f:`Quanto costa simulare una macchina a <span class="m">k</span> nastri con una a un nastro solo?`, b:`
+<p class="lead">Se <span class="m">A</span> è deciso in tempo <span class="m">O(t(n))</span> da una MTD a <span class="m">k</span> nastri, con <span class="m">t(n) ≥ n</span>, allora è deciso in tempo <span class="m">O(t²(n))</span> da una MTD a un nastro.</p>
+<p>Idea: i contenuti dei <span class="m">k</span> nastri si affiancano su un unico nastro separati da delimitatori. Ogni passo simulato richiede di scorrere tutta la porzione usata, lunga <span class="m">O(t(n))</span>.</p>
+<div class="note">Il rallentamento è polinomiale: il numero di nastri non cambia l'appartenenza a P. ITC, Teorema 7.8</div>`},
+
+{t:1, g:"Teorema", f:`Quanto costa simulare una macchina <em>non</em> deterministica con una deterministica?`, b:`
+<p class="lead">Se <span class="m">A</span> è deciso in tempo <span class="m">t(n) ≥ n</span> da una MTND, allora è deciso in tempo <span class="m">2<sup>O(t(n))</sup></span> da una MTD.</p>
+<p>La macchina deterministica esplora in ampiezza l'albero di computazione: diramazione limitata da una costante <span class="m">b</span>, profondità <span class="m">t(n)</span>, quindi <span class="m">O(b<sup>t(n)</sup>)</span> rami.</p>
+<div class="note">Qui il divario è esponenziale, non polinomiale: è esattamente il punto in cui si annida P contro NP. ITC, Teorema 7.11</div>`},
+
+{t:1, g:"Definizione", f:`Come si misura il tempo di una macchina di Turing non deterministica?`, b:`
+<p class="lead">Con l'altezza dell'albero di computazione: la lunghezza del ramo più lungo.</p>
+<p>Non il numero di nodi, non la lunghezza del ramo accettante più corto. Vale anche quando la macchina accetta subito su un altro ramo.</p>
+<p>La macchina <em>accetta</em> se esiste almeno una foglia accettante; rifiuta altrimenti.</p>`},
+
+{t:1, g:"Definizione", f:`La classe P`, b:`
+<p class="lead"><span class="m">P = ⋃<sub>k</sub> TIME(n<sup>k</sup>)</span></p>
+<p>I linguaggi decidibili in tempo polinomiale da una macchina di Turing deterministica.</p>
+<p><b>Definizione operativa:</b> un problema è in P se esiste un algoritmo che lo risolve in tempo polinomiale nella dimensione dell'input.</p>
+<div class="note">ITC 7.2</div>`},
+
+{t:1, g:"Osservazione", f:`Perché la classe P è "robusta"?`, b:`
+<p class="lead">Tutti i modelli di calcolo deterministici ragionevoli si simulano a vicenda con un rallentamento solo polinomiale, e i polinomi sono chiusi per composizione.</p>
+<p>Nastro singolo, nastri multipli, macchine RAM: la classe P è la stessa. Per questo si può parlare di "algoritmo polinomiale" senza specificare il modello, e ragionare con pseudocodice invece che con quintuple.</p>`},
+
+{t:1, g:"Esempio", f:`Tre algoritmi per <span class="m">A = {0<sup>k</sup>1<sup>k</sup> : k ≥ 0}</span> e i loro costi`, b:`
+<ul>
+<li><b>Cancella uno <span class="m">0</span> e un <span class="m">1</span> per volta</b> — <span class="m">O(n²)</span>, una passata per coppia.</li>
+<li><b>Cancella un simbolo ogni due</b>, controllando a ogni passata la parità dei due blocchi — il conteggio si dimezza, quindi <span class="m">O(log n)</span> passate da <span class="m">O(n)</span>: <span class="m">O(n log n)</span>.</li>
+<li><b>Due nastri</b>, il secondo usato come contatore degli zeri — <span class="m">O(n)</span>.</li>
+</ul>
+<div class="note">In tutti e tre i casi <span class="m">A ∈ P</span>: quello che cambia è il grado del polinomio.</div>`},
+
+/* ---------------- Lezione 2 ---------------- */
+{t:2, g:"Definizione", f:`NP, per mezzo del verificatore`, b:`
+<p class="lead"><span class="m">A ∈ NP</span> se esiste un verificatore <span class="m">V</span> polinomiale e un polinomio <span class="m">p</span> tali che:</p>
+<ul>
+<li><span class="m">w ∈ A ⟹ ∃c</span> con <span class="m">|c| ≤ p(|w|)</span> e <span class="m">V(w,c)</span> accetta;</li>
+<li><span class="m">w ∉ A ⟹ ∀c</span>, <span class="m">V(w,c)</span> rifiuta.</li>
+</ul>
+<p>Il certificato <span class="m">c</span> è il <em>testimone</em>: deve essere corto, non necessariamente unico e soprattutto non deve essere calcolabile in tempo polinomiale, altrimenti si avrebbe <span class="m">A ∈ P</span>.</p>
+<div class="note">ITC 7.3</div>`},
+
+{t:2, g:"Teorema", f:`La seconda definizione di NP e la sua equivalenza con la prima`, b:`
+<p class="lead"><span class="m">A ∈ NP</span> se e solo se <span class="m">A</span> è riconosciuto da una macchina di Turing non deterministica in tempo polinomiale.</p>
+<p><b>Verificatore ⟹ MTND:</b> la macchina "indovina" non deterministicamente il certificato (di lunghezza polinomiale) e poi esegue il verificatore.</p>
+<p><b>MTND ⟹ verificatore:</b> il ramo accettante è esso stesso un certificato di lunghezza polinomiale; verificarlo significa simulare quel ramo.</p>`},
+
+{t:2, g:"Corollario", f:`Perché <span class="m">P ⊆ NP</span>?`, b:`
+<p class="lead">Se <span class="m">A ∈ P</span>, l'algoritmo polinomiale che lo decide funziona da verificatore: riceve <span class="m">(w,c)</span>, ignora <span class="m">c</span> e decide su <span class="m">w</span>.</p>
+<p>Equivalentemente: ogni macchina deterministica è una macchina non deterministica che non dirama mai.</p>
+<div class="note">L'inclusione inversa <span class="m">NP ⊆ P</span> è il problema aperto.</div>`},
+
+{t:2, g:"Esempio", f:`Cinque problemi in NP e i rispettivi certificati`, b:`
+<ul>
+<li><b>Cammino hamiltoniano</b> — la sequenza ordinata dei nodi.</li>
+<li><b>Test di primalità</b> (versione "è composto") — un fattore non banale.</li>
+<li><b>Fattorizzazione intera</b> (versione decisionale) — i fattori.</li>
+<li><b><span class="m">k</span>-clique</b> — l'insieme dei <span class="m">k</span> nodi.</li>
+<li><b>Subset sum</b> — il sottoinsieme che raggiunge il target.</li>
+</ul>
+<p>In ogni caso la verifica è polinomiale mentre la ricerca del testimone sembra richiedere tempo esponenziale.</p>`},
+
+{t:2, g:"Definizione", f:`Riduzione polinomiale, nella versione usata nel corso`, b:`
+<p class="lead"><span class="m">X ≤<sub>p</sub> Y</span> se istanze arbitrarie di <span class="m">X</span> si risolvono con un numero polinomiale di passi di calcolo standard, più un numero polinomiale di chiamate a una scatola nera che risolve <span class="m">Y</span>.</p>
+<p>È la riduzione "con oracolo" di Kleinberg–Tardos: si può interrogare la scatola nera più volte e usarne le risposte come si vuole, anche negandole.</p>
+<div class="note">Sipser usa invece la riduzione per mappatura, più restrittiva: <span class="m">x ∈ X ⟺ f(x) ∈ Y</span> con <span class="m">f</span> polinomiale. Il log segnala esplicitamente che il corso adotta la definizione di AD.</div>`},
+
+{t:2, g:"Conseguenze", f:`Cosa si deduce da <span class="m">X ≤<sub>p</sub> Y</span>?`, b:`
+<p class="lead"><span class="m">Y</span> è almeno tanto difficile quanto <span class="m">X</span>.</p>
+<ul>
+<li><span class="m">Y ∈ P ⟹ X ∈ P</span> — la riduzione trasferisce la trattabilità;</li>
+<li><span class="m">X ∉ P ⟹ Y ∉ P</span> — la contronominale, che è il verso usato per dimostrare le difficoltà.</li>
+</ul>
+<p><b>Transitività:</b> da <span class="m">X ≤<sub>p</sub> Y</span> e <span class="m">Y ≤<sub>p</sub> Z</span> segue <span class="m">X ≤<sub>p</sub> Z</span>, perché la composizione di polinomi è un polinomio.</p>`},
+
+{t:2, g:"Definizione", f:`NP-completezza`, b:`
+<p class="lead"><span class="m">X</span> è NP-completo se valgono entrambe:</p>
+<ul>
+<li><span class="m">X ∈ NP</span>;</li>
+<li><span class="m">Y ≤<sub>p</sub> X</span> per <em>ogni</em> <span class="m">Y ∈ NP</span> (NP-difficoltà).</li>
+</ul>
+<p>Attenzione al verso: tutti i problemi di NP si riducono a <span class="m">X</span>, non il contrario.</p>`},
+
+{t:2, g:"Conseguenze", f:`Cosa comporta l'esistenza dei problemi NP-completi?`, b:`
+<ul>
+<li>Se un singolo problema NP-completo sta in P, allora <span class="m">P = NP</span>: ogni <span class="m">Y ∈ NP</span> si riduce a lui e la riduzione è polinomiale.</li>
+<li>Se <span class="m">P ≠ NP</span>, allora nessun problema NP-completo è risolvibile in tempo polinomiale.</li>
+</ul>
+<p>Sono i problemi più difficili di NP: o cadono tutti insieme, o resistono tutti insieme.</p>`},
+
+{t:2, g:"Dimostrazione", f:`Schema della dimostrazione che CIRCUIT-SAT è NP-completo`, b:`
+<p><b>(i)</b> <span class="m">CIRCUIT\u2011SAT ∈ NP</span>: il certificato è l'assegnazione degli ingressi, valutare il circuito è polinomiale.</p>
+<p><b>(ii)</b> Sia <span class="m">Y ∈ NP</span> con verificatore <span class="m">V</span>. Si costruisce un circuito di taglia polinomiale che simula <span class="m">V</span> sull'input fissato, lasciando liberi gli ingressi corrispondenti al certificato.</p>
+<p class="lead">Il circuito è soddisfacibile esattamente quando esiste un certificato che fa accettare <span class="m">V</span>.</p>
+<div class="note">AD 8.3 e 8.4 (fino al Teorema 8.15)</div>`},
+
+{t:2, g:"Dimostrazione", f:`Come si ottiene la NP-completezza di 3-SAT?`, b:`
+<p><b>(i)</b> <span class="m">3\u2011SAT ∈ NP</span>: il certificato è l'assegnazione di verità.</p>
+<p><b>(ii)</b> Si dimostra <span class="m">CIRCUIT\u2011SAT ≤<sub>p</sub> 3\u2011SAT</span>: ogni porta diventa un gruppo di clausole che ne codificano la tabella di verità.</p>
+<p><b>(iii)</b> Per transitività, da <span class="m">Y ≤<sub>p</sub> CIRCUIT\u2011SAT</span> e <span class="m">CIRCUIT\u2011SAT ≤<sub>p</sub> 3\u2011SAT</span> segue <span class="m">Y ≤<sub>p</sub> 3\u2011SAT</span> per ogni <span class="m">Y ∈ NP</span>.</p>
+<div class="note">Da qui in poi non si torna più ai verificatori: si riduce sempre da un problema NP-completo già noto.</div>`},
+
+{t:2, g:"Metodo", f:`La ricetta per dimostrare che un problema <span class="m">X</span> è NP-completo`, b:`
+<p><b>1.</b> Dimostra <span class="m">X ∈ NP</span>: esibisci il certificato e mostra che la verifica è polinomiale.</p>
+<p><b>2.</b> Scegli un problema NP-completo noto <span class="m">Z</span> e dimostra <span class="m">Z ≤<sub>p</sub> X</span>.</p>
+<p><b>3.</b> Nella riduzione: descrivi la costruzione, verifica che sia polinomiale, poi dimostra <em>entrambi</em> i versi della corrispondenza (istanza sì ⟹ istanza sì, e viceversa).</p>
+<div class="note">L'errore classico è invertire il verso al punto 2: ridurre <span class="m">X</span> a <span class="m">Z</span> non dimostra nulla di nuovo.</div>`},
+
+/* ---------------- Lezione 3 ---------------- */
+{t:3, g:"Definizione", f:`Clique e il problema <span class="m">k</span>-CLIQUE`, b:`
+<p class="lead">Una <span class="m">k</span>-clique è un insieme di <span class="m">k</span> nodi a due a due adiacenti: il sottografo indotto è completo.</p>
+<p><b>Input:</b> un grafo <span class="m">G</span> e un intero <span class="m">k</span>. <b>Output:</b> sì se <span class="m">G</span> contiene una <span class="m">k</span>-clique.</p>
+<p><b>In NP:</b> certificato = l'insieme dei <span class="m">k</span> nodi; si controllano le <span class="m">k(k−1)/2</span> coppie.</p>`},
+
+{t:3, g:"Costruzione", f:`La riduzione <span class="m">3\u2011SAT ≤<sub>p</sub> CLIQUE</span>`, b:`
+<p>Data <span class="m">φ</span> con <span class="m">l</span> clausole:</p>
+<ul>
+<li>un nodo per ogni <em>occorrenza</em> di letterale, raggruppati in <span class="m">l</span> triplette: <span class="m">3l</span> nodi;</li>
+<li>si collegano due nodi se stanno in triplette <em>diverse</em> e i letterali <em>non</em> sono uno la negazione dell'altro;</li>
+<li><span class="m">k = l</span>.</li>
+</ul>
+<p class="lead">Una <span class="m">l</span>-clique deve prendere esattamente un letterale per clausola, senza contraddizioni: è un'assegnazione che soddisfa <span class="m">φ</span>, e viceversa.</p>
+<div class="note">ITC, Teorema 7.32</div>`},
+
+{t:3, g:"Definizione", f:`Vertex cover e il problema <span class="m">k</span>-VERTEX-COVER`, b:`
+<p class="lead"><span class="m">S ⊆ V</span> è un vertex cover se ogni arco <span class="m">e ∈ E</span> ha almeno un estremo in <span class="m">S</span>.</p>
+<p><b>Input:</b> un grafo indiretto <span class="m">G</span> e un intero <span class="m">k</span>. <b>Output:</b> sì se esiste un vertex cover di cardinalità al più <span class="m">k</span>.</p>
+<p><b>In NP:</b> certificato = l'insieme <span class="m">S</span>; si scorre <span class="m">E</span> una volta sola, in tempo <span class="m">O(|E|)</span>.</p>`},
+
+{t:3, g:"Costruzione", f:`La riduzione <span class="m">3\u2011SAT ≤<sub>p</sub> VERTEX\u2011COVER</span>`, b:`
+<p>Data <span class="m">φ</span> con <span class="m">m</span> variabili e <span class="m">l</span> clausole:</p>
+<ul>
+<li><b>gadget-variabile:</b> per ogni variabile due nodi, <span class="m">x</span> e <span class="m">¬x</span>, uniti da un arco;</li>
+<li><b>gadget-clausola:</b> per ogni clausola un triangolo di tre nodi, uno per letterale;</li>
+<li>ogni nodo del triangolo è collegato al nodo-variabile del letterale corrispondente;</li>
+<li>in tutto <span class="m">2m + 3l</span> nodi, e si pone <span class="m">k = m + 2l</span>.</li>
+</ul>
+<div class="note">ITC, Teorema 7.44</div>`},
+
+{t:3, g:"Dimostrazione", f:`Perché la soglia <span class="m">k = m + 2l</span> fa funzionare la riduzione?`, b:`
+<p>Il budget è esattamente il minimo indispensabile e non lascia margine:</p>
+<ul>
+<li>l'arco <span class="m">x</span>–<span class="m">¬x</span> obbliga a prendere almeno uno dei due, quindi almeno <span class="m">m</span> nodi-variabile: sceglierne uno equivale ad assegnare il valore di verità, e impedisce di rendere vero un letterale e la sua negazione;</li>
+<li>un triangolo richiede almeno due nodi per essere coperto, quindi almeno <span class="m">2l</span> nodi-clausola.</li>
+</ul>
+<p class="lead">Il terzo nodo di ogni triangolo resta scoperto, quindi il suo arco verso il nodo-variabile deve essere coperto dall'altro estremo: quel letterale è vero. Ogni clausola ha così un letterale soddisfatto.</p>`},
+
+{t:3, g:"Proprietà", f:`La dualità fra vertex cover e insieme indipendente`, b:`
+<p class="lead"><span class="m">S ⊆ V</span> è indipendente se e solo se <span class="m">V ∖ S</span> è un vertex cover.</p>
+<p><b>⟹</b> Se nessun arco ha entrambi gli estremi in <span class="m">S</span>, ogni arco ha almeno un estremo fuori, cioè in <span class="m">V ∖ S</span>.</p>
+<p><b>⟸</b> Se ogni arco ha un estremo in <span class="m">V ∖ S</span>, nessun arco può avere entrambi gli estremi in <span class="m">S</span>.</p>
+<p>Di conseguenza <span class="m">G</span> ha un vertex cover di taglia <span class="m">k</span> se e solo se ha un insieme indipendente di taglia <span class="m">n − k</span>.</p>`},
+
+{t:3, g:"Metodo", f:`Perché la trasformazione di una riduzione deve essere polinomiale?`, b:`
+<p class="lead">Perché la riduzione serve a trasferire l'efficienza, non solo la correttezza.</p>
+<p>La corrispondenza fra istanze sì e istanze sì resterebbe valida anche con una trasformazione lentissima, ma se costruire l'istanza costasse tempo esponenziale l'algoritmo composto non sarebbe polinomiale e la riduzione non direbbe niente sulla complessità.</p>`},
+
+/* ---------------- Lezione 4 ---------------- */
+{t:4, g:"Definizione", f:`SUBSET-SUM e la dimensione del suo input`, b:`
+<p><b>Input:</b> una lista di interi <span class="m">x<sub>1</sub>,…,x<sub>n</sub></span> e un target <span class="m">t</span>. <b>Output:</b> sì se esiste <span class="m">S</span> con <span class="m">Σ<sub>i∈S</sub> x<sub>i</sub> = t</span>.</p>
+<p class="lead">La dimensione dell'input è <span class="m">O(n · log(max<sub>i</sub> x<sub>i</sub>))</span>: i numeri sono scritti in notazione posizionale, quindi la dimensione è <em>logaritmica</em> nel loro valore.</p>
+<div class="note">È per questo che la programmazione dinamica in tempo <span class="m">O(n·t)</span> non è polinomiale ma solo pseudo-polinomiale: <span class="m">t</span> è esponenziale nella dimensione dell'input.</div>`},
+
+{t:4, g:"Costruzione", f:`La riduzione <span class="m">3\u2011SAT ≤<sub>p</sub> SUBSET\u2011SUM</span>`, b:`
+<p>Con <span class="m">m</span> variabili e <span class="m">l</span> clausole si costruiscono numeri in base 10 con <span class="m">m + l</span> cifre: una colonna per variabile e una per clausola.</p>
+<ul>
+<li>per ogni variabile due numeri, <span class="m">y</span> (letterale positivo) e <span class="m">z</span> (negativo), con un 1 nella propria colonna-variabile e un 1 nelle colonne delle clausole in cui il letterale compare;</li>
+<li>per ogni clausola due numeri di riempimento, con un 1 nella colonna di quella clausola;</li>
+<li>target <span class="m">t</span>: cifra 1 in ogni colonna-variabile, cifra 3 in ogni colonna-clausola.</li>
+</ul>
+<div class="note">ITC, Teorema 7.56</div>`},
+
+{t:4, g:"Dimostrazione", f:`I due accorgimenti che fanno funzionare la riduzione a SUBSET-SUM`, b:`
+<p><b>Base 10, nessun riporto.</b> In ogni colonna la somma delle cifre è al più 5, quindi le colonne si sommano in modo indipendente e non interferiscono fra loro.</p>
+<p><b>I numeri di riempimento.</b> Una clausola soddisfatta contribuisce con 1, 2 o 3 alla propria colonna; i due riempimenti permettono di arrivare comunque a 3. Se invece non è soddisfatta il contributo è 0 e anche con entrambi i riempimenti si arriva solo a 2: l'istanza va rifiutata.</p>
+<p class="lead">La cifra 1 in ogni colonna-variabile forza a scegliere esattamente uno fra <span class="m">y</span> e <span class="m">z</span>, cioè un'assegnazione coerente.</p>`},
+
+{t:4, g:"Esempio", f:`Gli altri problemi NP-completi definiti a lezione`, b:`
+<ul>
+<li><b>Cammino hamiltoniano</b> — esiste un cammino che tocca ogni nodo esattamente una volta?</li>
+<li><b>Commesso viaggiatore (TSP)</b> — esiste un tour di costo al più <span class="m">B</span>?</li>
+<li><b>Knapsack</b> — esiste un sottoinsieme di peso al più <span class="m">W</span> e valore almeno <span class="m">V</span>?</li>
+<li><b>3-colorabilità</b> — si possono colorare i nodi con 3 colori senza archi monocromatici?</li>
+<li><b>MAX-CUT</b> — esiste un taglio di valore almeno <span class="m">B</span>?</li>
+</ul>`},
+
+{t:4, g:"Definizione", f:`Algoritmo di <span class="m">ρ</span>-approssimazione`, b:`
+<p class="lead">Un algoritmo che gira in tempo polinomiale e restituisce, su <em>ogni</em> istanza, una soluzione entro il fattore <span class="m">ρ</span> dall'ottimo.</p>
+<p>La garanzia è deterministica e nel caso peggiore: è il modo classico di convivere con la NP-difficoltà senza rinunciare al tempo polinomiale.</p>
+<div class="note">Da non confondere con le garanzie <em>in valore atteso</em> degli algoritmi randomizzati.</div>`},
+
+{t:4, g:"Algoritmo", f:`2-approssimazione per VERTEX-COVER`, b:`
+<p class="lead">Finché esistono archi scoperti: scegline uno, metti nella soluzione <em>entrambi</em> i suoi estremi, elimina tutti gli archi incidenti a quei due nodi.</p>
+<p><b>Perché il fattore è 2.</b> Gli archi selezionati non condividono estremi (formano un matching), e il vertex cover ottimo deve contenere almeno un estremo per ciascuno. Quindi <span class="m">|OPT|</span> è almeno il numero di archi selezionati, mentre l'algoritmo ne usa il doppio.</p>
+<div class="note">ITC 10.1</div>`},
+
+{t:4, g:"Algoritmo", f:`<span class="m">1/2</span>-approssimazione per MAX-CUT per ricerca locale`, b:`
+<p class="lead">Finché esiste un nodo che, spostato dall'altra parte, fa aumentare il taglio, spostalo.</p>
+<p><b>Analisi.</b> Al termine, ogni nodo ha almeno metà dei suoi archi incidenti nel taglio: altrimenti spostarlo lo aumenterebbe. Sommando su tutti i nodi e dividendo per 2 (ogni arco è contato due volte) si ottiene <span class="m">|cut| ≥ m/2</span>.</p>
+<p>Poiché <span class="m">OPT ≤ m</span>, il taglio trovato vale almeno <span class="m">OPT/2</span>.</p>
+<div class="note">ITC 10.1</div>`},
+
+/* ---------------- Lezione 5 ---------------- */
+{t:5, g:"Osservazione", f:`Perché il test di primalità per divisioni successive è inefficiente?`, b:`
+<p>Provare tutti i divisori fino a <span class="m">√p</span> costa <span class="m">O(√p)</span> iterazioni.</p>
+<p class="lead">Ma l'input è il numero <em>scritto</em>, lungo <span class="m">n ≈ log p</span> cifre, quindi <span class="m">√p = 2<sup>n/2</sup></span>: il numero di iterazioni è esponenziale nella dimensione dell'input.</p>
+<div class="note">Stesso fenomeno della pseudo-polinomialità in SUBSET-SUM: attenzione sempre a cosa è "la dimensione dell'input".</div>`},
+
+{t:5, g:"Teorema", f:`Piccolo teorema di Fermat`, b:`
+<p class="lead">Se <span class="m">p</span> è primo, allora <span class="m">a<sup>p−1</sup> ≡ 1 (mod p)</span> per ogni <span class="m">a ∈ {1,…,p−1}</span>.</p>
+<p>Vale in un solo verso: la primalità implica la congruenza, non il contrario. Il <em>test di Fermat</em> rifiuta <span class="m">p</span> quando trova una base <span class="m">a</span> con <span class="m">a<sup>p−1</sup> ≢ 1</span>, e in tal caso la risposta è certamente corretta.</p>`},
+
+{t:5, g:"Definizione", f:`Numeri di Carmichael`, b:`
+<p class="lead">Numeri composti che superano il test di Fermat per ogni base coprima con essi: indistinguibili dai primi se si guarda solo alla congruenza di Fermat.</p>
+<p>Il più piccolo è <span class="m">561</span>; nel notebook del corso ne vengono testati diversi (41041, 825265, 321197185, …).</p>
+<div class="note">È la loro esistenza a rendere necessario il secondo filtro, il test sulle radici dell'unità.</div>`},
+
+{t:5, g:"Teorema", f:`Radici dell'unità modulo un primo`, b:`
+<p class="lead">Se <span class="m">p</span> è primo, le uniche soluzioni di <span class="m">x² ≡ 1 (mod p)</span> sono <span class="m">x ≡ 1</span> e <span class="m">x ≡ −1</span>.</p>
+<p><b>Dimostrazione.</b> Da <span class="m">x² ≡ 1</span> segue <span class="m">p | (x−1)(x+1)</span>. Essendo <span class="m">p</span> primo, deve dividere uno dei due fattori, quindi <span class="m">x ≡ 1</span> oppure <span class="m">x ≡ −1</span>.</p>
+<p>Trovare una radice quadrata <em>non banale</em> di 1 è perciò una prova che <span class="m">p</span> è composto.</p>`},
+
+{t:5, g:"Algoritmo", f:`Il test di primalità randomizzato (Miller–Rabin)`, b:`
+<p>Scrivi <span class="m">p − 1 = 2<sup>l</sup>·s</span> con <span class="m">s</span> dispari. Ripeti <span class="m">k</span> volte:</p>
+<ul>
+<li>estrai <span class="m">a</span> uniformemente a caso in <span class="m">{1,…,p−1}</span>;</li>
+<li><b>test di Fermat:</b> se <span class="m">a<sup>p−1</sup> ≢ 1 (mod p)</span>, <b>rifiuta</b>;</li>
+<li><b>test delle radici:</b> calcola la sequenza <span class="m">a<sup>s</sup>, a<sup>2s</sup>, …, a<sup>p−1</sup></span> elevando al quadrato; se l'ultimo elemento diverso da 1 esiste ed è diverso da <span class="m">−1</span>, <b>rifiuta</b>.</li>
+</ul>
+<p>Se nessuna delle <span class="m">k</span> basi ha fatto rifiutare, <b>accetta</b>.</p>
+<div class="note">ITC, Teorema 10.6</div>`},
+
+{t:5, g:"Dimostrazione", f:`I due lemmi che reggono l'analisi del test di primalità`, b:`
+<p><b>Lemma 1 (nessun falso negativo).</b> Se <span class="m">p</span> è primo, l'algoritmo accetta con probabilità 1: il test di Fermat è superato per ogni base, e per il teorema sulle radici dell'unità l'ultimo elemento diverso da 1 può solo essere <span class="m">−1</span>.</p>
+<p><b>Lemma 2 (errore ≤ 1/2).</b> Se <span class="m">p</span> è composto, a ogni base "cattiva" che fa accettare se ne associa in modo <em>iniettivo</em> almeno una distinta che fa rifiutare. Le basi che rifiutano sono dunque almeno metà, e una base estratta uniformemente rifiuta con probabilità almeno <span class="m">1/2</span>.</p>`},
+
+{t:5, g:"Teorema", f:`Il risultato finale sul test di primalità e la sua amplificazione`, b:`
+<p class="lead">L'errore è <em>unilaterale</em>: un primo viene sempre accettato; un composto viene accettato con probabilità al più <span class="m">2<sup>−k</sup></span>.</p>
+<p>Le <span class="m">k</span> basi sono estratte indipendentemente, quindi le probabilità di errore si moltiplicano: bastano poche decine di ripetizioni per rendere l'errore trascurabile.</p>
+<div class="note">PRIMES è anche in P (algoritmo AKS, 2002), ma nelle applicazioni reali si usa il test randomizzato perché è enormemente più veloce.</div>`},
+
+{t:5, g:"Tecnica", f:`Come si calcola <span class="m">a<sup>s</sup> mod p</span> in modo efficiente?`, b:`
+<p class="lead">Esponenziazione veloce per quadrati ripetuti: <span class="m">O(log s)</span> moltiplicazioni modulari.</p>
+<p>La riduzione modulo <span class="m">p</span> va fatta a ogni passaggio. Calcolare prima <span class="m">a<sup>s</sup></span> per intero sarebbe impraticabile: il risultato avrebbe un numero esponenziale di cifre.</p>`},
+
+/* ---------------- Lezione 6 ---------------- */
+{t:6, g:"Proprietà", f:`Linearità del valore atteso`, b:`
+<p class="lead"><span class="m">E[X + Y] = E[X] + E[Y]</span>, sempre: nessuna ipotesi di indipendenza.</p>
+<p><b>Dimostrazione (caso discreto).</b> Si scrive <span class="m">E[X+Y] = Σ<sub>x,y</sub> (x+y)·P(X=x, Y=y)</span>, si separa in due somme e si marginalizza ciascuna.</p>
+<div class="note">Per il <em>prodotto</em>, <span class="m">E[XY] = E[X]E[Y]</span>, l'indipendenza invece serve.</div>`},
+
+{t:6, g:"Tecnica", f:`Il metodo delle variabili indicatrici`, b:`
+<p class="lead">Si scrive la quantità di interesse come somma di variabili <span class="m">X<sub>i</sub> ∈ {0,1}</span>, dove <span class="m">X<sub>i</sub></span> vale 1 se un certo evento accade.</p>
+<p>Allora <span class="m">E[X<sub>i</sub>] = P(X<sub>i</sub> = 1)</span> e, per linearità, <span class="m">E[X] = Σ<sub>i</sub> P(X<sub>i</sub> = 1)</span>: ogni evento si analizza <em>isolatamente</em>, anche quando gli eventi sono fortemente dipendenti fra loro.</p>
+<div class="note">È l'ossatura di tutte le analisi del corso: Max-Cut, Max-3-SAT, Quicksort, insiemi indipendenti.</div>`},
+
+{t:6, g:"Teorema", f:`Disuguaglianza di Markov: enunciato e dimostrazione`, b:`
+<p class="lead">Sia <span class="m">X</span> una variabile aleatoria <em>non negativa</em> e <span class="m">t &gt; 0</span>. Allora <span class="m">P(X ≥ t) ≤ E[X]/t</span>.</p>
+<p><b>Dimostrazione.</b> Sia <span class="m">I</span> l'indicatrice dell'evento <span class="m">{X ≥ t}</span>. Poiché <span class="m">X ≥ 0</span>, vale puntualmente <span class="m">t·I ≤ X</span>. Prendendo il valore atteso: <span class="m">t·P(X ≥ t) ≤ E[X]</span>.</p>
+<div class="note">Senza la non negatività la disuguaglianza è falsa. È una stima debole ma quasi priva di ipotesi.</div>`},
+
+{t:6, g:"Algoritmo", f:`MAX-CUT randomizzato`, b:`
+<p><b>Problema.</b> Dato <span class="m">G = (V,E)</span>, trovare <span class="m">S ⊆ V</span> che massimizzi <span class="m">cut(S) = {e = {u,v} : u ∈ S, v ∉ S}</span>. È NP-completo.</p>
+<p class="lead"><b>Algoritmo.</b> <span class="m">S ← ∅</span>; per ogni nodo <span class="m">u</span>, con probabilità <span class="m">1/2</span> e indipendentemente, aggiungi <span class="m">u</span> a <span class="m">S</span>. Tempo <span class="m">O(n)</span>.</p>
+<p><b>Analisi.</b> Un arco fissato ha 4 configurazioni equiprobabili dei suoi estremi e 2 li separano, quindi è nel taglio con probabilità <span class="m">1/2</span>. Per linearità <span class="m">E[|cut(S)|] = m/2 ≥ OPT/2</span>.</p>
+<div class="note">AD 13.4</div>`},
+
+{t:6, g:"Algoritmo", f:`MAX-3-SAT randomizzato`, b:`
+<p><b>Problema.</b> Data <span class="m">φ</span> in 3-CNF con <span class="m">m</span> clausole, trovare l'assegnazione che ne soddisfa il maggior numero.</p>
+<p class="lead"><b>Algoritmo.</b> Ogni variabile è posta vera con probabilità <span class="m">1/2</span>, indipendentemente.</p>
+<p><b>Analisi.</b> Una clausola con 3 letterali distinti è insoddisfatta in una sola delle 8 configurazioni, quindi <span class="m">P(C<sub>i</sub> soddisfatta) = 7/8</span>. Per linearità, <span class="m">E[X] = 7m/8</span>, che è almeno <span class="m">7/8</span> dell'ottimo.</p>
+<div class="note">AD 13.4</div>`},
+
+{t:6, g:"Metodo", f:`Il metodo probabilistico`, b:`
+<p class="lead">Se una quantità ha valore atteso <span class="m">μ</span>, allora esiste almeno una realizzazione che raggiunge <span class="m">μ</span>: una media non può superare il massimo.</p>
+<p><b>Corollario visto a lezione:</b> per ogni formula 3-CNF con <span class="m">m</span> clausole esiste sempre un'assegnazione che ne soddisfa almeno <span class="m">7m/8</span>.</p>
+<div class="note">È un enunciato puramente combinatorio, dimostrato per via probabilistica, e vale anche per formule non soddisfacibili.</div>`},
+
+{t:6, g:"Tecnica", f:`Come si passa da una garanzia in valore atteso a una in probabilità?`, b:`
+<p>Markov limita la coda <em>superiore</em>, mentre serve garantire che il valore <span class="m">X</span> della soluzione sia <em>grande</em>.</p>
+<p class="lead">Si passa al <b>deficit</b> <span class="m">Y = OPT − X ≥ 0</span>: dire che <span class="m">X</span> è grande equivale a dire che <span class="m">Y</span> è piccola, e su <span class="m">Y</span> Markov funziona.</p>
+<p>Ottenuta una probabilità di successo <span class="m">p</span> costante, si <b>ripete</b> l'algoritmo <span class="m">k</span> volte in modo indipendente tenendo la soluzione migliore: la probabilità di fallire sempre è <span class="m">(1−p)<sup>k</sup></span>.</p>
+<div class="note">Si paga un piccolo peggioramento nel fattore di approssimazione in cambio di una garanzia in alta probabilità.</div>`},
+
+{t:6, g:"Esercizio", f:`Ripetendo <span class="m">k</span> volte MAX-CUT randomizzato, con che probabilità il taglio migliore vale almeno <span class="m">0.49·OPT</span>?`, b:`
+<p>Sia <span class="m">X<sub>i</sub></span> il taglio della <span class="m">i</span>-esima ripetizione e <span class="m">Y<sub>i</sub> = OPT − X<sub>i</sub> ≥ 0</span>, con <span class="m">E[Y<sub>i</sub>] ≤ OPT/2</span>.</p>
+<p>Per Markov: <span class="m">P(X<sub>i</sub> &lt; 0.49·OPT) = P(Y<sub>i</sub> &gt; 0.51·OPT) ≤ (OPT/2)/(0.51·OPT) ≈ 0.981</span>.</p>
+<p class="lead">Per indipendenza, la probabilità di fallire in tutte le <span class="m">k</span> ripetizioni è <span class="m">≈ 0.981<sup>k</sup></span>, quindi il successo ha probabilità <span class="m">≈ 1 − 0.981<sup>k</sup></span>. Con <span class="m">k = 100</span> si ottiene circa <span class="m">0.85</span>.</p>`},
+
+{t:6, g:"Algoritmo", f:`Quicksort randomizzato`, b:`
+<p>Su input una lista <span class="m">S</span> di <span class="m">n</span> elementi:</p>
+<ul>
+<li>se <span class="m">|S| ≤ 1</span>, restituisci <span class="m">S</span>;</li>
+<li>estrai il pivot <span class="m">x</span> <em>uniformemente a caso</em> da <span class="m">S</span>;</li>
+<li>partiziona in <span class="m">S<sub>1</sub></span> (elementi <span class="m">&lt; x</span>) e <span class="m">S<sub>2</sub></span> (gli altri);</li>
+<li>ordina ricorsivamente <span class="m">S<sub>1</sub></span> e <span class="m">S<sub>2</sub></span> e restituisci <span class="m">S<sub>1</sub> + [x] + S<sub>2</sub></span>.</li>
+</ul>
+<div class="note">Variante equivalente: permutare la lista a caso all'inizio e poi scegliere i pivot in modo arbitrario.</div>`},
+
+{t:6, g:"Dimostrazione", f:`Quando vengono confrontati due elementi in Quicksort randomizzato?`, b:`
+<p>Rinominati gli elementi in ordine, <span class="m">S = [z<sub>1</sub>,…,z<sub>n</sub>]</span>, sia <span class="m">X<sub>i,j</sub> = 1</span> se <span class="m">z<sub>i</sub></span> e <span class="m">z<sub>j</sub></span> vengono confrontati.</p>
+<p class="lead">Gli elementi di <span class="m">S<sub>i,j</sub> = {z<sub>i</sub>,…,z<sub>j</sub>}</span> restano nella stessa chiamata finché non se ne sceglie uno come pivot. Il confronto avviene se e solo se quel primo pivot è <span class="m">z<sub>i</sub></span> oppure <span class="m">z<sub>j</sub></span>.</p>
+<p>Condizionando sull'evento che il pivot cada in <span class="m">S<sub>i,j</sub></span>, i suoi <span class="m">j − i + 1</span> elementi sono equiprobabili:</p>
+<p><span class="m">E[X<sub>i,j</sub>] = P(X<sub>i,j</sub> = 1) = 2/(j − i + 1)</span>.</p>`},
+
+{t:6, g:"Teorema", f:`Il tempo atteso di Quicksort randomizzato`, b:`
+<p class="lead">Quicksort randomizzato ordina <span class="m">n</span> elementi in tempo <span class="m">O(n log n)</span> in valore atteso, su <em>qualsiasi</em> input.</p>
+<p>Il numero di confronti domina il costo, e per linearità:</p>
+<p><span class="m">E[X] = Σ<sub>i&lt;j</sub> 2/(j−i+1) ≤ 2n Σ<sub>k=1</sub><sup>n</sup> 1/k ≤ 2n log n</span>,</p>
+<p>dove l'ultimo passaggio usa la stima della serie armonica.</p>
+<div class="note">L'aspettazione è rispetto alle monete interne, non a una distribuzione sugli input. PC 2.5</div>`},
+
+{t:6, g:"Lemma", f:`La stima della serie armonica usata nel corso`, b:`
+<p class="lead">Per ogni <span class="m">n ≥ 10</span>: <span class="m">½ log n ≤ Σ<sub>i=1</sub><sup>n</sup> 1/i ≤ log n</span>.</p>
+<p>Si confronta la somma delle aree dei rettangoli di altezza <span class="m">1/i</span> e base unitaria con gli integrali di <span class="m">1/x</span> e <span class="m">1/(x+1)</span>: <span class="m">Σ 1/i ≤ 1 + ln n</span> e <span class="m">Σ 1/i ≥ ln(n+1)</span>.</p>`},
+
+{t:6, g:"Osservazione", f:`Qual è il caso peggiore di Quicksort randomizzato?`, b:`
+<p class="lead">Resta <span class="m">Θ(n²)</span>: esiste ancora una realizzazione in cui tutti i pivot sono pessimi.</p>
+<p>La randomizzazione non elimina il caso peggiore, lo rende improbabile. La differenza sostanziale è che il caso peggiore <em>non dipende più dall'input</em> ma solo dalle monete interne, quindi nessun avversario può costruire un'istanza cattiva.</p>`},
+
+/* ---------------- Lezione 7 ---------------- */
+{t:7, g:"Teorema", f:`Disuguaglianza di Chernoff: ipotesi ed enunciato`, b:`
+<p><b>Ipotesi:</b> <span class="m">X<sub>1</sub>,…,X<sub>m</sub></span> indipendenti a valori in <span class="m">{0,1}</span>, <span class="m">X = Σ<sub>i</sub> X<sub>i</sub></span>, <span class="m">μ = E[X]</span>. Per ogni <span class="m">δ ∈ (0,1)</span>:</p>
+<ul>
+<li>coda inferiore: <span class="m">P(X ≤ (1−δ)μ) ≤ e<sup>−μδ²/2</sup></span></li>
+<li>coda superiore: <span class="m">P(X ≥ (1+δ)μ) ≤ e<sup>−μδ²/3</sup></span></li>
+<li>bilatera: <span class="m">P(|X − μ| ≥ δμ) ≤ 2e<sup>−μδ²/3</sup></span></li>
+</ul>
+<div class="note">Non è richiesto che le variabili siano identicamente distribuite. PC cap. 4</div>`},
+
+{t:7, g:"Metodo", f:`Markov o Chernoff: quando si usa cosa?`, b:`
+<p><b>Markov</b> — stima debole, decadimento solo lineare in <span class="m">t</span>, ma chiede soltanto la non negatività. Si usa sul <em>deficit</em> negli algoritmi di approssimazione, dove la variabile è una struttura complicata.</p>
+<p><b>Chernoff</b> — decadimento <em>esponenziale</em> in <span class="m">μ</span>, ma richiede una somma di Bernoulli <em>indipendenti</em>. Si usa quando la variabile ha esattamente quella forma.</p>
+<div class="note">Prima di invocare Chernoff, verifica sempre indipendenza e valori in <span class="m">{0,1}</span>.</div>`},
+
+{t:7, g:"Proposizione", f:`Una moneta con <span class="m">P(testa) = 1/3</span> viene lanciata finché non escono <span class="m">m</span> teste. Con che probabilità servono più di <span class="m">18m</span> lanci?`, b:`
+<p class="lead">Meno di <span class="m">e<sup>−2m</sup></span>.</p>
+<p>Il numero di lanci è una somma di variabili <em>geometriche</em>, a cui Chernoff non si applica. Il trucco è riformulare l'evento in uno equivalente su un numero <em>fissato</em> di lanci:</p>
+<p>«servono più di <span class="m">18m</span> lanci» equivale a «in esattamente <span class="m">18m</span> lanci si osservano meno di <span class="m">m</span> teste».</p>
+<p>Ora <span class="m">X</span> è somma di Bernoulli indipendenti con <span class="m">E[X] = 6m</span>; con la coda inferiore e <span class="m">δ = 5/6</span>: <span class="m">P(X &lt; m) ≤ e<sup>−25m/12</sup> ≤ e<sup>−2m</sup></span>.</p>`},
+
+{t:7, g:"Definizione", f:`Nodi "buoni" e "cattivi" nell'albero di Quicksort`, b:`
+<p>Ogni chiamata ricorsiva è un nodo dell'albero, etichettato dal vettore che riceve.</p>
+<p class="lead">Un nodo di taglia <span class="m">s</span> è <b>buono</b> se il pivot lo divide in due parti entrambe di taglia al più <span class="m">(2/3)s</span>; <b>cattivo</b> altrimenti.</p>
+<p>Un pivot è buono se cade nel terzo centrale del vettore ordinato, quindi <span class="m">P(nodo buono) = 1/3</span>.</p>`},
+
+{t:7, g:"Lemma", f:`Quanti nodi buoni ci sono su un cammino radice-foglia?`, b:`
+<p class="lead">Al più <span class="m">c log<sub>2</sub> n</span>, con <span class="m">c = 1/log<sub>2</sub>(3/2)</span>.</p>
+<p><b>Dimostrazione.</b> Attraversando un nodo buono la taglia si riduce di un fattore <span class="m">2/3</span>, e una foglia ha taglia almeno 1:</p>
+<p><span class="m">n · (2/3)<sup>N<sup>b</sup></sup> ≥ 1 ⟹ N<sup>b</sup> ≤ c log<sub>2</sub> n</span>.</p>`},
+
+{t:7, g:"Dimostrazione", f:`Come si dimostra che Quicksort è <span class="m">O(n log n)</span> in alta probabilità?`, b:`
+<p><b>Lemma 2.</b> Un cammino radice-foglia è una successione di "lanci di moneta" (pivot buono con probabilità <span class="m">1/3</span>). Servono al più <span class="m">c log<sub>2</sub> n</span> nodi buoni, quindi per la Proposizione <span class="m">P(N<sub>p</sub> ≤ 18c log<sub>2</sub> n) ≥ 1 − 1/n²</span>.</p>
+<p><b>Lemma 3.</b> I cammini sono al più <span class="m">n</span>: per De Morgan e union bound, <em>tutti</em> i cammini sono corti con probabilità almeno <span class="m">1 − n·(1/n²) = 1 − 1/n</span>.</p>
+<p class="lead"><b>Teorema.</b> Il costo è (numero di chiamate) × <span class="m">O(n)</span>, quindi con probabilità <span class="m">≥ 1 − 1/n</span> l'algoritmo termina in <span class="m">O(n log n)</span>.</p>
+<div class="note">Lo union bound non richiede indipendenza, che qui non ci sarebbe: i cammini condividono nodi.</div>`},
+
+{t:7, g:"Definizione", f:`Probabilità condizionata`, b:`
+<p class="lead"><span class="m">P(A | B) = P(A ∩ B) / P(B)</span>, per <span class="m">P(B) &gt; 0</span>.</p>
+<p>Da cui la <b>regola della catena</b>, usata nell'analisi di Min-Cut:</p>
+<p><span class="m">P(E<sub>1</sub> ∩ … ∩ E<sub>k</sub>) = P(E<sub>1</sub>)·P(E<sub>2</sub>|E<sub>1</sub>)·…·P(E<sub>k</sub>|E<sub>1</sub>∩…∩E<sub>k−1</sub>)</span>.</p>`},
+
+{t:7, g:"Algoritmo", f:`MIN-CUT randomizzato: l'algoritmo di contrazione`, b:`
+<p><b>Problema.</b> Trovare il taglio di cardinalità minima di un grafo indiretto. È risolvibile in tempo polinomiale, ma qui si cerca un algoritmo semplice e veloce.</p>
+<p class="lead"><b>Algoritmo.</b> Finché restano più di due super-nodi: scegli un arco <em>uniformemente a caso</em> e contrailo, fondendo i due estremi; conserva i multi-archi ed elimina i self-loop. Alla fine i due super-nodi danno la partizione, e gli archi rimasti sono il taglio.</p>
+<div class="note">Conservare le molteplicità è essenziale: è ciò che rende improbabile contrarre un arco del taglio minimo.</div>`},
+
+{t:7, g:"Dimostrazione", f:`Perché una singola esecuzione di Min-Cut riesce con probabilità <span class="m">≥ 2/(n(n−1))</span>?`, b:`
+<p>Sia <span class="m">(A,B)</span> un taglio minimo con <span class="m">k</span> archi. Ogni nodo ha grado almeno <span class="m">k</span>: altrimenti isolarlo darebbe un taglio più piccolo. Quindi <span class="m">|E| ≥ nk/2</span>.</p>
+<p>La probabilità di contrarre un arco del taglio al primo passo è <span class="m">k/|E| ≤ 2/n</span>. All'<span class="m">i</span>-esimo passo restano <span class="m">n − i + 1</span> super-nodi e lo stesso argomento dà <span class="m">≤ 2/(n−i+1)</span>.</p>
+<p class="lead">Moltiplicando le probabilità condizionate di <em>non</em> sbagliare, il prodotto telescopico dà <span class="m">≥ 2/(n(n−1))</span>.</p>`},
+
+{t:7, g:"Tecnica", f:`Amplificazione: quante ripetizioni servono?`, b:`
+<p class="lead">Con probabilità di successo <span class="m">p</span> per esecuzione, la probabilità di fallire in <span class="m">k</span> tentativi indipendenti è <span class="m">(1−p)<sup>k</sup> ≤ e<sup>−pk</sup></span>.</p>
+<p>Ponendo <span class="m">k = (1/p)·ln n</span> si ottiene una probabilità di fallimento <span class="m">≤ 1/n</span>.</p>
+<p>Per Min-Cut, con <span class="m">p ≈ 2/n²</span>, servono <span class="m">O(n² log n)</span> ripetizioni: si tiene il taglio più piccolo trovato e si ha successo in alta probabilità.</p>`},
+
+/* ---------------- Lezione 8 ---------------- */
+{t:8, g:"Definizione", f:`Insieme indipendente e il problema decisionale`, b:`
+<p class="lead"><span class="m">S ⊆ V</span> è indipendente se ogni arco <span class="m">e ∈ E</span> contiene al più un nodo di <span class="m">S</span>.</p>
+<p><b>Input:</b> un grafo indiretto <span class="m">G</span> e un intero <span class="m">k</span>. <b>Output:</b> sì se esiste un insieme indipendente di cardinalità almeno <span class="m">k</span>.</p>
+<p><b>In NP:</b> certificato = <span class="m">S</span>; si verifica che <span class="m">|S| ≥ k</span> e che nessun arco abbia entrambi gli estremi in <span class="m">S</span>, in tempo <span class="m">O(|E|)</span>.</p>`},
+
+{t:8, g:"Dimostrazione", f:`INDEPENDENT SET è NP-completo`, b:`
+<p><b>(i)</b> Sta in NP, con il certificato appena visto.</p>
+<p><b>(ii)</b> <span class="m">VERTEX\u2011COVER ≤<sub>p</sub> INDEPENDENT SET</span>: si mappa l'istanza <span class="m">(G, k)</span> in <span class="m">(G, n − k)</span>, con <span class="m">n = |V|</span>.</p>
+<p class="lead">La correttezza è la dualità: <span class="m">S</span> è indipendente se e solo se <span class="m">V ∖ S</span> è un vertex cover. Quindi esiste un vertex cover di taglia <span class="m">k</span> se e solo se esiste un insieme indipendente di taglia <span class="m">n − k</span>.</p>
+<p>Il grafo resta lo stesso e cambia solo la soglia: la trasformazione è immediata, quindi polinomiale.</p>`},
+
+{t:8, g:"Esercizio", f:`<span class="m">G</span> ha <span class="m">n</span> nodi e <span class="m">2n</span> archi. Ogni nodo entra in <span class="m">S</span> con probabilità <span class="m">1/4</span>. Quanto valgono <span class="m">E[|S|]</span> e il numero atteso di archi interni a <span class="m">S</span>?`, b:`
+<p class="lead"><span class="m">E[|S|] = n/4</span> — somma di <span class="m">n</span> indicatrici di valore atteso <span class="m">1/4</span>.</p>
+<p class="lead"><span class="m">E[X] = n/8</span> — un arco è interno a <span class="m">S</span> se entrambi gli estremi vengono scelti, cosa che per indipendenza accade con probabilità <span class="m">1/16</span>; con <span class="m">2n</span> archi, <span class="m">2n/16 = n/8</span>.</p>
+<div class="note">Esercizio 2(a)–(b)</div>`},
+
+{t:8, g:"Esercizio", f:`Il post-processing: da <span class="m">S</span> a un insieme indipendente <span class="m">S'</span>`, b:`
+<p>Per ogni arco interno a <span class="m">S</span>, si sceglie arbitrariamente un estremo e lo si rimuove (se non è già stato rimosso). Sia <span class="m">S'</span> ciò che resta.</p>
+<p><b>Indipendenza.</b> Per costruzione nessun arco di <span class="m">G</span> ha più entrambi gli estremi in <span class="m">S'</span>.</p>
+<p class="lead"><b>Cardinalità.</b> Si parte da <span class="m">n/4</span> nodi attesi e se ne toglie al più uno per ciascuno degli <span class="m">n/8</span> archi attesi, quindi <span class="m">E[|S'|] ≥ n/4 − n/8 = n/8</span>.</p>
+<div class="note">Attenzione: è una garanzia in valore atteso, non su ogni realizzazione. Esercizio 2(c)</div>`},
+
+{t:8, g:"Esercizio", f:`Cosa si deduce da <span class="m">E[|S'|] ≥ n/8</span>?`, b:`
+<p class="lead">In ogni grafo con <span class="m">n</span> nodi e <span class="m">2n</span> archi <em>esiste</em> un insieme indipendente con almeno <span class="m">n/8</span> nodi.</p>
+<p>Il valore atteso è una media pesata sulle cardinalità degli insiemi indipendenti che la procedura può generare, quindi almeno uno di essi raggiunge la media.</p>
+<div class="note">Ancora il metodo probabilistico: un enunciato di esistenza combinatorio, dimostrato con la probabilità. Esercizio 2(d)</div>`},
+
+{t:8, g:"Esercizio", f:`Come si trova un insieme indipendente di almeno <span class="m">n/16</span> nodi in alta probabilità?`, b:`
+<p>Si applica Markov alla variabile non negativa <span class="m">Y = n − |S'|</span>, con <span class="m">E[Y] ≤ 7n/8</span>:</p>
+<p><span class="m">P(|S'| &lt; n/16) ≤ P(Y ≥ (15/16)n) ≤ (7n/8)/((15/16)n) = 14/15</span>.</p>
+<p class="lead">Ogni esecuzione riesce quindi con probabilità almeno <span class="m">1/15</span>, una costante. Ripetendo la procedura in modo indipendente e tenendo l'insieme più grande trovato, la probabilità di fallire sempre è <span class="m">(14/15)<sup>k</sup></span>, che scende sotto <span class="m">1/n</span> per <span class="m">k = O(log n)</span>.</p>
+<div class="note">Chernoff non si applicherebbe: dopo il post-processing le indicatrici dei nodi di <span class="m">S'</span> non sono più indipendenti. Esercizio 2(e)</div>`}
+];
+
+/* ==================== STATO ==================== */
+let selected = new Set(TEMI.map(t => t.n));
+let order = "lesson";
+let deck = [];
+let idx = 0;
+let flipped = false;
+let marks = [];   // "known" | "review" | undefined, per posizione nel mazzo
+let theme = "auto";
+
+const $ = id => document.getElementById(id);
+
+/* ==================== TEMA ==================== */
+const THEMES = [
+  {v:"auto",  icon:"◐", label:"Auto"},
+  {v:"light", icon:"○", label:"Chiaro"},
+  {v:"dark",  icon:"●", label:"Scuro"}
+];
+$("themebtn").addEventListener("click", () => {
+  const nx = THEMES[(THEMES.findIndex(t => t.v === theme) + 1) % THEMES.length];
+  theme = nx.v;
+  document.documentElement.setAttribute("data-theme", theme);
+  $("themeicon").textContent = nx.icon;
+  $("themelabel").textContent = nx.label;
+  requestAnimationFrame(fitCard);
+});
+
+/* ==================== SETUP ==================== */
+const countFor = n => CARDS.filter(c => c.t === n).length;
+
+function buildTiles(){
+  $("tiles").innerHTML = TEMI.map(t => `
+    <div class="tile">
+      <input type="checkbox" id="t${t.n}" data-tema="${t.n}" checked>
+      <label for="t${t.n}">
+        <span class="num">${t.n}</span>
+        <span>
+          <span class="tname">${t.titolo}</span>
+          <span class="tmeta">${t.data} · ${countFor(t.n)} carte</span>
+        </span>
+      </label>
+    </div>`).join("");
+  $("tiles").querySelectorAll("input").forEach(cb => {
+    cb.addEventListener("change", () => {
+      const n = +cb.dataset.tema;
+      cb.checked ? selected.add(n) : selected.delete(n);
+      refreshSetup();
+    });
+  });
+}
+
+const pool = () => CARDS.filter(c => selected.has(c.t));
+
+function refreshSetup(){
+  const p = pool().length;
+  $("go").disabled = p === 0;
+  $("go").textContent = p === 0 ? "Seleziona almeno una lezione" : `Inizia · ${p} carte`;
+  $("toggleall").textContent = selected.size === TEMI.length ? "Deseleziona tutto" : "Seleziona tutto";
+}
+
+$("toggleall").addEventListener("click", () => {
+  const all = selected.size === TEMI.length;
+  selected = all ? new Set() : new Set(TEMI.map(t => t.n));
+  $("tiles").querySelectorAll("input").forEach(cb => cb.checked = !all);
+  refreshSetup();
+});
+
+$("ordchips").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if(!b) return;
+  order = b.dataset.ord;
+  [...$("ordchips").children].forEach(c => c.setAttribute("aria-pressed", String(c === b)));
+});
+
+function shuffle(a){
+  a = a.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+$("go").addEventListener("click", () => {
+  let list = pool();
+  list = order === "shuffle" ? shuffle(list) : list.slice().sort((a,b) => a.t - b.t);
+  begin(list);
+});
+
+/* ==================== STUDIO ==================== */
+function begin(list){
+  deck = list;
+  idx = 0;
+  marks = new Array(list.length);
+  $("setup").hidden = true;
+  $("done").hidden = true;
+  $("study").hidden = false;
+  $("segs").innerHTML = deck.map(() => `<span class="seg"></span>`).join("");
+  show();
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+function paintSegs(){
+  const s = $("segs").children;
+  for(let i = 0; i < deck.length; i++){
+    let cls = "seg";
+    if(marks[i] === "known") cls += " known";
+    else if(marks[i] === "review") cls += " review";
+    else if(marks[i] === "seen") cls += " seen";
+    if(i === idx) cls += " now";
+    s[i].className = cls;
+  }
+}
+
+function show(){
+  const c = deck[idx];
+  const tema = TEMI.find(t => t.n === c.t);
+  flipped = false;
+  $("card").classList.remove("flipped");
+  $("slesson").textContent = `Lezione ${tema.n} · ${tema.titolo}`;
+
+  const known = marks.filter(m => m === "known").length;
+  const rev = marks.filter(m => m === "review").length;
+  $("stally").textContent = `Carta ${idx + 1} di ${deck.length} · ${known} sapute · ${rev} da rivedere`;
+
+  $("padFront").innerHTML = `
+    <div class="tag">${c.g}</div>
+    <p class="prompt">${c.f}</p>
+    <div class="flipcue">Tocca la carta per vedere il retro</div>`;
+  $("padBack").innerHTML = `
+    <div class="echo">${c.f}</div>
+    <div class="ans">${c.b}</div>`;
+
+  $("prev").disabled = idx === 0;
+  $("know").disabled = false;
+  $("again").disabled = false;
+  paintSegs();
+  requestAnimationFrame(fitCard);
+}
+
+function fitCard(){
+  const h = Math.max($("padFront").offsetHeight, $("padBack").offsetHeight);
+  $("card").style.height = (h + 2) + "px";
+}
+window.addEventListener("resize", fitCard);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitCard);
+
+function flip(){
+  flipped = !flipped;
+  $("card").classList.toggle("flipped", flipped);
+  if(flipped && !marks[idx]) marks[idx] = "seen";
+  paintSegs();
+}
+$("card").addEventListener("click", flip);
+$("card").addEventListener("keydown", e => {
+  if(e.key === " " || e.key === "Enter"){ e.preventDefault(); flip(); }
+});
+
+function step(d){
+  const nx = idx + d;
+  if(nx < 0) return;
+  if(nx >= deck.length){ finish(); return; }
+  idx = nx;
+  show();
+}
+$("prev").addEventListener("click", () => step(-1));
+$("next").addEventListener("click", () => step(1));
+
+function mark(kind){
+  marks[idx] = kind;
+  paintSegs();
+  step(1);
+}
+$("know").addEventListener("click", () => mark("known"));
+$("again").addEventListener("click", () => mark("review"));
+$("quit").addEventListener("click", finish);
+
+document.addEventListener("keydown", e => {
+  if(!$("study").hidden){
+    if(e.key === "ArrowRight"){ e.preventDefault(); step(1); }
+    else if(e.key === "ArrowLeft"){ e.preventDefault(); step(-1); }
+    else if(e.key === "1"){ e.preventDefault(); mark("review"); }
+    else if(e.key === "2"){ e.preventDefault(); mark("known"); }
+    else if((e.key === " " || e.key === "Enter") && e.target !== $("card") && e.target.tagName !== "BUTTON"){
+      e.preventDefault(); flip();
+    }
+  }
+});
+
+/* ==================== RIEPILOGO ==================== */
+function finish(){
+  $("study").hidden = true;
+  $("done").hidden = false;
+
+  const known = marks.filter(m => m === "known").length;
+  const review = [];
+  marks.forEach((m, i) => { if(m === "review") review.push(deck[i]); });
+  const judged = known + review.length;
+
+  $("dknown").textContent = known;
+  $("dof").textContent = `/${judged}`;
+
+  let note;
+  if(judged === 0) note = "Nessuna carta segnata. Usa «La sapevo» e «Da rivedere» mentre studi: il mazzo di ripasso si costruisce da lì.";
+  else if(review.length === 0) note = "Nessuna carta da rivedere. Prova un giro in ordine casuale, oppure passa alle tracce dei temi d'esame.";
+  else note = `${review.length} carte da riprendere. Il mazzo di ripasso qui sotto le contiene tutte, nell'ordine delle lezioni.`;
+  $("dnote").textContent = note;
+
+  $("dlist").innerHTML = review.length ? `
+    <div class="sechead"><h2>Mazzo di ripasso</h2></div>
+    ${review.map(c => `<div class="item"><span class="ln">L${c.t}</span><span class="tx">${c.f}</span></div>`).join("")}` : "";
+
+  $("redo").hidden = review.length === 0;
+  $("redo").onclick = () => begin(review.slice().sort((a,b) => a.t - b.t));
+  window.scrollTo({top:0, behavior:"instant"});
+}
+
+$("restart").addEventListener("click", () => {
+  $("done").hidden = true;
+  $("study").hidden = true;
+  $("setup").hidden = false;
+  refreshSetup();
+  window.scrollTo({top:0, behavior:"instant"});
+});
+
+/* ==================== INIT ==================== */
+$("ncards").textContent = CARDS.length;
+buildTiles();
+refreshSetup();
+</script>
+</body>
+</html>

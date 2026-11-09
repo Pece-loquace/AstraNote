@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Modelli per l'Informatica</title>
+<style>
+  :root{
+    --ink:#14273f; --navy:#1F3A5F; --blue:#2E6CA4; --blue-soft:#5b8fc0;
+    --accent:#C0392B; --accent-soft:#e07b6f;
+    --paper:#eef3f8; --card:#ffffff; --line:#c9d6e3;
+    --muted:#5c6b7a; --good:#2f7d4f; --good-soft:#e4f2e9; --review:#b5852a;
+    --wrong-soft:#fbe6e3;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:var(--sans); color:var(--ink);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(31,58,95,.10) 1px, transparent 0) 0 0/22px 22px,
+      linear-gradient(180deg,#f6f9fc 0%, var(--paper) 100%);
+    min-height:100%; display:flex; flex-direction:column; align-items:center;
+    padding:22px 16px 40px;
+  }
+  .wrap{width:100%; max-width:680px}
+
+  header{margin-bottom:14px}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--blue); margin:0 0 4px;
+  }
+  h1{font-size:26px; line-height:1.1; margin:0 0 4px; color:var(--navy); letter-spacing:-.01em}
+  .sub{margin:0; color:var(--muted); font-size:13px}
+  .binstrip{font-family:var(--mono); font-size:11px; color:rgba(46,108,164,.45); letter-spacing:.18em; margin-top:8px; overflow:hidden; white-space:nowrap}
+
+  /* progress */
+  .meta{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0 8px}
+  .count{font-family:var(--mono); font-size:13px; color:var(--navy)}
+  .count b{font-size:16px}
+  .track{flex:1; height:6px; background:#dbe5ef; border-radius:99px; overflow:hidden}
+  .bar{height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--navy)); transition:width .25s ease}
+
+  /* filters */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px}
+  .chip{
+    font-family:var(--mono); font-size:11px; letter-spacing:.04em; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--muted);
+    padding:5px 10px; border-radius:99px; transition:all .15s;
+  }
+  .chip:hover{border-color:var(--blue-soft); color:var(--navy)}
+  .chip[aria-pressed="true"]{background:var(--navy); color:#fff; border-color:var(--navy)}
+
+  /* card */
+  .card{
+    position:relative; width:100%; margin:14px 0;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 10px 30px -18px rgba(20,39,63,.45), 0 1px 0 rgba(255,255,255,.6) inset;
+    padding:24px 24px 20px; border-top:4px solid var(--blue); overflow:hidden;
+  }
+  .card::before{
+    content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background:radial-gradient(circle at 1px 1px, rgba(31,58,95,.06) 1px, transparent 0) 0 0/16px 16px;
+  }
+  .cat{position:relative; display:flex; align-items:center; gap:8px; margin-bottom:12px}
+  .catname{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue)}
+  .qnum{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:auto}
+  .kind{position:relative; font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
+  .qtext{position:relative; font-size:19px; line-height:1.35; color:var(--navy); font-weight:600; margin:2px 0 14px}
+  .qtext code, .exp code{
+    font-family:var(--mono); font-size:.92em; background:#eef3f8; border:1px solid #dbe5ef;
+    padding:1px 5px; border-radius:5px; color:#12324d; white-space:nowrap;
+  }
+
+  /* options */
+  .opts{position:relative; display:flex; flex-direction:column; gap:9px}
+  .opt{
+    display:flex; align-items:flex-start; gap:11px; width:100%; text-align:left;
+    font-family:var(--sans); font-size:15px; line-height:1.4; color:var(--ink);
+    border:1px solid var(--line); background:#fff; border-radius:11px;
+    padding:12px 14px; cursor:pointer; transition:all .13s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--blue-soft); box-shadow:0 3px 10px -7px rgba(31,58,95,.5)}
+  .opt:disabled{cursor:default}
+  .opt .letter{
+    flex:none; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue);
+    width:24px; height:24px; border-radius:50%; border:1px solid var(--line);
+    display:grid; place-items:center; background:#f4f8fc; transition:all .13s;
+  }
+  .opt.correct{border-color:var(--good); background:var(--good-soft)}
+  .opt.correct .letter{background:var(--good); color:#fff; border-color:var(--good)}
+  .opt.wrong{border-color:var(--accent); background:var(--wrong-soft)}
+  .opt.wrong .letter{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .opt.dim{opacity:.55}
+  .opt .mk{margin-left:auto; font-family:var(--mono); font-size:12px; font-weight:700; align-self:center}
+  .opt.correct .mk{color:var(--good)}
+  .opt.wrong .mk{color:var(--accent)}
+
+  /* explanation */
+  .exp{
+    position:relative; margin-top:14px; border-radius:11px; padding:13px 15px;
+    font-size:14px; line-height:1.5; color:var(--ink); border:1px solid var(--line);
+    background:#f7fafd; display:none;
+  }
+  .exp.show{display:block}
+  .exp .verdict{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; margin-bottom:5px; display:block}
+  .exp.ok{border-color:#bfe0cd; background:var(--good-soft)}
+  .exp.ok .verdict{color:var(--good)}
+  .exp.no{border-color:#f2cfc9; background:var(--wrong-soft)}
+  .exp.no .verdict{color:var(--accent)}
+
+  /* controls */
+  .controls{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px}
+  .navbtns{display:flex; gap:8px}
+  button.btn{
+    font-family:var(--sans); font-size:14px; cursor:pointer; border-radius:10px; padding:10px 16px;
+    border:1px solid var(--line); background:#fff; color:var(--navy); transition:all .15s; font-weight:600;
+  }
+  button.btn:hover:not([disabled]){border-color:var(--blue); box-shadow:0 3px 10px -6px rgba(31,58,95,.4)}
+  button.btn:active:not([disabled]){transform:translateY(1px)}
+  button.btn[disabled]{opacity:.4; cursor:default; box-shadow:none}
+  .btn.primary{background:var(--navy); color:#fff; border-color:var(--navy)}
+  .btn.primary:hover:not([disabled]){background:#264b78}
+
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .toggle{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none}
+  .switch{width:38px; height:22px; border-radius:99px; background:#cdd9e5; position:relative; transition:background .15s; flex:none}
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle.on .switch{background:var(--blue)} .toggle.on .switch::after{left:18px}
+  .toggles{display:flex; gap:16px; flex-wrap:wrap}
+  .txtbtn{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;font-family:var(--sans);padding:4px}
+  .txtbtn:hover{text-decoration:underline}
+
+  .scorebar{
+    display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+  }
+  .scorebar .g{color:var(--good); font-weight:700}
+  .scorebar .r{color:var(--accent); font-weight:700}
+  .scorebar .pct{color:var(--navy); font-weight:700; font-size:14px}
+
+  /* results screen */
+  .results{
+    position:relative; margin:14px 0; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; border-top:4px solid var(--navy); padding:26px; text-align:center;
+    box-shadow:0 10px 30px -18px rgba(20,39,63,.45);
+  }
+  .results h2{margin:0 0 6px; color:var(--navy); font-size:22px}
+  .bigscore{font-family:var(--mono); font-size:44px; font-weight:700; color:var(--navy); margin:10px 0 2px; line-height:1}
+  .bigscore span{font-size:22px; color:var(--muted)}
+  .verdict-line{color:var(--muted); font-size:14px; margin:2px 0 18px}
+  .breakdown{display:flex; flex-direction:column; gap:8px; text-align:left; margin:0 auto; max-width:420px}
+  .brow{display:flex; align-items:center; gap:10px; font-size:13px}
+  .brow .bl{font-family:var(--mono); font-size:11px; color:var(--muted); flex:none; width:40px}
+  .brow .bn{flex:none; width:170px; color:var(--ink)}
+  .brow .bt{flex:1; height:8px; background:#e2ebf3; border-radius:99px; overflow:hidden}
+  .brow .bf{height:100%; background:linear-gradient(90deg,var(--good),#3fa06a); border-radius:99px}
+  .brow .bv{font-family:var(--mono); font-size:11px; color:var(--navy); flex:none; width:44px; text-align:right}
+  .results .btn{margin-top:20px}
+
+  .hidden{display:none !important}
+
+  @media (max-width:520px){
+    h1{font-size:22px}
+    .qtext{font-size:17px}
+    .controls{flex-direction:column; align-items:stretch}
+    .navbtns{justify-content:space-between}
+    .brow .bn{width:120px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .opt,.bar,.switch,.switch::after{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Modelli per l'Informatica · 120 domande</p>
+    <h1>Quiz — Simulazione d'esame</h1>
+    <p class="sub">Automi · Regex · Pumping Lemma · Turing · Decidibilità · Rice — scegli una risposta, vedi subito la soluzione. Usa 1-4 per rispondere e ← → per navigare</p>
+    <div class="binstrip" id="binstrip"></div>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="meta">
+    <span class="count"><b id="cur">1</b> / <span id="tot">0</span></span>
+    <div class="track"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <!-- Question card -->
+  <div class="card" id="card">
+    <div class="cat">
+      <span class="catname" id="cat"></span>
+      <span class="qnum" id="qnum"></span>
+    </div>
+    <div class="kind">Domanda</div>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div class="exp" id="exp"><span class="verdict" id="verdict"></span><span id="exptext"></span></div>
+  </div>
+
+  <!-- Results card -->
+  <div class="results hidden" id="results">
+    <div class="kind" style="text-align:center">Risultato della simulazione</div>
+    <h2>Quiz completato</h2>
+    <div class="bigscore"><span id="rScore">0</span><span>/<span id="rTot">0</span></span></div>
+    <div class="verdict-line" id="rVerdict"></div>
+    <div class="breakdown" id="breakdown"></div>
+    <button class="btn primary" id="restart">↻ Ricomincia</button>
+  </div>
+
+  <div class="controls" id="controls">
+    <div class="navbtns">
+      <button class="btn" id="prev">← Precedente</button>
+      <button class="btn primary" id="next">Successiva →</button>
+    </div>
+    <button class="txtbtn" id="finish">Vai al risultato</button>
+  </div>
+
+  <div class="scorebar" id="scorebar">
+    Corrette: <span class="g" id="nok">0</span> · Errate: <span class="r" id="nno">0</span> · Risposte: <span id="nans">0</span>/<span id="nq">0</span> · <span class="pct" id="pct">—</span>
+  </div>
+
+  <div class="toolbar">
+    <div class="toggles">
+      <label class="toggle" id="shuffleQ"><span class="switch"></span> Mescola domande</label>
+      <label class="toggle" id="shuffleA"><span class="switch"></span> Mescola risposte</label>
+    </div>
+    <button class="txtbtn" id="reset">Azzera risposte</button>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  lin: {name:"Linguaggi e problemi"},
+  asf: {name:"Automi a stati finiti"},
+  reg: {name:"Espressioni regolari"},
+  pump: {name:"Pumping Lemma"},
+  tur: {name:"Macchine di Turing"},
+  dec: {name:"Calcolabilità"},
+  trab: {name:"Trabocchetti"},
+};
+
+// 120 quiz a risposta multipla dal PDF "Modelli per l'Informatica".
+// o = opzioni in ordine originale; correct = indice (0=A,1=B,2=C,3=D); e = spiegazione.
+const QUESTIONS = [
+  // ── Linguaggi e problemi ──
+  {c:"lin", q:"Un alfabeto Σ è per definizione:", o:["un singolo simbolo", "un insieme finito e non vuoto di simboli", "l'insieme di tutte le stringhe", "un insieme infinito di simboli"], correct:1, e:"Σ deve essere finito e non vuoto. L'insieme di tutte le stringhe è Σ*."},
+  {c:"lin", q:"La notazione Σ* indica:", o:["tutte le stringhe formabili su Σ, inclusa quella vuota", "solo le stringhe non vuote", "l'alfabeto stesso", "solo le stringhe di lunghezza 1"], correct:0, e:"Σ* è l'insieme di tutte le stringhe finite su Σ, compresa la stringa vuota ε."},
+  {c:"lin", q:"Quale relazione è corretta?", o:["|{ε}| = 0", "ε ∉ Σ*", "∅ = {ε}", "∅ ≠ {ε}"], correct:3, e:"∅ ha cardinalità 0 (nessuna stringa), {ε} ha cardinalità 1 (contiene la stringa vuota)."},
+  {c:"lin", q:"Un linguaggio L su Σ è:", o:["una funzione Σ→Σ", "un elemento di Σ", "un sottoinsieme di Σ*", "una singola stringa"], correct:2, e:"L ⊆ Σ*. Può essere finito o infinito, incluso il vuoto."},
+  {c:"lin", q:"La stringa vuota ε:", o:["appartiene sempre a Σ*", "non appartiene mai a Σ*", "ha lunghezza 1", "coincide con ∅"], correct:0, e:"ε ha lunghezza 0 e appartiene a ogni Σ*. Non va confusa con il linguaggio vuoto ∅."},
+  {c:"lin", q:"Un problema funzionale per f: X→Y chiede:", o:["se X è finito", "se f è iniettiva", "per ogni input a il valore f(a)", "se f è booleana"], correct:2, e:"Il problema funzionale di f chiede, per ogni a∈X, di calcolare f(a)."},
+  {c:"lin", q:"Un problema decisionale è un problema funzionale in cui la funzione:", o:["è iniettiva", "è booleana (valori in {0,1})", "non è calcolabile", "ha dominio finito"], correct:1, e:"La funzione associata risponde sì/no, quindi è booleana."},
+  {c:"lin", q:"Il problema del riconoscimento per un linguaggio L usa la funzione:", o:["REC_L(x)=|x|", "REC_L(x)=x", "REC_L(x)=ε", "REC_L(x)=1 ⇔ x∈L"], correct:3, e:"REC_L vale 1 esattamente sulle stringhe appartenenti a L."},
+  {c:"lin", q:"Problema decisionale e problema di riconoscimento sono:", o:["convertibili l'uno nell'altro", "concetti scollegati", "entrambi sempre indecidibili", "definiti solo su alfabeti unari"], correct:0, e:"Definendo L come l'insieme degli input con risposta «sì», i due problemi coincidono."},
+  {c:"lin", q:"L'operazione di encoding serve a:", o:["minimizzare un automa", "rappresentare oggetti complessi (grafi, reti) come stringhe", "rendere un linguaggio regolare", "decidere il problema della fermata"], correct:1, e:"L'encoding traduce strutture complesse in stringhe; il decoding è il processo inverso."},
+  {c:"lin", q:"La cardinalità del linguaggio {ε} è:", o:["infinita", "0", "indefinita", "1"], correct:3, e:"Contiene esattamente una stringa, quella vuota."},
+  {c:"lin", q:"Quale dei seguenti NON è necessariamente vero per un alfabeto?", o:["è finito", "è non vuoto", "contiene simboli", "è ordinato totalmente"], correct:3, e:"Un alfabeto deve essere finito e non vuoto; non è richiesto un ordinamento."},
+  {c:"lin", q:"Se |Σ| = k, il numero di stringhe di lunghezza esattamente n è:", o:["k^n", "n^k", "k·n", "k+n"], correct:0, e:"Ogni posizione ha k scelte indipendenti, quindi k^n stringhe."},
+  {c:"lin", q:"Σ* è un insieme:", o:["infinito numerabile", "vuoto se Σ ≠ ∅", "non numerabile", "finito"], correct:0, e:"Per Σ non vuoto, Σ* è infinito ma numerabile (si può enumerare per lunghezza)."},
+  {c:"lin", q:"Il linguaggio vuoto ∅:", o:["non contiene alcuna stringa", "non è un linguaggio", "contiene la stringa vuota", "è sempre uguale a Σ*"], correct:0, e:"∅ non contiene nessuna stringa; è comunque un linguaggio valido (sottoinsieme di Σ*)."},
+  {c:"lin", q:"Un problema decisionale su Σ ha funzione del tipo:", o:["f: Σ → Σ", "f: Σ* → Σ*", "f: Σ* → {0,1}", "f: {0,1} → Σ*"], correct:2, e:"Risponde sì/no su ciascuna stringa, quindi il codominio è {0,1}."},
+  // ── Automi a stati finiti ──
+  {c:"asf", q:"Un ASFD è formalmente una:", o:["3-tupla", "7-tupla", "5-tupla ⟨Σ,Q,δ,I,F⟩", "coppia (Q,δ)"], correct:2, e:"ASFD = ⟨Σ, Q, δ, I, F⟩, una 5-tupla."},
+  {c:"asf", q:"Nella 5-tupla dell'ASFD, F rappresenta:", o:["l'alfabeto", "l'insieme degli stati accettanti", "lo stato iniziale", "la funzione di transizione"], correct:1, e:"F ⊆ Q è l'insieme degli stati finali/accettanti."},
+  {c:"asf", q:"La funzione di transizione di un ASFD ha la forma:", o:["δ: Q → Σ", "δ: Q×Σ → P(Q)", "δ: Σ → Q", "δ: Q×Σ → Q"], correct:3, e:"Nell'ASFD δ restituisce un singolo stato: δ: Q×Σ→Q."},
+  {c:"asf", q:"Quante esecuzioni ha un ASFD su una data stringa?", o:["esattamente una", "almeno una", "una per stato finale", "potenzialmente infinite"], correct:0, e:"Essendo δ una funzione, l'esecuzione è unica: da qui «deterministico»."},
+  {c:"asf", q:"Un'esecuzione di un ASFD è accettante quando:", o:["l'ultimo stato è in F", "non visita il pozzo", "passa per uno stato finale", "ha lunghezza pari"], correct:0, e:"Conta solo lo stato finale dell'esecuzione: deve appartenere a F."},
+  {c:"asf", q:"Un linguaggio è REGOLARE se:", o:["non soddisfa il pumping lemma", "esiste un ASFD che lo riconosce", "è descritto da una MdT", "è finito"], correct:1, e:"Regolare = riconosciuto da qualche ASFD (equivalentemente ASFND o regex)."},
+  {c:"asf", q:"La funzione di transizione di un ASFND ha codominio:", o:["{0,1}", "Σ*", "P(Q)", "Q"], correct:2, e:"δ: Q×Σ → P(Q): un simbolo può portare in più stati."},
+  {c:"asf", q:"P(Q) denota:", o:["l'insieme delle parti di Q", "il prodotto cartesiano Q×Q", "gli stati finali", "il pozzo"], correct:0, e:"P(Q) è l'insieme di tutti i sottoinsiemi di Q."},
+  {c:"asf", q:"Una stringa è accettata da un ASFND quando:", o:["l'esecuzione più lunga accetta", "tutte le esecuzioni accettano", "la metà delle esecuzioni accetta", "esiste almeno un'esecuzione accettante"], correct:3, e:"Accettazione per esistenza: basta un ramo accettante."},
+  {c:"asf", q:"Nella subset construction, gli stati dell'ASFD sono:", o:["transizioni", "sottoinsiemi di stati dell'ASFND", "coppie di stati", "singoli stati dell'ASFND"], correct:1, e:"Q_D = P(Q_N): ogni stato deterministico è un insieme di stati dell'ASFND."},
+  {c:"asf", q:"Lo stato iniziale dell'ASFD ottenuto dalla subset construction (senza ε) è:", o:["l'unione dei finali", "∅", "{q0^N}", "tutto P(Q_N)"], correct:2, e:"Si parte dal singoletto contenente lo stato iniziale dell'ASFND."},
+  {c:"asf", q:"Uno stato dell'ASFD (subset construction) è accettante se:", o:["è un singoletto", "non è il pozzo", "contiene almeno un finale dell'ASFND", "contiene tutti i finali dell'ASFND"], correct:2, e:"Basta che l'insieme contenga almeno uno stato accettante dell'ASFND."},
+  {c:"asf", q:"Nella subset construction, δ_D({q1,...,qk}, a) =", o:["δ(q1,a)", "δ(q1,a) ∩ ... ∩ δ(qk,a)", "δ(q1,a) ∪ ... ∪ δ(qk,a)", "∅"], correct:2, e:"Si fa l'unione delle transizioni dei singoli stati dell'insieme."},
+  {c:"asf", q:"Lo stato ∅ nell'ASFD costruito è:", o:["un pozzo da cui non si esce", "inammissibile", "lo stato iniziale", "uno stato accettante"], correct:0, e:"∅ è un pozzo: δ_D(∅,a)=∅ per ogni a."},
+  {c:"asf", q:"ASFD e ASFND sono equivalenti nel senso che:", o:["hanno la stessa δ", "riconoscono la stessa classe di linguaggi", "sono più potenti delle MdT", "hanno lo stesso numero di stati"], correct:1, e:"Entrambi riconoscono esattamente i linguaggi regolari."},
+  {c:"asf", q:"Passando da ASFND a ASFD, il numero di stati può:", o:["crescere fino a 2^n", "diventare infinito", "rimanere identico sempre", "solo diminuire"], correct:0, e:"Nel caso peggiore l'ASFD ha 2^n stati (uno per ogni sottoinsieme)."},
+  {c:"asf", q:"La transizione di un ε-ASFND ha dominio:", o:["Q", "Q×(Σ∪{ε})", "Q×Σ", "P(Q)"], correct:1, e:"δ: Q×(Σ∪{ε}) → P(Q): ammette mosse ε."},
+  {c:"asf", q:"Una ε-transizione permette di:", o:["consumare due simboli", "accettare sempre", "cambiare stato senza consumare simboli", "tornare allo stato iniziale"], correct:2, e:"La mossa ε cambia stato senza leggere alcun simbolo dell'input."},
+  {c:"asf", q:"La ε-chiusura E(q) contiene:", o:["tutti gli stati Q", "nessuno stato", "q e tutti gli stati ε-raggiungibili da q", "solo gli stati finali"], correct:2, e:"E(q) include q stesso e ogni stato raggiungibile con sole ε-mosse."},
+  {c:"asf", q:"Per ogni stato q vale sempre:", o:["q ∉ E(q)", "E(q)=∅", "E(q)=Q", "q ∈ E(q)"], correct:3, e:"Uno stato appartiene sempre alla propria ε-chiusura (sequenza vuota)."},
+  {c:"asf", q:"Le ε-transizioni servono soprattutto a:", o:["velocizzare l'automa", "rendere il linguaggio non regolare", "ridurre gli stati finali", "«incollare» automi per le operazioni regolari"], correct:3, e:"Permettono di comporre automi (unione, concatenazione, star)."},
+  {c:"asf", q:"Un ε-ASFND può accettare una ε-estensione di s anche se:", o:["s è vuota", "non ha stati finali", "non accetta s direttamente", "s è infinita"], correct:2, e:"Può rifiutare s ma accettare una sua ε-estensione tramite le mosse ε."},
+  {c:"asf", q:"Convertendo un ε-ASFND in ASFND, uno stato q diventa finale se:", o:["la sua ε-chiusura contiene un finale originale", "ha un cappio", "non ha ε-mosse", "q è iniziale"], correct:0, e:"q è accettante se da q si raggiunge un finale con sole ε-transizioni."},
+  {c:"asf", q:"Il linguaggio riconosciuto L(A) di un automa A è:", o:["l'insieme degli stati", "la funzione di transizione", "l'insieme delle stringhe accettate da A", "l'alfabeto di A"], correct:2, e:"L(A) = { x | x è accettata da A }."},
+  // ── Espressioni regolari ──
+  {c:"reg", q:"Le operazioni regolari classiche includono:", o:["derivata e integrale", "solo unione e intersezione", "solo concatenazione e star", "unione, intersezione, complemento, concatenazione, star"], correct:3, e:"Le cinque operazioni: unione, intersezione, complemento, concatenazione, star."},
+  {c:"reg", q:"La star di Kleene L* contiene:", o:["esattamente una stringa di L", "solo stringhe di L", "il complemento di L", "concatenazioni di zero o più stringhe di L"], correct:3, e:"L* = tutte le concatenazioni di k≥0 stringhe di L, inclusa ε (k=0)."},
+  {c:"reg", q:"ε appartiene sempre a L* perché:", o:["corrisponde al caso k=0 (concatenazione vuota)", "L* è sempre infinito", "L contiene ε", "è un assioma"], correct:0, e:"Con zero stringhe concatenate si ottiene ε, sempre in L*."},
+  {c:"reg", q:"La classe dei linguaggi regolari è chiusa rispetto a:", o:["solo la star", "solo il complemento", "tutte le operazioni regolari", "nessuna operazione"], correct:2, e:"Se i linguaggi di partenza sono regolari, il risultato delle operazioni regolari è regolare."},
+  {c:"reg", q:"Le dimostrazioni di chiusura sono tipicamente:", o:["probabilistiche", "non costruttive", "impossibili", "costruttive (si costruisce l'automa)"], correct:3, e:"Si esibisce esplicitamente l'ε-ASFND che realizza l'operazione."},
+  {c:"reg", q:"Per la concatenazione L1·L2 si collega:", o:["tutti gli stati tra loro", "i finali di A1 all'iniziale di A2 con ε-mosse", "nulla, basta l'unione", "l'iniziale di A1 al finale di A2"], correct:1, e:"Si aggiungono ε-transizioni dagli stati finali di A1 allo stato iniziale di A2."},
+  {c:"reg", q:"Un'espressione regolare di base può essere:", o:["un grafo", "solo la star", "solo una MdT", "∅ oppure un simbolo di Σ"], correct:3, e:"Casi base: ∅ e ciascun simbolo dell'alfabeto."},
+  {c:"reg", q:"La precedenza corretta degli operatori regex è:", o:["* > · > +", "· > * > +", "tutti uguali", "+ > · > *"], correct:0, e:"Star lega più forte, poi concatenazione, infine unione."},
+  {c:"reg", q:"L'espressione ab*+c equivale a:", o:["(ab)*+c", "((ab)*)+c", "a(b*+c)", "(a(b*))+c"], correct:3, e:"Per precedenza: b* prima, poi a·(b*), infine +c."},
+  {c:"reg", q:"Il teorema di Kleene afferma: un linguaggio è regolare se e solo se:", o:["esiste una regex che lo descrive", "è riconosciuto da una MdT", "soddisfa il pumping lemma", "è finito"], correct:0, e:"Regolare ⇔ descrivibile da espressione regolare."},
+  {c:"reg", q:"La direzione «da regex ad automa» si dimostra:", o:["per induzione sulla struttura della regex", "per diagonalizzazione", "con il pumping lemma", "per riduzione"], correct:0, e:"Si procede induttivamente sui casi base e sugli operatori."},
+  {c:"reg", q:"La direzione «da automa a regex» usa:", o:["la tesi di Church-Turing", "il pumping lemma", "l'algoritmo di eliminazione degli stati", "la subset construction"], correct:2, e:"Si eliminano gli stati uno a uno sostituendoli con archi etichettati da regex."},
+  {c:"reg", q:"Nell'eliminazione degli stati, un cappio etichettato r su un nodo diventa:", o:["r* nella regex combinata", "∅", "r+", "r·r"], correct:0, e:"Il cappio contribuisce con (r)* nella regex dell'arco risultante."},
+  {c:"reg", q:"L(r) per r = (s)* è:", o:["complemento di L(s)", "∅", "L(s)*", "L(s)"], correct:2, e:"La star della regex corrisponde alla star del linguaggio: L(s)*."},
+  {c:"reg", q:"L(r) per r = (s+t) è:", o:["L(s) ∩ L(t)", "L(s) · L(t)", "L(s) ∪ L(t)", "L(s) \\ L(t)"], correct:2, e:"Il «+» nelle regex denota l'unione dei linguaggi."},
+  {c:"reg", q:"L(r) per r = (s·t) è:", o:["L(s) ∪ L(t)", "L(s) · L(t)", "L(s)*", "L(s) ∩ L(t)"], correct:1, e:"Il «·» è la concatenazione dei linguaggi."},
+  {c:"reg", q:"L'espressione (r)+ (uno o più) equivale a:", o:["r*", "ε", "r·r*", "r+r"], correct:2, e:"Almeno un'occorrenza: r seguito da zero o più r, cioè r·r*."},
+  {c:"reg", q:"Riconoscere un linguaggio regolare equivale a:", o:["calcolare una funzione non computabile", "risolvere il problema della fermata", "risolvere un problema con memoria finita", "minimizzare una MdT"], correct:2, e:"I linguaggi regolari modellano i problemi risolvibili con memoria limitata."},
+  {c:"reg", q:"Un vantaggio degli automi finiti rispetto a modelli più potenti è:", o:["non hanno stati", "risolvono più problemi", "garantiscono la terminazione e bound su tempo/memoria", "decidono ogni linguaggio"], correct:2, e:"Terminazione garantita, risorse limitate, analisi semplice: il prezzo è minore espressività."},
+  {c:"reg", q:"Il complemento di un linguaggio regolare L (su ASFD) si ottiene:", o:["con la star", "rimuovendo lo stato iniziale", "scambiando Σ con Q", "scambiando stati finali e non finali (su ASFD completo)"], correct:3, e:"Su un ASFD completo, F' = Q\\F riconosce il complemento."},
+  // ── Pumping Lemma ──
+  {c:"pump", q:"Ogni linguaggio finito è:", o:["regolare", "non regolare", "indecidibile", "non riconoscibile"], correct:0, e:"Si costruisce un automa per ogni stringa e si uniscono: sempre regolare."},
+  {c:"pump", q:"Il Pumping Lemma si applica ai linguaggi regolari di cardinalità:", o:["pari", "infinita", "qualsiasi, sempre uguale", "finita"], correct:1, e:"L'enunciato riguarda i regolari infiniti (le stringhe lunghe forzano i cicli)."},
+  {c:"pump", q:"Il Pumping Lemma si usa tipicamente per:", o:["dimostrare che un linguaggio NON è regolare", "minimizzare automi", "convertire NFA in DFA", "dimostrare che un linguaggio È regolare"], correct:0, e:"Si usa in negativo: se fallisce, il linguaggio non è regolare."},
+  {c:"pump", q:"Soddisfare il Pumping Lemma:", o:["garantisce la regolarità", "implica finitezza", "non garantisce la regolarità", "implica indecidibilità"], correct:2, e:"È condizione necessaria ma non sufficiente: alcuni non regolari lo soddisfano."},
+  {c:"pump", q:"Nella decomposizione z=uvw del pumping lemma deve valere:", o:["|uvw|≤n", "|v|≥1 e |uv|≤n", "|v|=0", "|u|≥1 e |w|≥1"], correct:1, e:"La parte pompabile v è non vuota e il prefisso uv sta entro la costante n."},
+  {c:"pump", q:"La condizione di pompaggio richiede che:", o:["v sia vuota", "uv^i w ∉ L per ogni i", "uv^i w ∈ L per ogni i≥0", "uv^i w ∈ L solo per i=1"], correct:2, e:"Tutte le ripetizioni i≥0 (incluso i=0) restano nel linguaggio."},
+  {c:"pump", q:"L'intuizione del pumping lemma si basa sul principio:", o:["di Rice", "di induzione", "della piccionaia (pigeonhole)", "di Church"], correct:2, e:"Stringhe lunghe costringono a ripassare per uno stato: nasce un ciclo pompabile."},
+  {c:"pump", q:"Per L={a^n b^n}, una buona scelta di z è:", o:["b^p", "a^p", "ab", "a^p b^p con p la costante"], correct:3, e:"z=a^p b^p forza uv nelle sole «a», così pompare squilibra a e b."},
+  {c:"pump", q:"Per L={a^n b^n}, perché il pompaggio porta a contraddizione?", o:["v è vuota", "v contiene solo b", "v contiene solo a, quindi uv^2w ha più a che b", "z è troppo corta"], correct:2, e:"Poiché |uv|≤p, v è di sole «a»; con i=2 si rompe il bilanciamento."},
+  {c:"pump", q:"Perché essere infinito non basta per essere non regolare?", o:["perché i regolari sono finiti", "perché a* è infinito ma regolare", "non è vero, basta", "perché ogni infinito è non regolare"], correct:1, e:"a* è un controesempio: infinito ma perfettamente regolare."},
+  {c:"pump", q:"Il corollario del pumping lemma afferma: se non esiste n con le sue proprietà, allora L:", o:["è finito", "non è regolare", "è decidibile", "è regolare"], correct:1, e:"È la contronominale: assenza della costante di pompaggio ⇒ non regolare."},
+  {c:"pump", q:"Un ASFD che riconosce un linguaggio infinito deve necessariamente:", o:["contenere cicli nelle computazioni", "usare ε-mosse", "essere non deterministico", "avere infiniti stati"], correct:0, e:"Con stati finiti, riconoscere infinite stringhe richiede cicli (stati ripetuti)."},
+  {c:"pump", q:"Nello schema d'uso del pumping lemma, dopo aver assunto L regolare si deve:", o:["dimostrare che L è finito", "scegliere una z furba con |z|≥n", "applicare De Morgan", "costruire una MdT"], correct:1, e:"Si sceglie una stringa adatta abbastanza lunga, poi si analizza ogni decomposizione."},
+  {c:"pump", q:"La costante n del pumping lemma, in termini dell'automa, è legata a:", o:["il numero di stati |Q|", "la lunghezza dell'input", "il numero di stati finali", "la lunghezza dell'alfabeto"], correct:0, e:"Tipicamente n ≈ |Q|: oltre |Q| simboli, uno stato si ripete."},
+  // ── Macchine di Turing ──
+  {c:"tur", q:"Una MdT classica è formalmente una:", o:["7-tupla", "3-tupla", "coppia (Q,δ)", "5-tupla"], correct:0, e:"⟨Σ, Γ, Q, δ, q0, q_yes, q_no⟩: sette componenti."},
+  {c:"tur", q:"Nell'alfabeto del nastro Γ rispetto a Σ vale:", o:["Γ ∩ Σ = ∅", "Σ ⊆ Γ e Γ include il blank", "Γ ⊆ Σ", "Γ = Σ"], correct:1, e:"Σ ⊆ Γ; Γ contiene il blank, Σ no."},
+  {c:"tur", q:"La funzione di transizione di una MdT restituisce:", o:["solo il prossimo stato", "un valore booleano", "(prossimo stato, simbolo da scrivere, spostamento testina)", "un sottoinsieme di Q"], correct:2, e:"δ produce nuovo stato, simbolo da scrivere e direzione (←,→,-)."},
+  {c:"tur", q:"La differenza chiave tra MdT e automa finito è:", o:["la MdT ha più stati", "la MdT è deterministica", "la MdT non ha stato iniziale", "la MdT scrive sul nastro e si muove in entrambe le direzioni"], correct:3, e:"Memoria di lavoro illimitata, riscrittura e movimento bidirezionale; può non terminare."},
+  {c:"tur", q:"Una configurazione di una MdT è:", o:["una tripla (nastro sx, stato+simbolo, nastro dx)", "solo lo stato corrente", "la funzione δ", "l'alfabeto"], correct:0, e:"C=(σ,q,τ): la «foto» completa di nastro, stato e posizione testina."},
+  {c:"tur", q:"Un linguaggio Turing-riconoscibile (RE):", o:["non ha MdT associata", "è sempre regolare", "ha una MdT che si ferma su ogni input", "ha una MdT che accetta L ma può andare in loop fuori da L"], correct:3, e:"La MdT accetta le stringhe di L; fuori da L può non terminare."},
+  {c:"tur", q:"Un linguaggio Turing-decidibile:", o:["coincide con i regolari", "ha una MdT terminante che decide ogni input", "può andare in loop", "non è riconoscibile"], correct:1, e:"Esiste un decisore: si ferma sempre rispondendo sì/no."},
+  {c:"tur", q:"I sinonimi «ricorsivamente enumerabile» e «ricorsivo» indicano rispettivamente:", o:["regolare e finito", "entrambi «regolare»", "decidibile e riconoscibile", "riconoscibile e decidibile"], correct:3, e:"RE = riconoscibile; ricorsivo = decidibile."},
+  {c:"tur", q:"Una MdT è terminante (decisore) se:", o:["su ogni input accetta o rifiuta (si ferma sempre)", "accetta almeno una stringa", "ha un solo stato", "non scrive sul nastro"], correct:0, e:"Decisore = si arresta su ogni input con una risposta."},
+  {c:"tur", q:"La MdT multinastro rispetto alla classica è:", o:["equivalente (stessa classe di linguaggi)", "meno potente", "in grado di decidere la fermata", "strettamente più potente"], correct:0, e:"Equivalente: si simula su un nastro partizionato; cambia solo l'efficienza."},
+  {c:"tur", q:"La transizione di una k-MdT ha forma:", o:["Q×Σ^k → Q×(Γ×{←,→,-})^k", "Q×Σ → Q", "Q → Σ^k", "P(Q)×Σ"], correct:0, e:"Legge k simboli e produce nuovo stato più k coppie (simbolo, spostamento)."},
+  {c:"tur", q:"Simulando k nastri su uno solo si:", o:["decide la fermata", "guadagna potere espressivo", "elimina la testina", "perde efficienza ma non potere espressivo"], correct:3, e:"La simulazione costa in tempo (movimenti extra) ma riconosce gli stessi linguaggi."},
+  {c:"tur", q:"Una MdT non deterministica accetta σ quando:", o:["il primo ramo accetta", "almeno un ramo dell'albero di computazione è accettante", "nessun ramo rifiuta", "tutti i rami accettano"], correct:1, e:"Accettazione per esistenza di un cammino accettante."},
+  {c:"tur", q:"Una MdT non deterministica rifiuta σ quando:", o:["il primo ramo rifiuta", "tutte le esecuzioni sono finite e rifiutanti", "esiste un ramo infinito", "un ramo rifiuta"], correct:1, e:"Rifiuta se ogni cammino è finito e termina rifiutando."},
+  {c:"tur", q:"Nell'equivalenza MTND↔MdT l'albero va esplorato:", o:["in modo casuale", "in ampiezza (BFS)", "in profondità (DFS)", "dal basso"], correct:1, e:"La BFS evita di bloccarsi su rami infiniti e trova il ramo accettante ovunque sia."},
+  {c:"tur", q:"Le MdT non deterministiche, in termini di potere espressivo:", o:["decidono la fermata", "sono equivalenti alle deterministiche", "sono più potenti delle deterministiche", "riconoscono solo i regolari"], correct:1, e:"Il non determinismo non aumenta il potere espressivo: riconoscono gli stessi linguaggi."},
+  // ── Calcolabilità ──
+  {c:"dec", q:"La tesi di Church-Turing afferma:", o:["le MdT superano i computer reali", "ogni funzione è calcolabile", "la fermata è decidibile", "«effettivamente calcolabile» = «T-calcolabile»"], correct:3, e:"Identifica la nozione intuitiva di algoritmo con la calcolabilità secondo Turing."},
+  {c:"dec", q:"La Macchina di Turing Universale:", o:["decide la fermata", "simula una macchina M (data la descrizione) su input x", "risolve ogni problema", "è più potente di una MdT"], correct:1, e:"U(M,x) accetta ⇔ M accetta x: il modello del computer programmabile."},
+  {c:"dec", q:"Il problema della fermata (HALTING) è:", o:["regolare", "decidibile", "non riconoscibile", "indecidibile (dimostrato per diagonalizzazione)"], correct:3, e:"Indecidibile: la costruzione diagonale dà una contraddizione. È però riconoscibile."},
+  {c:"dec", q:"La tecnica usata per dimostrare l'indecidibilità di HALTING è:", o:["la subset construction", "il pumping lemma", "l'induzione strutturale", "la diagonalizzazione"], correct:3, e:"Si costruisce una macchina che fa l'opposto della previsione, generando contraddizione."},
+  {c:"dec", q:"Se A ≤_m B (A si riduce a B) e B è decidibile, allora:", o:["A è indecidibile", "A è decidibile", "nulla si conclude", "B è indecidibile"], correct:1, e:"La decidibilità scende lungo la riduzione: B decidibile ⇒ A decidibile."},
+  {c:"dec", q:"Per dimostrare che un NUOVO problema B è indecidibile si mostra:", o:["B è finito", "B ≤_m (problema noto indecidibile)", "B è regolare", "(problema noto indecidibile) ≤_m B"], correct:3, e:"Si riduce il problema noto AL nuovo: HALTING ≤_m B propaga l'indecidibilità."},
+  {c:"dec", q:"Una funzione f è calcolabile (per riduzione di Karp) se:", o:["f è booleana", "f è iniettiva", "esiste una MdT terminante che produce f(x) sul nastro", "f ha dominio finito"], correct:2, e:"Serve una MdT terminante che, su input x, scriva l'encoding di f(x)."},
+  {c:"dec", q:"Il teorema di Rice afferma che:", o:["ogni linguaggio è regolare", "ogni proprietà non banale dei linguaggi è indecidibile", "solo le banali sono indecidibili", "ogni proprietà dei linguaggi è decidibile"], correct:1, e:"Qualsiasi proprietà non banale del linguaggio riconosciuto è indecidibile."},
+  {c:"dec", q:"Una proprietà dei linguaggi è «banale» quando:", o:["vale per tutti o per nessuno dei linguaggi riconoscibili", "è sempre falsa", "è facile da verificare", "riguarda solo linguaggi finiti"], correct:0, e:"Banale = soddisfatta da tutti i riconoscibili o da nessuno (queste sono decidibili)."},
+  {c:"dec", q:"Un linguaggio L è decidibile se e solo se:", o:["L è riconoscibile", "sia L sia il suo complemento sono riconoscibili", "L è regolare", "L è finito"], correct:1, e:"Decidibile ⇔ L e il complemento entrambi riconoscibili."},
+  // ── Trabocchetti ──
+  {c:"trab", q:"Il linguaggio ∅ (vuoto) è:", o:["non regolare perché non ha stringhe", "uguale a {ε}", "indecidibile", "regolare (riconosciuto da un automa senza stati finali)"], correct:3, e:"∅ è regolare: un automa che non accetta nulla lo riconosce. È finito (0 stringhe)."},
+  {c:"trab", q:"Il linguaggio {ε} (solo stringa vuota) è:", o:["infinito", "uguale a ∅", "regolare, con lo stato iniziale anche finale e nessun'altra accettazione", "non regolare"], correct:2, e:"È regolare e finito: l'automa accetta solo se non legge alcun simbolo."},
+  {c:"trab", q:"Se L è non regolare, il suo complemento:", o:["non esiste", "è necessariamente non regolare", "è sempre regolare", "è sempre finito"], correct:1, e:"I regolari sono chiusi per complemento: se il complemento fosse regolare, lo sarebbe anche L. Quindi è non regolare."},
+  {c:"trab", q:"L'unione di due linguaggi NON regolari può essere regolare?", o:["sì, ad esempio L ∪ complemento(L) = Σ*", "solo se entrambi finiti", "solo su alfabeto unario", "mai"], correct:0, e:"Esempio: L non regolare e il suo complemento (non regolare) si uniscono in Σ*, regolare."},
+  {c:"trab", q:"L'intersezione di un linguaggio non regolare con uno regolare:", o:["è sempre non regolare", "è sempre vuota", "può essere regolare o non regolare", "è sempre regolare"], correct:2, e:"Dipende: {a^n b^n} ∩ a* = {ε} (regolare), ma altre intersezioni restano non regolari."},
+  {c:"trab", q:"Un sottoinsieme di un linguaggio regolare è:", o:["sempre non regolare", "sempre finito", "sempre regolare", "non necessariamente regolare"], correct:3, e:"Trabocchetto: {a^n b^n} ⊆ a*b* (regolare) ma non è regolare. La regolarità non si eredita per sottoinsieme."},
+  {c:"trab", q:"Ogni linguaggio finito su Σ è:", o:["regolare solo se ha meno di |Q| stringhe", "indecidibile", "non regolare se molto grande", "sempre regolare indipendentemente dalla dimensione"], correct:3, e:"Qualsiasi linguaggio finito è regolare: si costruiscono e uniscono automi per ciascuna stringa."},
+  {c:"trab", q:"Il pumping lemma può essere usato per dimostrare che un linguaggio È regolare?", o:["sì, sempre", "no: serve solo a dimostrare la NON regolarità", "sì, con la diagonalizzazione", "sì, se finito"], correct:1, e:"È condizione necessaria non sufficiente: soddisfarlo non implica regolarità."},
+  {c:"trab", q:"Esistono linguaggi non regolari che soddisfano il pumping lemma?", o:["solo se infiniti", "solo su alfabeto unario", "no, mai", "sì, il lemma è necessario ma non sufficiente"], correct:3, e:"Il pumping lemma non caratterizza i regolari: alcuni non regolari lo verificano."},
+  {c:"trab", q:"Un ASFD può avere zero stati finali?", o:["no, è vietato", "sì, ma riconosce Σ*", "sì: riconosce il linguaggio vuoto ∅", "no, ne serve almeno uno iniziale-finale"], correct:2, e:"Con F=∅ nessuna stringa è accettata: l'automa riconosce ∅, che è regolare."},
+  {c:"trab", q:"Nel passaggio ASFND→ASFD, lo stato pozzo ∅:", o:["non esiste", "è necessario per la completezza ma spesso non accettante e non raggiungibile", "è sempre accettante", "coincide con lo stato iniziale"], correct:1, e:"Serve a rendere l'ASFD completo; non è accettante (non contiene finali) e a volte non si raggiunge."},
+  {c:"trab", q:"Il trucco del complemento (scambiare F e Q\\F) funziona per:", o:["gli ASFD completi e deterministici", "gli ASFND", "le regex", "le MdT non deterministiche"], correct:0, e:"Richiede determinismo e completezza: su un ASFND lo scambio NON dà il complemento."},
+  {c:"trab", q:"Se applico lo scambio dei finali a un ASFND, ottengo:", o:["sempre Σ*", "in generale NON il complemento del linguaggio", "il complemento", "sempre ∅"], correct:1, e:"Per il non determinismo una stringa può avere rami sia accettanti sia no: lo scambio non complementa."},
+  {c:"trab", q:"Il linguaggio Σ* (tutte le stringhe) è:", o:["regolare e decidibile", "non riconoscibile", "indecidibile", "non regolare perché infinito"], correct:0, e:"Σ* è regolare (automa con unico stato iniziale-finale) e ovviamente decidibile."},
+  {c:"trab", q:"Un linguaggio decidibile è sempre:", o:["finito", "non riconoscibile", "regolare", "riconoscibile (e anche il suo complemento lo è)"], correct:3, e:"Decidibile ⇒ riconoscibile; inoltre anche il complemento è riconoscibile. Non implica regolarità."},
+  {c:"trab", q:"Il complemento del problema HALTING/ACCEPT è:", o:["riconoscibile", "decidibile", "regolare", "non riconoscibile"], correct:3, e:"Se fosse riconoscibile, ACCEPT (già riconoscibile) sarebbe decidibile. Assurdo: il complemento non è riconoscibile."},
+  {c:"trab", q:"Una proprietà come «la MdT M ha esattamente 5 stati» ricade sotto il teorema di Rice?", o:["sì, è sempre indecidibile", "no, perché è finita", "no: riguarda la macchina, non il linguaggio riconosciuto", "sì, è banale"], correct:2, e:"Rice riguarda proprietà del LINGUAGGIO. Il numero di stati è una proprietà sintattica della macchina, decidibile."},
+  {c:"trab", q:"La proprietà «L(M) è Turing-riconoscibile» (vera per ogni M) è:", o:["non una proprietà di linguaggi", "non banale, quindi indecidibile per Rice", "indecidibile per diagonalizzazione", "banale (vale per tutti i riconoscibili), quindi decidibile"], correct:3, e:"Vale per tutti i linguaggi riconoscibili: è banale e quindi decidibile (Rice non si applica)."},
+  {c:"trab", q:"Per applicare correttamente Rice e concludere l'indecidibilità servono:", o:["un solo linguaggio che soddisfa P", "tutti i linguaggi regolari", "due testimoni riconoscibili: uno che soddisfa P e uno che non la soddisfa", "un controesempio finito"], correct:2, e:"I due testimoni opposti garantiscono la non banalità; poi Rice dà l'indecidibilità."},
+  {c:"trab", q:"Nella riduzione A ≤_m B, sbagliare direzione (ridurre B ad A invece di A a B):", o:["è sempre corretto", "invalida la conclusione: la direzione codifica chi eredita la proprietà", "rende A regolare", "non cambia nulla"], correct:1, e:"La direzione è cruciale: per provare B indecidibile si riduce il problema noto indecidibile A a B, non il contrario."},
+];
+
+const LETTERS = ["A","B","C","D"];
+
+const state = {
+  base: QUESTIONS.map((c,i)=>({...c, id:i})),
+  order: [], idx:0, filter:"all", shuffleQ:false, shuffleA:false,
+  display:{},  // id -> array di indici originali nell'ordine mostrato
+  answers:{},  // id -> indice originale scelto
+};
+
+const $ = s=>document.querySelector(s);
+
+function activeList(){
+  return state.base.filter(c=> state.filter==="all" ? true : c.c===state.filter);
+}
+function shuffleArr(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function buildOrder(){
+  let list = activeList().map(c=>c.id);
+  if(state.shuffleQ) shuffleArr(list);
+  state.order=list; state.idx=0;
+  // ordine di visualizzazione delle opzioni per ogni domanda
+  state.display={};
+  state.base.forEach(c=>{
+    let d=[0,1,2,3];
+    if(state.shuffleA) shuffleArr(d);
+    state.display[c.id]=d;
+  });
+}
+function current(){ return state.base[state.order[state.idx]]; }
+
+function render(){
+  showQuiz();
+  const tot=state.order.length;
+  $("#tot").textContent=tot;
+  $("#nq").textContent=tot; $("#cur").textContent = tot? state.idx+1 : 0;
+  $("#bar").style.width = tot ? ((state.idx+1)/tot*100)+"%" : "0%";
+  if(tot===0){
+    $("#qtext").textContent="Nessuna domanda in questo filtro.";
+    $("#opts").innerHTML=""; $("#exp").className="exp";
+    updateScore(); return;
+  }
+  const c=current();
+  $("#cat").textContent=CATS[c.c].name;
+  $("#qnum").textContent="Domanda #"+(c.id+1);
+  $("#qtext").innerHTML=c.q;
+
+  const answered = state.answers[c.id]!==undefined;
+  const chosen = state.answers[c.id];
+  const box=$("#opts"); box.innerHTML="";
+  state.display[c.id].forEach((origIdx,pos)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.disabled=answered;
+    b.innerHTML='<span class="letter">'+LETTERS[pos]+'</span><span class="txt">'+c.o[origIdx]+'</span>';
+    if(answered){
+      if(origIdx===c.correct){ b.classList.add("correct"); b.insertAdjacentHTML("beforeend",'<span class="mk">✓</span>'); }
+      else if(origIdx===chosen){ b.classList.add("wrong"); b.insertAdjacentHTML("beforeend",'<span class="mk">✗</span>'); }
+      else b.classList.add("dim");
+    }
+    b.onclick=()=>answer(origIdx);
+    box.appendChild(b);
+  });
+
+  const exp=$("#exp");
+  if(answered){
+    const ok = chosen===c.correct;
+    exp.className="exp show "+(ok?"ok":"no");
+    $("#verdict").textContent = ok ? "Risposta corretta" : ("Errata — corretta: "+LETTERS[state.display[c.id].indexOf(c.correct)]);
+    $("#exptext").innerHTML=c.e;
+  } else {
+    exp.className="exp";
+  }
+
+  $("#prev").disabled = state.idx===0;
+  $("#next").disabled = state.idx===tot-1;
+  updateScore();
+}
+
+function answer(origIdx){
+  const c=current();
+  if(state.answers[c.id]!==undefined) return;
+  state.answers[c.id]=origIdx;
+  render();
+}
+function go(d){
+  const n=state.idx+d;
+  if(n<0||n>=state.order.length) return;
+  state.idx=n; render();
+}
+function stats(){
+  let ok=0,no=0,ans=0;
+  state.order.forEach(id=>{
+    const a=state.answers[id];
+    if(a!==undefined){ ans++; if(a===state.base[id].correct) ok++; else no++; }
+  });
+  return {ok,no,ans,tot:state.order.length};
+}
+function updateScore(){
+  const s=stats();
+  $("#nok").textContent=s.ok; $("#nno").textContent=s.no; $("#nans").textContent=s.ans;
+  $("#pct").textContent = s.ans? Math.round(s.ok/s.ans*100)+"%" : "—";
+}
+
+// filtri
+function buildChips(){
+  const box=$("#chips"); box.innerHTML="";
+  const mk=(key,label)=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.textContent=label;
+    b.setAttribute("aria-pressed", state.filter===key);
+    b.onclick=()=>{ state.filter=key; state.answers={}; buildOrder(); render(); buildChips(); };
+    box.appendChild(b);
+  };
+  mk("all","Tutte");
+  Object.entries(CATS).forEach(([k,v])=>mk(k,v.name));
+}
+
+// risultato finale
+function showResults(){
+  const s=stats();
+  $("#card").classList.add("hidden");
+  $("#controls").classList.add("hidden");
+  $("#scorebar").classList.add("hidden");
+  $("#results").classList.remove("hidden");
+  $("#rScore").textContent=s.ok; $("#rTot").textContent=s.tot;
+  const pct = s.tot? Math.round(s.ok/s.tot*100) : 0;
+  let msg;
+  if(pct>=90) msg="Ottimo! Padronanza solida della materia.";
+  else if(pct>=70) msg="Buon lavoro. Rivedi qualche argomento e ci sei.";
+  else if(pct>=50) msg="Base discreta: ripassa i macro-livelli più deboli.";
+  else msg="Da consolidare: riparti dai fondamenti e riprova.";
+  $("#rVerdict").textContent=pct+"% corrette · "+msg;
+
+  // breakdown per livello (sui soli livelli presenti nell'ordine attivo)
+  const bd=$("#breakdown"); bd.innerHTML="";
+  Object.entries(CATS).forEach(([k,v])=>{
+    const ids=state.order.filter(id=>state.base[id].c===k);
+    if(ids.length===0) return;
+    let ok=0; ids.forEach(id=>{ if(state.answers[id]===state.base[id].correct) ok++; });
+    const p=Math.round(ok/ids.length*100);
+    const row=document.createElement("div"); row.className="brow";
+    row.innerHTML='<span class="bl">'+k.toUpperCase()+'</span>'
+      +'<span class="bn">'+v.name.replace(/^L\d · /,'')+'</span>'
+      +'<span class="bt"><span class="bf" style="width:'+p+'%"></span></span>'
+      +'<span class="bv">'+ok+'/'+ids.length+'</span>';
+    bd.appendChild(row);
+  });
+}
+function showQuiz(){
+  $("#card").classList.remove("hidden");
+  $("#controls").classList.remove("hidden");
+  $("#scorebar").classList.remove("hidden");
+  $("#results").classList.add("hidden");
+}
+
+// striscia binaria decorativa
+(function(){ let s=""; for(let i=0;i<120;i++) s+=(Math.random()<.5?"0":"1"); $("#binstrip").textContent=s; })();
+
+// eventi
+$("#next").onclick=()=>go(1);
+$("#prev").onclick=()=>go(-1);
+$("#finish").onclick=showResults;
+$("#restart").onclick=()=>{ state.answers={}; buildOrder(); render(); };
+$("#reset").onclick=()=>{ state.answers={}; render(); };
+
+const tQ=$("#shuffleQ");
+tQ.onclick=()=>{ state.shuffleQ=!state.shuffleQ; tQ.classList.toggle("on",state.shuffleQ); state.answers={}; buildOrder(); render(); };
+const tA=$("#shuffleA");
+tA.onclick=()=>{ state.shuffleA=!state.shuffleA; tA.classList.toggle("on",state.shuffleA); state.answers={}; buildOrder(); render(); };
+
+document.addEventListener("keydown", e=>{
+  if($("#results").classList.contains("hidden")===false) return;
+  if(e.key==="ArrowRight") go(1);
+  else if(e.key==="ArrowLeft") go(-1);
+  else if(["1","2","3","4"].includes(e.key)){
+    const c=current(); if(!c) return;
+    const pos=parseInt(e.key,10)-1;
+    const disp=state.display[c.id];
+    if(pos<disp.length && state.answers[c.id]===undefined) answer(disp[pos]);
+  }
+  else if(["a","b","c","d"].includes(e.key.toLowerCase())){
+    const c=current(); if(!c) return;
+    const pos=LETTERS.indexOf(e.key.toUpperCase());
+    const disp=state.display[c.id];
+    if(pos>=0 && pos<disp.length && state.answers[c.id]===undefined) answer(disp[pos]);
+  }
+});
+
+buildChips(); buildOrder(); render();
+</script>
+</body>
+</html>

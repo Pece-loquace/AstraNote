@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz — Metodi Probabilistici per l'Informatica</title>
+<style>
+  :root{
+    --paper:#fbfcfe; --grid:#dce7f3; --ink:#1d3f8b; --ink-dark:#132a5c;
+    --pencil:#5c6573; --text:#1c2230; --ok:#2a7a4b; --ok-bg:#e6f4ea;
+    --bad:#b8322c; --bad-bg:#fbe9e7; --card:#ffffff; --line:#c9d6e6;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+    color:var(--text); background-color:var(--paper);
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:22px 22px; line-height:1.5; min-height:100vh;
+  }
+  .ui{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 60px}
+  header{border-left:4px solid var(--ink);padding:6px 0 6px 16px;margin-bottom:26px}
+  header h1{font-size:1.7rem;margin:0;color:var(--ink-dark);font-weight:600;letter-spacing:-.01em}
+  header p{margin:4px 0 0;color:var(--pencil);font-size:.98rem}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:20px 22px;margin-bottom:16px;box-shadow:0 1px 0 rgba(29,63,139,.08)}
+  h2{font-size:1.05rem;margin:0 0 10px;color:var(--ink-dark);font-weight:600}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 14px}
+  .chip{border:1.5px solid var(--ink);color:var(--ink);background:#fff;border-radius:999px;padding:5px 13px;font-size:.88rem;cursor:pointer;user-select:none}
+  .chip.on{background:var(--ink);color:#fff}
+  .chip small{opacity:.75;margin-left:4px}
+  .row{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin:8px 0}
+  label.tog{display:flex;align-items:center;gap:8px;font-size:.92rem;cursor:pointer}
+  label.tog input{width:17px;height:17px;accent-color:var(--ink)}
+  .link{background:none;border:none;color:var(--ink);text-decoration:underline;cursor:pointer;font-size:.9rem;padding:0}
+
+  button.primary,button.ghost{border-radius:6px;padding:10px 20px;font-size:.98rem;cursor:pointer;border:1.5px solid var(--ink)}
+  button.primary{background:var(--ink);color:#fff}
+  button.primary:hover{background:var(--ink-dark)}
+  button.ghost{background:#fff;color:var(--ink)}
+  button:focus-visible,.chip:focus-visible,.opt:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+  button:disabled{opacity:.45;cursor:default}
+
+  .topbar{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:.9rem;color:var(--pencil);margin-bottom:8px}
+  .topbar b{color:var(--ink-dark);font-weight:600}
+  .bar{height:6px;background:var(--grid);border-radius:3px;overflow:hidden;margin-bottom:18px}
+  .bar i{display:block;height:100%;background:var(--ink);width:0;transition:width .25s}
+  .cat{display:inline-block;font-size:.78rem;color:var(--ink);border:1px solid var(--ink);border-radius:4px;padding:1px 7px;margin-bottom:10px}
+  .q{font-size:1.16rem;margin:0 0 16px;color:var(--text)}
+  .opts{display:grid;gap:9px;margin:0;padding:0;list-style:none}
+  .opt{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--line);border-radius:6px;padding:11px 14px;cursor:pointer;background:#fff;text-align:left;font:inherit;font-size:1rem;color:var(--text);width:100%}
+  .opt:hover:not(:disabled){border-color:var(--ink);background:#f5f8fd}
+  .opt .k{flex:0 0 22px;height:22px;border-radius:50%;border:1.5px solid var(--pencil);color:var(--pencil);font-size:.78rem;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+  .opt.ok .k{border-color:var(--ok);background:var(--ok);color:#fff}
+  .opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+  .opt.bad .k{border-color:var(--bad);background:var(--bad);color:#fff}
+  .opt.dim{opacity:.6}
+  .fb{margin-top:16px;padding:12px 14px;border-radius:6px;border-left:4px solid var(--ok);background:var(--ok-bg);font-size:.98rem}
+  .fb.bad{border-left-color:var(--bad);background:var(--bad-bg)}
+  .fb b{display:block;margin-bottom:3px}
+  .actions{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px;flex-wrap:wrap}
+  .hint{font-size:.82rem;color:var(--pencil)}
+  kbd{font-family:inherit;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;font-size:.8em;background:#fff}
+
+  .score{font-size:2.6rem;color:var(--ink-dark);font-weight:600;margin:4px 0 0}
+  .score small{font-size:1rem;color:var(--pencil);font-weight:400;margin-left:8px}
+  table{width:100%;border-collapse:collapse;font-size:.93rem;margin-top:8px}
+  th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--pencil);font-weight:500}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .mini{height:6px;background:var(--grid);border-radius:3px;overflow:hidden;min-width:90px}
+  .mini i{display:block;height:100%;background:var(--ok)}
+  .rev{border-top:1px dashed var(--line);padding:12px 0}
+  .rev .q{font-size:1rem;margin-bottom:6px}
+  .rev p{margin:3px 0;font-size:.93rem}
+  .rev .you{color:var(--bad)} .rev .corr{color:var(--ok)}
+  .empty{color:var(--pencil);font-style:italic}
+  @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+  @media (max-width:520px){.wrap{padding:18px 12px 40px}.q{font-size:1.08rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Metodi Probabilistici per l'Informatica</h1>
+    <p>Quiz di autoverifica — <span id="total"></span> domande a risposta multipla con spiegazione</p>
+  </header>
+
+  <!-- SETUP -->
+  <section id="setup">
+    <div class="card">
+      <h2>Argomenti</h2>
+      <div class="chips ui" id="chips"></div>
+      <div class="row ui">
+        <button class="link" id="all">Seleziona tutto</button>
+        <button class="link" id="none">Deseleziona tutto</button>
+        <span class="hint" id="count"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Opzioni</h2>
+      <div class="row ui">
+        <label class="tog"><input type="checkbox" id="shq" checked> Mescola le domande</label>
+        <label class="tog"><input type="checkbox" id="sho" checked> Mescola le risposte</label>
+        <label class="tog"><input type="checkbox" id="onlyerr"> Solo le domande sbagliate nell'ultima sessione</label>
+      </div>
+      <div class="row ui">
+        <label class="tog">Numero di domande
+          <select id="lim" class="ui" style="padding:5px 8px;border-radius:5px;border:1.5px solid var(--line)">
+            <option value="0">tutte</option><option value="10">10</option><option value="20">20</option><option value="40">40</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div class="row ui">
+      <button class="primary" id="start">Inizia il quiz</button>
+      <span class="hint">Tasti: <kbd>1</kbd>–<kbd>4</kbd> per rispondere, <kbd>Invio</kbd> o <kbd>→</kbd> per la domanda successiva</span>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" hidden>
+    <div class="topbar ui"><span>Domanda <b id="pos"></b> di <b id="tot"></b></span><span>Punteggio <b id="sc"></b></span></div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="card">
+      <span class="cat" id="qcat"></span>
+      <p class="q" id="qtext"></p>
+      <ul class="opts" id="opts"></ul>
+      <div id="fb"></div>
+      <div class="actions ui">
+        <button class="ghost" id="quit">Termina ora</button>
+        <button class="primary" id="next" disabled>Prossima domanda</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" hidden>
+    <div class="card">
+      <h2>Risultato</h2>
+      <p class="score" id="final"></p>
+      <p id="verdict" style="margin:6px 0 0;color:var(--pencil)"></p>
+    </div>
+    <div class="card">
+      <h2>Per argomento</h2>
+      <table id="bycat"></table>
+    </div>
+    <div class="card">
+      <h2>Domande sbagliate</h2>
+      <div id="review"></div>
+    </div>
+    <div class="row ui">
+      <button class="primary" id="again">Nuovo quiz</button>
+      <button class="ghost" id="retry">Ripeti solo gli errori</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const CATS=[{"id":"c1","name":"Complessità e O-grande","short":"O-grande"},{"id":"c2","name":"P, NP e verificatori","short":"P/NP"},{"id":"c3","name":"Riduzioni e NP-completezza","short":"Riduzioni"},{"id":"c4","name":"Approssimazione e Miller-Rabin","short":"Approx/M-R"},{"id":"c5","name":"Probabilità","short":"Probabilità"},{"id":"c6","name":"Algoritmi randomizzati","short":"Randomizzati"},{"id":"c7","name":"Trabocchetti","short":"Trabocchetti"}];
+const QUESTIONS=[{"c":"c1","q":"Per definizione, f(n) ∈ O(g(n)) significa che:","o":["esistono n<sub>0</sub> > 0 e c > 0 tali che f(n) ≤ c·g(n) per ogni n ≥ n<sub>0</sub>","f(n) ≤ g(n) per ogni n","lim f(n)/g(n) = +∞","f(n) = g(n) definitivamente"],"a":0,"e":"È la definizione vista a lezione: la costante c assorbe i fattori moltiplicativi, n<sub>0</sub> ignora i piccoli input."},{"c":"c1","q":"Quale affermazione su O(g(n)) è corretta?","o":["È definito solo per g polinomiale","È un numero che misura il tempo di g","È un insieme di funzioni: si scrive f ∈ O(g)","È una funzione uguale a g a meno di costanti"],"a":2,"e":"Gli appunti lo sottolineano: O(g) è un insieme a cui appartengono le funzioni che rispettano la definizione."},{"c":"c1","q":"Nell'analisi degli algoritmi del corso ci interessa:","o":["il caso peggiore e il comportamento asintotico","solo input di dimensione fissa 64 bit","il caso medio su input casuali","il caso migliore"],"a":0,"e":"Prospettiva del caso peggiore e complessità asintotica, cioè su input «ragionevolmente grandi»."},{"c":"c1","q":"La MdT naif per A = {0<sup>k</sup>1<sup>k</sup>} che cancella uno 0 e un 1 per scansione costa:","o":["O(n log n)","O(n<sup>2</sup>)","O(2<sup>n</sup>)","O(n)"],"a":1,"e":"O(n) cicli, ognuno con una scansione O(n): O(n)·O(n) = O(n<sup>2</sup>)."},{"c":"c1","q":"La versione migliorata (controllo pari/dispari e dimezzamento) per A = {0<sup>k</sup>1<sup>k</sup>} costa:","o":["O(n)","O(n log n)","O(n<sup>2</sup>)","O(log n)"],"a":1,"e":"O(log n) dimezzamenti, ciascuno con una scansione O(n): O(n log n)."},{"c":"c1","q":"Con una MdT a 2 nastri il linguaggio {0<sup>k</sup>1<sup>k</sup>} si riconosce in:","o":["non è riconoscibile a 2 nastri","O(n) con una sola scansione","O(n log n)","O(n<sup>2</sup>)"],"a":1,"e":"Copio gli 0 sul secondo nastro e li consumo leggendo gli 1: una scansione lineare."},{"c":"c1","q":"Teorema (non dimostrato) sulla riduzione dei nastri: MdT a 2 nastri in O(t(n)) ⇒ MdT a 1 nastro in","o":["O(t<sup>2</sup>(n))","O(2<sup>t(n)</sup>)","O(t(n))","O(t(n) log t(n))"],"a":0,"e":"Diminuire i nastri fa aumentare la complessità: il costo diventa quadratico."},{"c":"c1","q":"Il tempo di computazione T(n) di una MdT non deterministica è:","o":["l'altezza massima dell'albero delle configurazioni","il numero di foglie dell'albero","la lunghezza del ramo più corto","la somma delle lunghezze di tutti i rami"],"a":0,"e":"Ogni ramo è verificato «in parallelo»; conta il cammino radice-foglia più lungo."},{"c":"c1","q":"MdT ND in tempo T(n) ⇒ MdT deterministica in tempo:","o":["O(T(n))","O(T<sup>2</sup>(n))","2<sup>O(T(n))</sup>","O(T(n) log T(n))"],"a":2,"e":"Simulare tutti i rami dell'albero costa esponenziale nell'altezza."},{"c":"c1","q":"Tra O(2<sup>T(n)</sup>) e 2<sup>O(T(n))</sup>, chi «vince» (è l'insieme più grande)?","o":["dipende dalla base del logaritmo","O(2<sup>T(n)</sup>)","2<sup>O(T(n))</sup>","sono uguali"],"a":2,"e":"O(2<sup>T</sup>) ⊆ 2<sup>O(T)</sup>, ma con T = log n si ha n<sup>2</sup> ∈ 2<sup>O(log n)</sup> e n<sup>2</sup> ∉ O(n)."},{"c":"c1","q":"Il controesempio per mostrare 2<sup>O(T(n))</sup> ⊄ O(2<sup>T(n)</sup>) usa T(n) = log n e la funzione:","o":["f(n) = n<sup>2</sup> = 2<sup>2 log n</sup>","f(n) = 2<sup>n</sup>","f(n) = n","f(n) = log n"],"a":0,"e":"n<sup>2</sup> = 2<sup>2 log n</sup> ∈ 2<sup>O(log n)</sup>, ma O(2<sup>log n</sup>) = O(n) non contiene n<sup>2</sup>."},{"c":"c1","q":"Quale proprietà di O-grande è FALSA?","o":["O(k·f) = O(f) per k ≠ 0","O(f + g) = O(max(f, g))","O(f) + O(g) = O(min(f, g))","O(f)·O(g) = O(f·g)"],"a":2,"e":"La somma è dominata dal massimo, non dal minimo."},{"c":"c1","q":"log<sub>a</sub>(b) espresso in un'altra base c vale:","o":["log<sub>c</sub>(a) / log<sub>c</sub>(b)","log<sub>c</sub>(b) / log<sub>c</sub>(a)","log<sub>c</sub>(b) − log<sub>c</sub>(a)","log<sub>c</sub>(b) · log<sub>c</sub>(a)"],"a":1,"e":"Cambio di base: usato nei lemmi del quick-sort e nell'amplificazione del min-cut."},{"c":"c1","q":"Nei problemi numerici (es. Euclide), la dimensione dell'input è:","o":["sempre 64","il valore del numero più grande","il numero di cifre decimali","il numero di bit, cioè circa log<sub>2</sub> del numero"],"a":3,"e":"Non conta il valore ma quanti bit servono a rappresentarlo; non si assume un limite hardware."},{"c":"c1","q":"L'algoritmo di Euclide su x, y fa al più quante iterazioni?","o":["x · y","√x","x + y","log x + log y"],"a":3,"e":"Il caso peggiore sono due numeri di Fibonacci consecutivi; le iterazioni sono O(n) con n = max(log x, log y)."},{"c":"c2","q":"La classe P è definita come:","o":["i problemi risolvibili in spazio polinomiale","i problemi con verificatore polinomiale","i problemi decidibili","l'unione su k di TIME(n<sup>k</sup>)"],"a":3,"e":"P = ∪<sub>k</sub> TIME(n<sup>k</sup>): esiste un algoritmo di soluzione in tempo polinomiale."},{"c":"c2","q":"PATH (esiste un cammino da s a t?) è in P perché:","o":["si risolve con BFS in O(n·m) ⊆ O(n<sup>3</sup>)","ha un verificatore polinomiale","è NP-completo","si risolve con una MdT ND"],"a":0,"e":"BFS: marca s, ripeti finché ci sono nodi da marcare, accetta se t è marcato."},{"c":"c2","q":"REL PRIME (x e y sono coprimi?) è in P con costo, per il prof:","o":["O(n!)","O(n)","O(n<sup>2</sup> log n)","O(2<sup>n</sup>)"],"a":2,"e":"O(n) iterazioni per il costo di una divisione O(n log n). Per Wikipedia O(n<sup>2</sup>)."},{"c":"c2","q":"Un verificatore V per il linguaggio A è un algoritmo tale che:","o":["V risolve A in tempo polinomiale","A = {c | V accetta c}","A = {w | V accetta ⟨w, c⟩ per qualche c}","A = {w | V accetta w senza testimone}"],"a":2,"e":"c è il testimone (certificato); V è polinomiale rispetto alla lunghezza di w."},{"c":"c2","q":"Se w ∉ A, un verificatore corretto V deve:","o":["rifiutare per ogni testimone c","non terminare","accettare solo se c è vuoto","accettare per qualche testimone"],"a":0,"e":"w ∈ A ⇒ ∃c: V(w,c)=YES; w ∉ A ⇒ ∀c: V(w,c)=NO."},{"c":"c2","q":"Le due definizioni di NP (MdT ND polinomiale / verificatore efficiente) sono:","o":["indipendenti","equivalenti, come dimostrato a lezione","equivalenti solo se P = NP","la seconda è più restrittiva"],"a":1,"e":"Teorema: ∃ verificatore efficiente ⇔ ∃ MdT ND polinomiale."},{"c":"c2","q":"Nella dimostrazione (⇐) da MdT ND a verificatore, il testimone c rappresenta:","o":["il tempo di esecuzione","l'input w","il ramo di computazione da simulare","il numero di stati della macchina"],"a":2,"e":"Sull'input ⟨w,c⟩ simulo N seguendo il ramo indicato da c e accetto se quel ramo accetta."},{"c":"c2","q":"Nella dimostrazione (⇒) da verificatore a MdT ND, la macchina:","o":["esegue V su un solo testimone casuale","simula una MdT deterministica","esegue il verificatore su tutti i testimoni di lunghezza ≤ n<sup>k</sup> in parallelo","indovina la risposta"],"a":2,"e":"Seleziona non deterministicamente c, esegue V su ⟨w,c⟩, e il ramo accetta se V accetta."},{"c":"c2","q":"Il testimone per COMPOSITE (x è composto?) è:","o":["un divisore d di x","il numero x stesso","la lista dei primi minori di x","la fattorizzazione completa di x"],"a":0,"e":"Il verificatore non cerca il divisore: controlla quello passato come prova."},{"c":"c2","q":"Il testimone per k-CLIQUE è:","o":["k nodi da controllare a due a due","un cammino","una colorazione","un sottoinsieme di archi"],"a":0,"e":"Verifica che i k nodi appartengano a V e siano tutti connessi tra loro."},{"c":"c2","q":"Un grafo G = (V,E) è completo se:","o":["ha un cammino hamiltoniano","ha n archi","per ogni u, v ∈ V esiste (u,v) ∈ E","è connesso"],"a":2,"e":"Una k-clique è un sottografo completo con k nodi."},{"c":"c2","q":"P ⊆ NP perché (i):","o":["ogni verificatore è non deterministico","P e NP coincidono","una MdT ND è un caso particolare di MdT deterministica","una MdT deterministica è un caso particolare di MdT ND"],"a":3,"e":"Se risolvo con una MdT polinomiale, risolvo anche con una MdT ND polinomiale."},{"c":"c2","q":"P ⊆ NP perché (ii): un algoritmo polinomiale che risolve X è anche","o":["una riduzione","un testimone","un circuito","un verificatore polinomiale (che ignora il testimone)"],"a":3,"e":"Il risolutore può verificare in tempo polinomiale senza guardare c."},{"c":"c2","q":"Sul problema P vs NP oggi sappiamo che:","o":["P = NP","P ≠ NP","P ⊆ NP, ma non sappiamo se l'inclusione è stretta","NP ⊆ P"],"a":2,"e":"È il problema del secolo: non sappiamo se tutto ciò che è verificabile velocemente è anche risolvibile velocemente."},{"c":"c2","q":"L'unica equivalenza nota tra MdT e MdT ND riguarda:","o":["la complessità esponenziale","il tempo polinomiale","la decidibilità (MdT termina ⇔ MdT ND termina)","lo spazio logaritmico"],"a":2,"e":"Dimostrare P = NP darebbe anche MdT polytime ⇔ MdT ND polytime."},{"c":"c2","q":"Un problema in NP è necessariamente:","o":["in P","irrisolvibile in pratica","decidibile","NP-completo"],"a":2,"e":"Il corso considera solo problemi decidibili; provando tutti i testimoni si decide sempre (in tempo esponenziale)."},{"c":"c2","q":"Quale classe è legata al caso probabilistico e a Miller-Rabin?","o":["BPP / RP / ZPP","PPAD","NEXP","PSPACE"],"a":0,"e":"Bounded-error, Randomized e Zero-error Probabilistic Polynomial time."},{"c":"c2","q":"L'equilibrio di Nash è citato come esempio di problema:","o":["in P","NP-completo","al di fuori di NP (classe PPAD)","indecidibile"],"a":2,"e":"Verificare che un insieme di strategie è un equilibrio può non essere polinomiale."},{"c":"c2","q":"Che cosa significa che un problema è «polinomiale ma non efficiente in pratica»?","o":["che serve una MdT ND","che è in NP","che l'esponente o le costanti del polinomio sono troppo grandi (es. n<sup>100</sup>)","che non è decidibile"],"a":2,"e":"Il collegamento polinomiale/efficiente non è immediato: «P = NP ⇒ decifrare le carte di credito» è un'esagerazione."},{"c":"c2","q":"Un verificatore polinomiale per HAMILTONIAN PATH, ricevuto il cammino come testimone, controlla:","o":["che esistano k nodi indipendenti","che il numero di archi sia n","che il grafo sia connesso","che i nodi siano attraversati tutti e una sola volta e gli archi esistano"],"a":3,"e":"Tempo polinomiale scorrendo la lista dei nodi."},{"c":"c2","q":"La versione decisionale di INTEGER FACTORIZATION chiede:","o":["se esiste un divisore di x più piccolo di k","se x è primo","se x è pari","di trovare tutti i fattori primi"],"a":0,"e":"Ogni problema funzionale ha una versione decisionale SÌ/NO; RSA si basa sulla difficoltà di questo problema."},{"c":"c3","q":"Y ≤<sub>p</sub> X significa:","o":["Y è più difficile di X","ogni istanza di Y si trasforma in tempo polinomiale in un'istanza di X","X si risolve chiamando Y","Y e X hanno lo stesso numero di istanze"],"a":1,"e":"X è almeno difficile quanto Y: risolvendo X risolvo anche Y."},{"c":"c3","q":"Se Y ≤<sub>p</sub> X e X ∈ P, allora:","o":["non si può concludere nulla","Y ∈ P","Y ∉ P","X è NP-completo"],"a":1,"e":"Trasformo l'istanza e uso l'algoritmo polinomiale di X."},{"c":"c3","q":"Se Y ≤<sub>p</sub> X e Y ∉ P, allora:","o":["X ∈ NP","Y è NP-completo","X ∈ P","X ∉ P"],"a":3,"e":"È la contronominale: se X fosse in P, lo sarebbe anche Y."},{"c":"c3","q":"X è NP-completo se:","o":["X ∉ P","X ≤<sub>p</sub> Y per ogni Y ∈ NP","X ha un verificatore esponenziale","X ∈ NP e Y ≤<sub>p</sub> X per ogni Y ∈ NP"],"a":3,"e":"Due condizioni: appartenenza a NP e NP-hardness."},{"c":"c3","q":"Se X è NP-completo e si dimostra X ∈ P, allora:","o":["P ≠ NP","P = NP","X non era NP-completo","NP è vuota"],"a":1,"e":"Tutti i problemi di NP si ridurrebbero a un problema polinomiale."},{"c":"c3","q":"Il primo problema dimostrato NP-completo nel corso è:","o":["SUBSET SUM","3-SAT","CIRCUIT SATISFIABILITY","VERTEX COVER"],"a":2,"e":"Teorema di Cook-Levin, dimostrato ad alto livello."},{"c":"c3","q":"Il teorema (non dimostrato) chiave per la NP-completezza di CS afferma che:","o":["ogni problema NP ha un circuito di taglia costante","i circuiti risolvono solo problemi in P","ogni circuito è un algoritmo esponenziale","ogni algoritmo polinomiale può essere tradotto in un circuito in tempo polinomiale"],"a":3,"e":"Formalizza il fatto che i computer sono composti da circuiti logici."},{"c":"c3","q":"L'intuizione fondamentale della dimostrazione CS NP-completo: applico l'algoritmo per CS al circuito-verificatore","o":["facendo variare solo i bit dell'input","facendo variare tutti i bit","fissando tutti i bit","facendo variare solo i bit del testimone"],"a":3,"e":"Fisso y (l'istanza) e chiedo se esiste c che soddisfa il circuito: risolve il problema."},{"c":"c3","q":"Una clausola di 3-SAT è:","o":["un AND di 3 letterali","un OR di 3 letterali","un XOR di 3 variabili","una variabile negata"],"a":1,"e":"φ = C<sub>1</sub> ∧ … ∧ C<sub>k</sub> con C<sub>i</sub> = (x<sub>u</sub> ∨ x<sub>w</sub> ∨ x<sub>v</sub>)."},{"c":"c3","q":"Nella traduzione CS → 3-SAT, la porta NOT (u = ¬v) diventa:","o":["(x̄<sub>u</sub> ∨ x<sub>v</sub>)","(x<sub>u</sub> ∨ x<sub>v</sub>)","(x̄<sub>u</sub> ∨ x̄<sub>v</sub>) ∧ (x<sub>u</sub> ∨ x<sub>v</sub>)","(x<sub>u</sub> ∧ x<sub>v</sub>)"],"a":2,"e":"È soddisfatta solo dagli assegnamenti in cui u e v hanno valori opposti."},{"c":"c3","q":"Le variabili «dummy» nella traduzione CS → 3-SAT servono a:","o":["aumentare il numero di soluzioni","rappresentare l'output","rappresentare le foglie","portare a 3 letterali le clausole da 2, forzandole a FALSE"],"a":3,"e":"Con la clausola (x̄<sub>d</sub> ∨ x̄<sub>d</sub> ∨ x̄<sub>d</sub>) si impone x<sub>d</sub> = FALSE."},{"c":"c3","q":"Nella riduzione 3-SAT ≤<sub>p</sub> k-CLIQUE, k vale:","o":["il numero di clausole","3","il numero di letterali","il numero di variabili"],"a":0,"e":"Ogni clausola diventa una tripletta di nodi; una k-clique prende un nodo per clausola."},{"c":"c3","q":"Nella riduzione 3-SAT ≤<sub>p</sub> k-CLIQUE, NON si collegano:","o":["nodi di clausole diverse","nodi della stessa clausola e coppie letterale/negato","nodi con lo stesso letterale","nessuna coppia"],"a":1,"e":"Così una clique corrisponde a un assegnamento consistente con un letterale vero per clausola."},{"c":"c3","q":"Nella riduzione 3-SAT ≤<sub>p</sub> VERTEX COVER con ℓ variabili e c clausole, k vale:","o":["3c","ℓ + c","2ℓ + c","ℓ + 2c"],"a":3,"e":"Un nodo per ogni coppia (ℓ) e due nodi per ogni triangolo (2c)."},{"c":"c3","q":"Nel gadget di VERTEX COVER, ogni clausola diventa:","o":["un cammino di 3 nodi","un nodo singolo","una coppia di nodi","un triangolo di 3 nodi"],"a":3,"e":"E ogni variabile una coppia x–x̄ collegata; i nodi del triangolo si collegano alla coppia corrispondente."},{"c":"c3","q":"Nella direzione (VC ⇒ φ soddisfacibile) si usa che ogni vertex cover di taglia k deve prendere:","o":["tutti i nodi dei triangoli","solo nodi delle coppie","3 nodi per triangolo","esattamente 2 nodi per triangolo e 1 per coppia"],"a":3,"e":"Sono i minimi necessari e con k = ℓ + 2c non c'è margine."},{"c":"c3","q":"Nella riduzione 3-SAT ≤<sub>p</sub> SUBSET SUM, il target t ha la forma:","o":["1…1 (solo uni)","1…1 3…3 (ℓ uni seguiti da k tre)","3…3 (solo tre)","2…2 2…2"],"a":1,"e":"Le cifre 1 impongono un solo valore per variabile, le cifre 3 almeno un letterale vero per clausola."},{"c":"c3","q":"Perché nella costruzione di SUBSET SUM non ci sono riporti?","o":["perché il target è piccolo","perché si usa la base 2","perché in ogni colonna ci sono al massimo cinque 1","perché i numeri sono tutti pari"],"a":2,"e":"Al più 3 letterali per clausola più g<sub>j</sub> e h<sub>j</sub>: la somma di colonna non supera 5 < 10."},{"c":"c3","q":"Nella riduzione a SUBSET SUM, se la clausola C<sub>j</sub> ha 2 letterali veri si aggiunge:","o":["g<sub>j</sub> e h<sub>j</sub>","y<sub>j</sub>","niente","g<sub>j</sub>"],"a":3,"e":"Serve arrivare a 3: con 3 veri niente, con 2 veri g<sub>j</sub>, con 1 vero g<sub>j</sub> + h<sub>j</sub>."},{"c":"c3","q":"L'algoritmo di programmazione dinamica per SUBSET SUM costa O(m·t). Perché non contraddice la NP-completezza?","o":["perché t = 2<sup>k</sup> con k bit: esponenziale nella dimensione binaria dell'input","perché funziona solo per t pari","perché usa troppa memoria","perché è sbagliato"],"a":0,"e":"È pseudo-polinomiale: polinomiale nel valore, non nel numero di bit."},{"c":"c3","q":"S ⊆ V è indipendente se e solo se:","o":["S è una clique","V \\ S è un vertex cover","S è un vertex cover","V \\ S è una clique"],"a":1,"e":"Esercizio del corso: ogni arco non può avere entrambi gli estremi in S, quindi ne ha uno in V \\ S, e viceversa."},{"c":"c3","q":"La riduzione VERTEX COVER ≤<sub>p</sub> INDEPENDENT SET trasforma (G, k') in:","o":["(G, 2k')","(Ḡ, k')","(G, n − k')","(G, k' + 1)"],"a":2,"e":"Un VC di cardinalità k' lascia un independent set di cardinalità n − k'."},{"c":"c3","q":"Per dimostrare che INDEPENDENT SET è NP-completo dopo la riduzione da VC, occorre anche esplicitare che:","o":["G è connesso","k è pari","IS è in P","VERTEX COVER è NP-completo e IS ∈ NP"],"a":3,"e":"Senza dichiarare la NP-completezza del problema di partenza la riduzione non prova nulla."},{"c":"c3","q":"Quale problema NON è nell'elenco dei problemi NP-completi del corso?","o":["Knapsack","3-Coloring","PATH","Commesso viaggiatore"],"a":2,"e":"PATH è in P (BFS)."},{"c":"c3","q":"Un taglio S ⊆ V è «non banale» se:","o":["S ≠ ∅ e S ≠ V","|S| = n/2","S è indipendente","S contiene s e t"],"a":0,"e":"Il valore del taglio è il numero di archi con un estremo in S e uno fuori."},{"c":"c3","q":"Un algoritmo per la versione decisionale di SUBSET SUM permette di risolvere la versione funzionale:","o":["solo se P = NP","no, mai","sì, escludendo un elemento alla volta e chiedendo se esiste ancora una soluzione","sì, ma solo in tempo esponenziale"],"a":2,"e":"Se togliendo l'elemento la risposta diventa NO, l'elemento è nella soluzione."},{"c":"c4","q":"L'algoritmo approssimato per VERTEX COVER marca archi:","o":["di peso minimo","adiacenti tra loro","a caso","non toccati da alcun arco già marcato, e restituisce i loro estremi"],"a":3,"e":"Gli archi marcati formano un matching; l'output sono tutti gli estremi."},{"c":"c4","q":"Il vertex cover restituito dall'algoritmo approssimato ha cardinalità:","o":["esattamente uguale all'ottimo","al massimo tripla dell'ottimo","al più n/2","al massimo doppia dell'ottimo"],"a":3,"e":"L'ottimo deve prendere almeno un nodo per ogni arco marcato, cioè almeno la metà dei nodi trovati."},{"c":"c4","q":"L'algoritmo local search per MAX-CUT sposta un nodo tra S e T quando:","o":["il nodo ha grado massimo","lo spostamento aumenta il cut","il nodo non è ancora stato toccato","il cut è già massimo"],"a":1,"e":"Si ferma quando nessun nodo può migliorare il cut."},{"c":"c4","q":"Garanzia del local search per MAX-CUT:","o":["cut(S) ≥ n/2","cut(S) = cut<sub>opt</sub>","cut(S) ≥ m/2 ≥ cut<sub>opt</sub>/2","cut(S) ≥ m"],"a":2,"e":"Alla fine n<sub>u</sub><sup>c</sup> ≥ n<sub>u</sub><sup>+</sup> per ogni nodo; sommando e usando Σn<sub>u</sub><sup>c</sup> = 2cut(S) si ottiene cut(S) ≥ m/2."},{"c":"c4","q":"Nella dimostrazione del local search, Σ<sub>u</sub> n<sub>u</sub><sup>c</sup> vale:","o":["m","n","cut(S)","2·cut(S)"],"a":3,"e":"Ogni arco del cut è contato dai suoi due estremi."},{"c":"c4","q":"L'algoritmo banale di primalità (prova tutti i divisori fino a √p) costa, con n bit:","o":["O(n<sup>2</sup>)","O(2<sup>n/2</sup>), esponenziale","O(log n)","O(n)"],"a":1,"e":"√p = √(2<sup>n</sup>) = 2<sup>n/2</sup>."},{"c":"c4","q":"Z<sub>p</sub><sup>+</sup> è:","o":["{0, 1, …, p−1}","{1, 2, …, p−1}","l'insieme dei primi minori di p","{1, …, p}"],"a":1,"e":"I resti mod p escluso lo 0."},{"c":"c4","q":"Piccolo teorema di Fermat: se p è primo e a ∈ Z<sub>p</sub><sup>+</sup> allora:","o":["a<sup>2</sup> ≡ 1 (mod p)","a<sup>p</sup> ≡ 0 (mod p)","a<sup>p−1</sup> ≡ 1 (mod p)","a<sup>p−1</sup> ≡ a (mod p)"],"a":2,"e":"Dimostrato mostrando che a·S è una permutazione di S e confrontando i prodotti."},{"c":"c4","q":"Nella dimostrazione del piccolo teorema di Fermat, a·S contiene gli stessi elementi di S perché:","o":["S è finito","a < p","a è pari","a·i ≡ a·j ⇒ p | a(i−j) ⇒ p | (i−j) ⇒ i ≡ j, essendo p primo"],"a":3,"e":"Un primo che divide un prodotto divide uno dei fattori, e p non divide a."},{"c":"c4","q":"Se trovo a con a<sup>p−1</sup> ≢ 1 (mod p), allora:","o":["p è sicuramente composto","p è pseudoprimo","non si può concludere nulla","p è primo"],"a":0,"e":"Il test di Fermat non dà falsi positivi sui composti: chi fallisce è composto con certezza."},{"c":"c4","q":"Se tutti gli a ∈ Z<sub>p</sub><sup>+</sup> passano il test di Fermat, allora:","o":["p è primo con certezza","p è primo oppure pseudoprimo (es. numeri di Carmichael)","p è composto","p è pari"],"a":1,"e":"Per questo Miller-Rabin aggiunge il test delle radici."},{"c":"c4","q":"Se p è primo, le soluzioni di x<sup>2</sup> ≡ 1 (mod p) sono:","o":["x ≡ 0","solo x ≡ 1","x ≡ 1 e x ≡ −1 ≡ p−1","tutte le x"],"a":2,"e":"(x+1)(x−1) ≡ 0 e p primo divide uno dei due fattori: radici banali dell'unità."},{"c":"c4","q":"Una «radice non banale dell'unità» modulo p è:","o":["x ≠ ±1 con x<sup>2</sup> ≡ 1: la sua esistenza prova che p è composto","x con x<sup>2</sup> ≡ −1","x = 1","x = p − 1"],"a":0,"e":"È ciò che cerca il test delle radici (TDR)."},{"c":"c4","q":"In Miller-Rabin si scrive p − 1 = s·2<sup>ℓ</sup> con:","o":["s dispari","ℓ = 0","s = 1","s pari"],"a":0,"e":"p − 1 è pari (p dispari); si estrae la massima potenza di 2."},{"c":"c4","q":"La sequenza a<sup>s</sup>, a<sup>2s</sup>, a<sup>4s</sup>, …, a<sup>s·2<sup>ℓ</sup></sup> è costruita in modo che:","o":["ogni elemento sia il quadrato del precedente e l'ultimo sia a<sup>p−1</sup>","ogni elemento sia il doppio del precedente","tutti gli elementi siano 1","l'ultimo sia −1"],"a":0,"e":"Così l'ultimo elemento ≠ 1, se non è −1, è una radice non banale dell'unità."},{"c":"c4","q":"Al passo 7 di Miller-Rabin si rifiuta se l'ultimo elemento della catena diverso da 1:","o":["è uguale ad a","è −1","non è −1","è 2"],"a":2,"e":"Il suo quadrato è 1: se non è ±1 abbiamo una radice non banale."},{"c":"c4","q":"Lemma II («lancio della monetina»): se p non è primo, un a casuale viene rigettato con probabilità:","o":["almeno 1/4","1","esattamente 1/2","almeno 1/2"],"a":3,"e":"I testimoni di compostezza sono almeno tanti quanti i «bugiardi»."},{"c":"c4","q":"Con k iterazioni, se p è composto, Miller-Rabin sbaglia con probabilità:","o":["≤ 1/k","≤ 1/2 sempre","0","≤ 2<sup>−k</sup>"],"a":3,"e":"Prodotto di k eventi indipendenti ciascuno con probabilità ≤ 1/2; con 7 iterazioni < 0,8%."},{"c":"c5","q":"Il valore atteso E[X] = Σ<sub>x</sub> x·P(X = x) è:","o":["il valore più probabile","una media pesata sulle probabilità, il «baricentro» della distribuzione","il risultato del prossimo esperimento","il massimo dei valori"],"a":1,"e":"Il termine «atteso» è fuorviante: per un dado E[X] = 3,5, valore impossibile."},{"c":"c5","q":"La linearità del valore atteso E[X + Y] = E[X] + E[Y] vale:","o":["solo se X e Y hanno la stessa distribuzione","solo se X e Y sono indipendenti","sempre","solo per variabili positive"],"a":2,"e":"La dimostrazione scompone la sommatoria doppia senza mai usare l'indipendenza."},{"c":"c5","q":"P(A | B) è definita come:","o":["P(A ∪ B) / P(B)","P(B) / P(A)","P(A ∩ B) / P(B)","P(A) · P(B)"],"a":2,"e":"Es. P(X = 2 | X pari) = (1/6)/(1/2) = 1/3 per il dado."},{"c":"c5","q":"La disuguaglianza di Markov richiede che X sia:","o":["non negativa","limitata","una somma di bernoulliane","gaussiana"],"a":0,"e":"P(X ≥ λ) ≤ E[X]/λ per X ≥ 0 e λ > 0."},{"c":"c5","q":"Se E[X] = 10 e X ≥ 0, Markov dà P(X ≥ 50) ≤","o":["1/5","1/50","5","1/10"],"a":0,"e":"E[X]/λ = 10/50 = 1/5."},{"c":"c5","q":"Markov limita:","o":["la varianza","la coda bassa P(X ≤ λ)","la coda alta P(X ≥ λ)","entrambe le code"],"a":2,"e":"Per limitare «X piccolo» si usa la variabile complementare Y = OPT − X."},{"c":"c5","q":"La disuguaglianza di Chernoff richiede che X sia:","o":["una variabile limitata","una variabile discreta","una qualsiasi variabile non negativa","una somma di variabili bernoulliane indipendenti"],"a":3,"e":"È più potente di Markov ma funziona solo su somme di indicatrici indipendenti."},{"c":"c5","q":"Chernoff, coda sinistra: P(X ≤ (1−δ)μ) ≤","o":["e<sup>−μδ²/3</sup>","2e<sup>−μδ²/3</sup>","1/(1−δ)","e<sup>−μδ²/2</sup>"],"a":3,"e":"La coda destra ha costante 3 al denominatore, quella bilaterale 2e<sup>−μδ²/3</sup>."},{"c":"c5","q":"Confronto Markov vs Chernoff per P(X ≥ (1+δ)E[X]):","o":["Markov ≈ 1/x, Chernoff ≈ e<sup>−x²</sup>: Chernoff decade molto più in fretta","sono equivalenti","Markov è sempre più stretta","Chernoff vale solo per δ = 1"],"a":0,"e":"Chernoff sfrutta l'indipendenza (concentrazione attorno alla media)."},{"c":"c5","q":"La serie armonica Σ<sub>j=1..n</sub> 1/j è limitata da:","o":["√n","log n / 2","1 + ln n ≤ 2 log n","n"],"a":2,"e":"Confronto con l'integrale di 1/x da 1 a n (da 0 divergerebbe)."},{"c":"c5","q":"L'union bound afferma che P(A ∪ B) è:","o":["= P(A)·P(B)","= P(A) + P(B) sempre","≥ P(A) + P(B)","≤ P(A) + P(B)"],"a":3,"e":"Usato nel Lemma 3 del quick-sort su tutti i cammini radice-foglia."},{"c":"c5","q":"Legge di De Morgan usata nelle amplificazioni: (∩<sub>i</sub> A<sub>i</sub>)<sup>c</sup> =","o":["∪<sub>i</sub> A<sub>i</sub><sup>c</sup>","∅","∪<sub>i</sub> A<sub>i</sub>","∩<sub>i</sub> A<sub>i</sub><sup>c</sup>"],"a":0,"e":"«Nessun successo» è l'intersezione dei fallimenti."},{"c":"c5","q":"Nella moneta truccata con P(testa) = 1/3 e X = teste nei primi 18m lanci, E[X] vale:","o":["18m","6m","3m","m"],"a":1,"e":"18m · 1/3 = 6m; poi δ = 5/6 e Chernoff dà e<sup>−2m</sup>."},{"c":"c5","q":"Per l'esercizio della moneta truccata, la disuguaglianza chiave è P(T ≥ 18m) ≤ P(X ≤ m) perché:","o":["è la definizione di Chernoff","T e X sono indipendenti","se servono almeno 18m lanci, nei primi 18m ho visto al più m teste","X ≥ T sempre"],"a":2,"e":"Si trasforma un evento su T in un evento sulla somma di bernoulliane X."},{"c":"c6","q":"MAX-CUT randomizzato inserisce ogni nodo in S con probabilità:","o":["1/4","1","1/n","1/2"],"a":3,"e":"Costo O(n); un arco è tagliato in 2 casi su 4 ⇒ P(X<sub>e</sub> = 1) = 1/2."},{"c":"c6","q":"Il valore atteso del cut randomizzato è:","o":["m/2 ≥ cut<sub>opt</sub>/2","m","n/2","m/4"],"a":0,"e":"E[X] = Σ<sub>e</sub> P(X<sub>e</sub> = 1) = m/2 per linearità."},{"c":"c6","q":"Nell'amplificazione di MAX-CUT si applica Markov alla variabile Y<sub>i</sub> = OPT − X<sub>i</sub> perché:","o":["Y<sub>i</sub> è gaussiana","Y<sub>i</sub> ≥ 0 e «X<sub>i</sub> piccolo» diventa «Y<sub>i</sub> grande»","X<sub>i</sub> è negativa","Markov richiede una differenza"],"a":1,"e":"P(X<sub>i</sub> ≤ 0,49·OPT) = P(Y<sub>i</sub> ≥ 0,51·OPT) ≤ 0,5/0,51 < 0,981."},{"c":"c6","q":"Ripetendo k volte MAX-CUT randomizzato, P(max<sub>i</sub> X<sub>i</sub> ≥ 0,49·OPT) ≥","o":["1 − 1/k","1 − 0,981<sup>k</sup>","0,981<sup>k</sup>","1/k"],"a":1,"e":"Con k = 100 supera l'85%."},{"c":"c6","q":"Per MAX 3-SAT randomizzato, una clausola con 3 letterali è falsa con probabilità:","o":["1/8","3/8","1/2","1/4"],"a":0,"e":"Tutti e tre i letterali falsi: (1/2)<sup>3</sup>. Quindi E[X<sub>i</sub>] = 7/8."},{"c":"c6","q":"Il numero atteso di clausole soddisfatte da un'assegnazione casuale, con k clausole, è:","o":["7k/8 ≥ 7/8·OPT","k","3k/4","k/2"],"a":0,"e":"Corollario: ogni istanza di 3-SAT ha un'assegnazione che soddisfa almeno 7/8 delle clausole."},{"c":"c6","q":"Il «metodo probabilistico» permette di concludere che esiste un oggetto con una proprietà perché:","o":["una variabile aleatoria non può essere sempre sotto la propria media","tutti gli oggetti hanno la proprietà","la probabilità è esattamente 1","l'algoritmo è deterministico"],"a":0,"e":"Se E[X] ≥ 7k/8, qualche assegnazione raggiunge 7k/8."},{"c":"c6","q":"Per MAX 3-SAT, P(X<sub>i</sub> ≤ 3/4·OPT) è limitata da:","o":["1/4","1/8","1/2","7/8"],"a":2,"e":"Markov su Y<sub>i</sub> = OPT − X<sub>i</sub>: (1/8·OPT)/(1/4·OPT) = 1/2. Con k ripetizioni: 1 − (1/2)<sup>k</sup>."},{"c":"c6","q":"Quick-sort deterministico con pivot = primo elemento costa O(n<sup>2</sup>) quando:","o":["l'array ha lunghezza dispari","mai","l'array ha elementi ripetuti","l'array è già ordinato"],"a":3,"e":"Il pivot massimizza il numero di chiamate ricorsive."},{"c":"c6","q":"Nel quick-sort randomizzato, z<sub>i</sub> e z<sub>j</sub> (ordinati) vengono confrontati con probabilità:","o":["2/(j − i + 1)","1/(j − i)","1/2","1/n"],"a":0,"e":"Solo se il primo pivot scelto in [z<sub>i</sub>, z<sub>j</sub>] è uno dei due estremi."},{"c":"c6","q":"Il numero atteso di confronti del quick-sort randomizzato è limitato da:","o":["2n","4n log n ∈ O(n log n)","n<sup>2</sup>","n log<sup>2</sup> n"],"a":1,"e":"Σ<sub>i</sub>Σ<sub>j</sub> 2/(j−i+1) ≤ 2n · 2log n."},{"c":"c6","q":"Un nodo dell'albero di ricorsione è «buono» se i figli hanno cardinalità:","o":["uguale","≤ s/2","≤ 2s/3","≤ s/3"],"a":2,"e":"Un pivot è buono con probabilità 1/3 (terzo centrale dell'array ordinato)."},{"c":"c6","q":"Lemma 1 del quick-sort: i nodi buoni in un cammino radice-foglia sono al più:","o":["n/3","18 log n","log n","log n / log(3/2)"],"a":3,"e":"Dopo K nodi buoni la cardinalità è ≤ n(2/3)<sup>K</sup> ≥ 1."},{"c":"c6","q":"Lemma 3: l'altezza dell'albero è ≤ 18·log n / log(3/2) con probabilità:","o":["≥ 1/2","= 1","≥ 1 − 1/n<sup>2</sup>","≥ 1 − 1/n"],"a":3,"e":"Union bound sui ≤ n cammini, ciascuno lungo con probabilità ≤ 1/n<sup>2</sup> (Lemma 2)."},{"c":"c6","q":"Il Contraction Algorithm (Karger) a ogni passo:","o":["rimuove un nodo a caso","contrae un arco scelto uniformemente a caso finché restano 2 nodi","aggiunge un arco","sceglie il cut minimo localmente"],"a":1,"e":"S(z<sub>uv</sub>) = S(u) ∪ S(v); alla fine restituisce (S(v<sub>1</sub>), S(v<sub>2</sub>))."},{"c":"c6","q":"Una singola esecuzione del Contraction Algorithm trova il min cut con probabilità:","o":["= 1","≥ 1/2","≥ 2/(n(n−1)) = 1/C(n,2)","≥ 1/n"],"a":2,"e":"Prodotto telescopico Π(1 − 2/(n−i+1)) = 2/(n(n−1))."},{"c":"c7","q":"Trabocchetto: nella dimostrazione di Karger, perché ogni nodo ha grado ≥ k = |F|?","o":["perché k è pari","perché n ≥ k","perché il grafo è completo","perché altrimenti il nodo isolato sarebbe un cut più piccolo del minimo"],"a":3,"e":"Da qui |E| ≥ nk/2 e P(E<sub>1</sub>) ≥ 1 − 2/n."},{"c":"c7","q":"Trabocchetto: per garantire successo ≥ 1 − 1/n con Karger servono circa quante ripetizioni?","o":["n log n","n<sup>2</sup> log n","2<sup>n</sup>","n"],"a":1,"e":"ℓ ≥ log(1/n)/log(1 − 2/(n(n−1))) ≤ n(n−1)log n / 2 usando log(1+x) ≤ x."},{"c":"c7","q":"Trabocchetto: quale algoritmo ha risultato deterministico ma tempo probabilistico?","o":["Miller-Rabin","MAX-CUT randomizzato","Quick-sort randomizzato","Contraction Algorithm"],"a":2,"e":"L'array esce sempre ordinato; è il tempo a variare. Miller-Rabin è l'opposto."},{"c":"c7","q":"Trabocchetto: Miller-Rabin può sbagliare quando:","o":["sempre","p è primo","p è composto (accetta un composto con prob. ≤ 2<sup>−k</sup>)","p è pari"],"a":2,"e":"Lemma I: se p è primo accetta sempre. L'errore è a senso unico."},{"c":"c7","q":"Trabocchetto: nella catena di Miller-Rabin, un elemento diverso da ±1 seguito da −1:","o":["prova che p è primo","è impossibile","prova che p è composto","non prova nulla: solo l'elemento che precede un 1 deve essere ±1"],"a":3,"e":"x<sup>2</sup> ≡ −1 non c'entra con le radici dell'unità."},{"c":"c7","q":"Trabocchetto: E[X] = m/2 per MAX-CUT randomizzato significa che:","o":["in media il cut vale m/2; una singola esecuzione può essere peggiore","il cut ottimo vale m/2","l'algoritmo è una 2-approssimazione deterministica","ogni esecuzione produce un cut ≥ m/2"],"a":0,"e":"Per garanzie su una singola esecuzione serve l'amplificazione con Markov."},{"c":"c7","q":"Trabocchetto: se X è NP-completo e Y ≤<sub>p</sub> X, allora Y è NP-completo?","o":["sì, sempre","no: Y è solo «al più difficile quanto X»; serve la riduzione nel verso opposto","sì, se Y ∈ NP","sì, se X ∈ P"],"a":1,"e":"Ridurre un problema facile a uno difficile non dice nulla sul facile."},{"c":"c7","q":"Trabocchetto: k-CLIQUE con k fissato (es. k = 4) è:","o":["in NP ma non in P","NP-completo","in P (O(n<sup>4</sup>) a forza bruta)","indecidibile"],"a":2,"e":"La NP-completezza richiede k parte dell'input: O(n<sup>k</sup>) non è polinomiale se k cresce."},{"c":"c7","q":"Trabocchetto: nella riduzione a Vertex Cover, un letterale non preso nel triangolo:","o":["non compare nella formula","è una variabile dummy","è falso","è coperto dal lato coppia, quindi è il letterale scelto vero"],"a":3,"e":"È il meccanismo che garantisce un letterale vero per clausola nella direzione (⇐)."},{"c":"c7","q":"Trabocchetto: Markov con E[X] = 4n log n dà P(T ≥ 40 n log n) ≤ 1/10. Perché è più debole del risultato del corso?","o":["perché non decresce con n, mentre Chernoff + union bound dà 1 − 1/n","perché la costante 40 è troppo piccola","perché E[X] non è noto","perché Markov è sbagliata"],"a":0,"e":"Markov usa solo la media; Chernoff sfrutta l'indipendenza dei pivot buoni."},{"c":"c7","q":"Trabocchetto: il costo O(n log n) dell'algoritmo di Euclide per il prof si riferisce a:","o":["il numero di iterazioni","il costo di una singola divisione","la dimensione dell'input","il costo totale"],"a":1,"e":"Costo totale = O(n) iterazioni × O(n log n) per divisione = O(n<sup>2</sup> log n)."},{"c":"c7","q":"Trabocchetto: nell'esercizio randomizzato per Independent Set (p = 1/4, |E| = 2n), E[|S'|] ≥ n/8 si ottiene da:","o":["Chernoff","E[|S|] = n/4 e E[X] = n/8, con |S'| ≥ |S| − X e linearità","E[|S|] = n/2","P(u ∈ S) = 1/8"],"a":1,"e":"Un nodo rimosso per ogni arco interno: |S'| ≥ |S| − X, poi E[|S'|] ≥ n/4 − n/8."}];
+</script>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const catById=Object.fromEntries(CATS.map(c=>[c.id,c]));
+  const selected=new Set(CATS.map(c=>c.id));
+  let session=[], idx=0, score=0, answered=false, lastWrong=new Set(), wrongNow=[], results=[];
+
+  $('total').textContent=QUESTIONS.length;
+
+  // ----- setup -----
+  function renderChips(){
+    const box=$('chips'); box.innerHTML='';
+    CATS.forEach(c=>{
+      const n=QUESTIONS.filter(q=>q.c===c.id).length;
+      const b=document.createElement('button');
+      b.className='chip'+(selected.has(c.id)?' on':''); b.type='button';
+      b.innerHTML=c.name+'<small>'+n+'</small>';
+      b.setAttribute('aria-pressed',selected.has(c.id));
+      b.onclick=()=>{selected.has(c.id)?selected.delete(c.id):selected.add(c.id);renderChips();};
+      box.appendChild(b);
+    });
+    updateCount();
+  }
+  function pool(){
+    let p=QUESTIONS.map((q,i)=>({...q,i})).filter(q=>selected.has(q.c));
+    if($('onlyerr').checked) p=p.filter(q=>lastWrong.has(q.i));
+    return p;
+  }
+  function updateCount(){
+    const n=pool().length;
+    $('count').textContent=n+' domande disponibili';
+    $('start').disabled=n===0;
+  }
+  $('all').onclick=()=>{CATS.forEach(c=>selected.add(c.id));renderChips();};
+  $('none').onclick=()=>{selected.clear();renderChips();};
+  $('onlyerr').onchange=updateCount;
+  $('onlyerr').disabled=true;
+
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+  function start(){
+    let p=pool();
+    if($('shq').checked) shuffle(p);
+    const lim=+$('lim').value; if(lim>0) p=p.slice(0,lim);
+    session=p.map(q=>{
+      let order=[0,1,2,3]; if($('sho').checked) shuffle(order);
+      return {...q, order};
+    });
+    idx=0; score=0; wrongNow=[]; results=[];
+    $('setup').hidden=true; $('results').hidden=true; $('quiz').hidden=false;
+    show();
+  }
+  $('start').onclick=start;
+
+  // ----- quiz -----
+  function show(){
+    const q=session[idx]; answered=false;
+    $('pos').textContent=idx+1; $('tot').textContent=session.length; $('sc').textContent=score;
+    $('prog').style.width=(idx/session.length*100)+'%';
+    $('qcat').textContent=catById[q.c].name;
+    $('qtext').innerHTML=q.q;
+    const ul=$('opts'); ul.innerHTML='';
+    q.order.forEach((oi,k)=>{
+      const li=document.createElement('li');
+      const b=document.createElement('button'); b.className='opt'; b.type='button';
+      b.innerHTML='<span class="k">'+(k+1)+'</span><span>'+q.o[oi]+'</span>';
+      b.onclick=()=>answer(k);
+      li.appendChild(b); ul.appendChild(li);
+    });
+    $('fb').innerHTML=''; $('next').disabled=true;
+    $('next').textContent = idx===session.length-1 ? 'Vedi il risultato' : 'Prossima domanda';
+    window.scrollTo({top:0,behavior:'auto'});
+  }
+  function answer(k){
+    if(answered) return; answered=true;
+    const q=session[idx]; const chosen=q.order[k]; const ok=chosen===q.a;
+    const btns=[...document.querySelectorAll('.opt')];
+    btns.forEach((b,j)=>{
+      b.disabled=true;
+      if(q.order[j]===q.a) b.classList.add('ok');
+      else if(j===k) b.classList.add('bad');
+      else b.classList.add('dim');
+    });
+    if(ok) score++; else wrongNow.push(q.i);
+    results.push({q,ok,chosen});
+    $('sc').textContent=score;
+    $('fb').innerHTML='<div class="fb'+(ok?'':' bad')+'"><b>'+(ok?'Corretto.':'Sbagliato.')+'</b>'+q.e+'</div>';
+    $('next').disabled=false; $('next').focus();
+  }
+  function next(){
+    if(!answered) return;
+    if(idx<session.length-1){idx++;show();} else finish();
+  }
+  $('next').onclick=next;
+  $('quit').onclick=()=>{ if(results.length||confirm('Terminare senza rispondere?')) finish(); };
+
+  document.addEventListener('keydown',e=>{
+    if($('quiz').hidden) return;
+    if(e.key>='1'&&e.key<='4'){const b=document.querySelectorAll('.opt')[+e.key-1]; if(b&&!answered) b.click();}
+    else if(e.key==='Enter'||e.key==='ArrowRight'){ if(answered){e.preventDefault();next();} }
+  });
+
+  // ----- results -----
+  function finish(){
+    $('quiz').hidden=true; $('results').hidden=false;
+    const n=results.length; const pct=n?Math.round(score/n*100):0;
+    $('final').innerHTML=score+' / '+n+'<small>'+pct+'%</small>';
+    $('verdict').textContent = n===0 ? 'Nessuna risposta data.' :
+      pct>=90?'Pronto per l\'esame: rivedi solo le spiegazioni delle domande sbagliate.':
+      pct>=70?'Buona preparazione. Ripassa gli argomenti con più errori e ripeti il quiz sugli errori.':
+      pct>=50?'Le basi ci sono ma mancano dettagli: torna sugli appunti degli argomenti in rosso.':
+      'Serve un ripasso sistematico: riparti dagli appunti e dall\'eserciziario, poi riprova.';
+    const t=$('bycat'); let html='<tr><th>Argomento</th><th class="n">Corrette</th><th></th></tr>';
+    CATS.forEach(c=>{
+      const rs=results.filter(r=>r.q.c===c.id); if(!rs.length) return;
+      const k=rs.filter(r=>r.ok).length; const p=Math.round(k/rs.length*100);
+      html+='<tr><td>'+c.name+'</td><td class="n">'+k+' / '+rs.length+'</td><td><div class="mini"><i style="width:'+p+'%;background:'+(p>=70?'var(--ok)':p>=50?'#d99a1e':'var(--bad)')+'"></i></div></td></tr>';
+    });
+    t.innerHTML=html;
+    const rv=$('review'); const wr=results.filter(r=>!r.ok);
+    rv.innerHTML = wr.length ? wr.map(r=>'<div class="rev"><span class="cat">'+catById[r.q.c].name+'</span><p class="q">'+r.q.q+'</p><p class="you">Tua risposta: '+r.q.o[r.chosen]+'</p><p class="corr">Corretta: '+r.q.o[r.q.a]+'</p><p>'+r.q.e+'</p></div>').join('')
+      : '<p class="empty">Nessun errore in questa sessione.</p>';
+    lastWrong=new Set(wrongNow);
+    $('onlyerr').disabled=lastWrong.size===0; if(!lastWrong.size) $('onlyerr').checked=false;
+    $('retry').disabled=lastWrong.size===0;
+  }
+  $('again').onclick=()=>{ $('results').hidden=true; $('setup').hidden=false; $('onlyerr').checked=false; renderChips(); };
+  $('retry').onclick=()=>{ CATS.forEach(c=>selected.add(c.id)); $('onlyerr').checked=true; $('lim').value='0'; renderChips(); start(); };
+
+  renderChips();
+})();
+</script>
+</body>
+</html>

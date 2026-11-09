@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz difficile — Logica per l'Informatica</title>
+<style>
+  :root{
+    --ink:#14273f; --navy:#1F3A5F; --blue:#2E6CA4; --blue-soft:#5b8fc0;
+    --accent:#C0392B; --accent-soft:#e07b6f;
+    --paper:#eef3f8; --card:#ffffff; --line:#c9d6e3;
+    --muted:#5c6b7a; --good:#2f7d4f; --good-soft:#e4f2e9; --review:#b5852a;
+    --wrong-soft:#fbe6e3;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:var(--sans); color:var(--ink);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(31,58,95,.10) 1px, transparent 0) 0 0/22px 22px,
+      linear-gradient(180deg,#f6f9fc 0%, var(--paper) 100%);
+    min-height:100%; display:flex; flex-direction:column; align-items:center;
+    padding:22px 16px 40px;
+  }
+  .wrap{width:100%; max-width:680px}
+
+  header{margin-bottom:14px}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--blue); margin:0 0 4px;
+  }
+  h1{font-size:26px; line-height:1.1; margin:0 0 4px; color:var(--navy); letter-spacing:-.01em}
+  .sub{margin:0; color:var(--muted); font-size:13px}
+  .binstrip{font-family:var(--mono); font-size:11px; color:rgba(46,108,164,.45); letter-spacing:.18em; margin-top:8px; overflow:hidden; white-space:nowrap}
+
+  /* progress */
+  .meta{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0 8px}
+  .count{font-family:var(--mono); font-size:13px; color:var(--navy)}
+  .count b{font-size:16px}
+  .track{flex:1; height:6px; background:#dbe5ef; border-radius:99px; overflow:hidden}
+  .bar{height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--navy)); transition:width .25s ease}
+
+  /* filters */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px}
+  .chip{
+    font-family:var(--mono); font-size:11px; letter-spacing:.04em; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--muted);
+    padding:5px 10px; border-radius:99px; transition:all .15s;
+  }
+  .chip:hover{border-color:var(--blue-soft); color:var(--navy)}
+  .chip[aria-pressed="true"]{background:var(--navy); color:#fff; border-color:var(--navy)}
+
+  /* card */
+  .card{
+    position:relative; width:100%; margin:14px 0;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 10px 30px -18px rgba(20,39,63,.45), 0 1px 0 rgba(255,255,255,.6) inset;
+    padding:24px 24px 20px; border-top:4px solid var(--blue); overflow:hidden;
+  }
+  .card::before{
+    content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background:radial-gradient(circle at 1px 1px, rgba(31,58,95,.06) 1px, transparent 0) 0 0/16px 16px;
+  }
+  .cat{position:relative; display:flex; align-items:center; gap:8px; margin-bottom:12px}
+  .catname{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue)}
+  .qnum{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:auto}
+  .kind{position:relative; font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
+  .qtext{position:relative; font-size:19px; line-height:1.35; color:var(--navy); font-weight:600; margin:2px 0 14px}
+  .qtext code, .exp code{
+    font-family:var(--mono); font-size:.92em; background:#eef3f8; border:1px solid #dbe5ef;
+    padding:1px 5px; border-radius:5px; color:#12324d; white-space:nowrap;
+  }
+
+  /* options */
+  .opts{position:relative; display:flex; flex-direction:column; gap:9px}
+  .opt{
+    display:flex; align-items:flex-start; gap:11px; width:100%; text-align:left;
+    font-family:var(--sans); font-size:15px; line-height:1.4; color:var(--ink);
+    border:1px solid var(--line); background:#fff; border-radius:11px;
+    padding:12px 14px; cursor:pointer; transition:all .13s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--blue-soft); box-shadow:0 3px 10px -7px rgba(31,58,95,.5)}
+  .opt:disabled{cursor:default}
+  .opt .letter{
+    flex:none; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue);
+    width:24px; height:24px; border-radius:50%; border:1px solid var(--line);
+    display:grid; place-items:center; background:#f4f8fc; transition:all .13s;
+  }
+  .opt.correct{border-color:var(--good); background:var(--good-soft)}
+  .opt.correct .letter{background:var(--good); color:#fff; border-color:var(--good)}
+  .opt.wrong{border-color:var(--accent); background:var(--wrong-soft)}
+  .opt.wrong .letter{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .opt.dim{opacity:.55}
+  .opt .mk{margin-left:auto; font-family:var(--mono); font-size:12px; font-weight:700; align-self:center}
+  .opt.correct .mk{color:var(--good)}
+  .opt.wrong .mk{color:var(--accent)}
+
+  /* explanation */
+  .exp{
+    position:relative; margin-top:14px; border-radius:11px; padding:13px 15px;
+    font-size:14px; line-height:1.5; color:var(--ink); border:1px solid var(--line);
+    background:#f7fafd; display:none;
+  }
+  .exp.show{display:block}
+  .exp .verdict{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; margin-bottom:5px; display:block}
+  .exp.ok{border-color:#bfe0cd; background:var(--good-soft)}
+  .exp.ok .verdict{color:var(--good)}
+  .exp.no{border-color:#f2cfc9; background:var(--wrong-soft)}
+  .exp.no .verdict{color:var(--accent)}
+
+  /* controls */
+  .controls{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px}
+  .navbtns{display:flex; gap:8px}
+  button.btn{
+    font-family:var(--sans); font-size:14px; cursor:pointer; border-radius:10px; padding:10px 16px;
+    border:1px solid var(--line); background:#fff; color:var(--navy); transition:all .15s; font-weight:600;
+  }
+  button.btn:hover:not([disabled]){border-color:var(--blue); box-shadow:0 3px 10px -6px rgba(31,58,95,.4)}
+  button.btn:active:not([disabled]){transform:translateY(1px)}
+  button.btn[disabled]{opacity:.4; cursor:default; box-shadow:none}
+  .btn.primary{background:var(--navy); color:#fff; border-color:var(--navy)}
+  .btn.primary:hover:not([disabled]){background:#264b78}
+
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .toggle{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none}
+  .switch{width:38px; height:22px; border-radius:99px; background:#cdd9e5; position:relative; transition:background .15s; flex:none}
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle.on .switch{background:var(--blue)} .toggle.on .switch::after{left:18px}
+  .toggles{display:flex; gap:16px; flex-wrap:wrap}
+  .txtbtn{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;font-family:var(--sans);padding:4px}
+  .txtbtn:hover{text-decoration:underline}
+
+  .scorebar{
+    display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+  }
+  .scorebar .g{color:var(--good); font-weight:700}
+  .scorebar .r{color:var(--accent); font-weight:700}
+  .scorebar .pct{color:var(--navy); font-weight:700; font-size:14px}
+
+  /* results screen */
+  .results{
+    position:relative; margin:14px 0; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; border-top:4px solid var(--navy); padding:26px; text-align:center;
+    box-shadow:0 10px 30px -18px rgba(20,39,63,.45);
+  }
+  .results h2{margin:0 0 6px; color:var(--navy); font-size:22px}
+  .bigscore{font-family:var(--mono); font-size:44px; font-weight:700; color:var(--navy); margin:10px 0 2px; line-height:1}
+  .bigscore span{font-size:22px; color:var(--muted)}
+  .verdict-line{color:var(--muted); font-size:14px; margin:2px 0 18px}
+  .breakdown{display:flex; flex-direction:column; gap:8px; text-align:left; margin:0 auto; max-width:420px}
+  .brow{display:flex; align-items:center; gap:10px; font-size:13px}
+  .brow .bl{font-family:var(--mono); font-size:11px; color:var(--muted); flex:none; width:40px}
+  .brow .bn{flex:none; width:245px; color:var(--ink); line-height:1.25}
+  .brow .bt{flex:1; height:8px; background:#e2ebf3; border-radius:99px; overflow:hidden}
+  .brow .bf{height:100%; background:linear-gradient(90deg,var(--good),#3fa06a); border-radius:99px}
+  .brow .bv{font-family:var(--mono); font-size:11px; color:var(--navy); flex:none; width:44px; text-align:right}
+  .results .btn{margin-top:20px}
+
+  .hidden{display:none !important}
+
+  @media (max-width:520px){
+    h1{font-size:22px}
+    .qtext{font-size:17px}
+    .controls{flex-direction:column; align-items:stretch}
+    .navbtns{justify-content:space-between}
+    .brow{flex-wrap:wrap; align-items:flex-start}
+    .brow .bn{width:calc(100% - 52px)}
+    .brow .bt{margin-left:50px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .opt,.bar,.switch,.switch::after{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Logica per l'Informatica · 150 domande · livello difficile</p>
+    <h1>Quiz — Simulazione d'esame</h1>
+    <p class="sub">Scegli una risposta · vedi subito la soluzione · usa 1-4 o A-D per rispondere e ← → per navigare</p>
+    <div class="binstrip" id="binstrip"></div>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="meta">
+    <span class="count"><b id="cur">1</b> / <span id="tot">0</span></span>
+    <div class="track"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <!-- Question card -->
+  <div class="card" id="card">
+    <div class="cat">
+      <span class="catname" id="cat"></span>
+      <span class="qnum" id="qnum"></span>
+    </div>
+    <div class="kind">Domanda</div>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div class="exp" id="exp"><span class="verdict" id="verdict"></span><span id="exptext"></span></div>
+  </div>
+
+  <!-- Results card -->
+  <div class="results hidden" id="results">
+    <div class="kind" style="text-align:center">Risultato della simulazione</div>
+    <h2>Quiz completato</h2>
+    <div class="bigscore"><span id="rScore">0</span><span>/<span id="rTot">0</span></span></div>
+    <div class="verdict-line" id="rVerdict"></div>
+    <div class="breakdown" id="breakdown"></div>
+    <button class="btn primary" id="restart">↻ Ricomincia</button>
+  </div>
+
+  <div class="controls" id="controls">
+    <div class="navbtns">
+      <button class="btn" id="prev">← Precedente</button>
+      <button class="btn primary" id="next">Successiva →</button>
+    </div>
+    <button class="txtbtn" id="finish">Vai al risultato</button>
+  </div>
+
+  <div class="scorebar" id="scorebar">
+    Corrette: <span class="g" id="nok">0</span> · Errate: <span class="r" id="nno">0</span> · Risposte: <span id="nans">0</span>/<span id="nq">0</span> · <span class="pct" id="pct">—</span>
+  </div>
+
+  <div class="toolbar">
+    <div class="toggles">
+      <label class="toggle" id="shuffleQ"><span class="switch"></span> Mescola domande</label>
+      <label class="toggle" id="shuffleA"><span class="switch"></span> Mescola risposte</label>
+    </div>
+    <button class="txtbtn" id="reset">Azzera risposte</button>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  "c01": {
+    "name": "1. Introduzione alla logica"
+  },
+  "c02": {
+    "name": "2. Sintassi della logica proposizionale"
+  },
+  "c03": {
+    "name": "3. Semantica proposizionale e tavole di verità"
+  },
+  "c04": {
+    "name": "4. Tautologie, contraddizioni e soddisfacibilità"
+  },
+  "c05": {
+    "name": "5. Conseguenza ed equivalenza logica"
+  },
+  "c06": {
+    "name": "6. Forme normali, letterali e clausole"
+  },
+  "c07": {
+    "name": "7. Procedura DPLL e clausole di Horn"
+  },
+  "c08": {
+    "name": "8. Sistemi di prova formale e sistema di Hilbert"
+  },
+  "c09": {
+    "name": "9. Formalizzazione in logica proposizionale"
+  },
+  "c10": {
+    "name": "10. Teorie proposizionali, grafi e Sudoku"
+  },
+  "c11": {
+    "name": "11. Sintassi e semantica della logica del primo ordine"
+  },
+  "c12": {
+    "name": "12. Quantificatori e formalizzazione in logica del primo ordine"
+  },
+  "c13": {
+    "name": "13. Logica e basi di dati relazionali"
+  }
+};
+
+// 150 quiz a risposta multipla di livello difficile, organizzati nelle 13 categorie del progetto.
+// o = opzioni; correct = indice (0=A,1=B,2=C,3=D); e = soluzione mostrata dopo la risposta.
+const QUESTIONS = [
+  {
+    "c": "c01",
+    "q": "Quale situazione è compatibile con la validità di un argomento?",
+    "o": [
+      "Almeno una premessa è falsa e la conclusione è falsa",
+      "Tutte le premesse sono vere e la conclusione è falsa",
+      "Esiste un'interpretazione con premesse vere e conclusione falsa",
+      "La conclusione è falsa in ogni interpretazione"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Almeno una premessa è falsa e la conclusione è falsa"
+  },
+  {
+    "c": "c01",
+    "q": "Per confutare la validità di un argomento con premesse Γ e conclusione A occorre esibire:",
+    "o": [
+      "un'interpretazione che falsifica almeno una formula di Γ",
+      "un'interpretazione che soddisfa tutte le formule di Γ e falsifica A",
+      "una formula di Γ logicamente equivalente ad A",
+      "una dimostrazione formale di ¬A senza ipotesi"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: un'interpretazione che soddisfa tutte le formule di Γ e falsifica A"
+  },
+  {
+    "c": "c01",
+    "q": "Quale coppia appartiene rispettivamente al linguaggio-oggetto e al metalinguaggio?",
+    "o": [
+      "Γ ⊨ q ; p → q",
+      "Γ ⊢ q ; p ∧ q",
+      "p → q ; Γ ⊨ q",
+      "⊨ p ; ¬q"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: p → q ; Γ ⊨ q"
+  },
+  {
+    "c": "c01",
+    "q": "Una procedura è una procedura di decisione per un problema logico quando:",
+    "o": [
+      "termina soltanto sugli input positivi",
+      "produce sempre anche una dimostrazione di Hilbert",
+      "usa necessariamente una tavola di verità completa",
+      "termina su ogni input e restituisce sempre la risposta corretta"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: termina su ogni input e restituisce sempre la risposta corretta"
+  },
+  {
+    "c": "c01",
+    "q": "Quale riduzione è corretta per controllare la validità di una formula A mediante una procedura SAT?",
+    "o": [
+      "A è valida se e solo se A è soddisfacibile",
+      "A è valida se e solo se A ∧ ¬A è soddisfacibile",
+      "A è valida se e solo se ¬A è valida",
+      "A è valida se e solo se ¬A è insoddisfacibile"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: A è valida se e solo se ¬A è insoddisfacibile"
+  },
+  {
+    "c": "c01",
+    "q": "Se l'insieme delle premesse Γ è insoddisfacibile, quale conclusione segue nella logica classica?",
+    "o": [
+      "Γ non implica logicamente alcuna formula",
+      "Γ implica soltanto contraddizioni",
+      "Γ implica logicamente ogni formula",
+      "Γ ha esattamente un modello"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: Γ implica logicamente ogni formula"
+  },
+  {
+    "c": "c01",
+    "q": "Quale tripartizione descrive meglio un sistema logico formale completo dal punto di vista concettuale?",
+    "o": [
+      "Alfabeto, compilatore e processore",
+      "Assiomi, esperimenti e probabilità",
+      "Regole di formazione, interpretazioni e meccanismi di inferenza",
+      "Solo simboli e abbreviazioni"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: Regole di formazione, interpretazioni e meccanismi di inferenza"
+  },
+  {
+    "c": "c01",
+    "q": "Un argomento è corretto nel senso tradizionale di sound argument quando:",
+    "o": [
+      "ha una conclusione vera, anche se non segue dalle premesse",
+      "è valido e tutte le sue premesse sono vere",
+      "è valido e almeno una premessa è falsa",
+      "tutte le formule coinvolte sono tautologie"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: è valido e tutte le sue premesse sono vere"
+  },
+  {
+    "c": "c01",
+    "q": "Qual è la differenza essenziale tra model checking e soddisfacibilità?",
+    "o": [
+      "Il primo valuta una formula rispetto a un'interpretazione data; la seconda cerca se esiste almeno un'interpretazione che la soddisfa",
+      "Il primo riguarda soltanto formule valide; la seconda soltanto formule false",
+      "Il primo è sintattico; la seconda non usa formule",
+      "Sono lo stesso problema con notazioni differenti"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Il primo valuta una formula rispetto a un'interpretazione data; la seconda cerca se esiste almeno un'interpretazione che la soddisfa"
+  },
+  {
+    "c": "c01",
+    "q": "Quale affermazione distingue correttamente implicazione materiale e conseguenza logica?",
+    "o": [
+      "Entrambe sono connettivi binari del linguaggio proposizionale",
+      "A → B è una formula del linguaggio, mentre Γ ⊨ B è una relazione semantica del metalinguaggio",
+      "A → B può essere usata soltanto quando A è vera",
+      "Γ ⊨ B è una formula valutata vero o falso dentro ogni interpretazione"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: A → B è una formula del linguaggio, mentre Γ ⊨ B è una relazione semantica del metalinguaggio"
+  },
+  {
+    "c": "c02",
+    "q": "Qual è il connettivo principale di ¬((p → q) ∧ r) ∨ s?",
+    "o": [
+      "∨",
+      "¬",
+      "∧",
+      "→"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: ∨"
+  },
+  {
+    "c": "c02",
+    "q": "Quante sottoformule distinte possiede ((p → ¬q) ∧ p) → ¬q?",
+    "o": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: 6"
+  },
+  {
+    "c": "c02",
+    "q": "Quante occorrenze di variabili proposizionali compaiono in (p ∧ ¬p) → (q ∨ p)?",
+    "o": [
+      "3",
+      "2",
+      "5",
+      "4"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: 4"
+  },
+  {
+    "c": "c02",
+    "q": "Con le precedenze standard ¬, ∧, ∨, → e l'associatività a destra di →, come si legge p ∨ q ∧ r → s?",
+    "o": [
+      "p ∨ (q ∧ (r → s))",
+      "((p ∨ q) ∧ r) → s",
+      "(p ∨ (q ∧ r)) → s",
+      "p ∨ ((q ∧ r) → s)"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: (p ∨ (q ∧ r)) → s"
+  },
+  {
+    "c": "c02",
+    "q": "Nella definizione induttiva delle formule, dire che l'insieme delle formule è il più piccolo insieme chiuso rispetto ai connettivi serve a escludere:",
+    "o": [
+      "formule atomiche prive di connettivi",
+      "formule contenenti più di una variabile",
+      "stringhe non ottenibili applicando finitariamente le regole di formazione",
+      "l'uso ripetuto della negazione"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: stringhe non ottenibili applicando finitariamente le regole di formazione"
+  },
+  {
+    "c": "c02",
+    "q": "Quale formula è l'istanza dello schema φ → (ψ → φ) ottenuta con φ=(p → q) e ψ=¬r?",
+    "o": [
+      "p → (q → (¬r → p))",
+      "(p → q) → (¬r → (p → q))",
+      "¬r → ((p → q) → ¬r)",
+      "(p → q) → ((p → q) → ¬r)"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: (p → q) → (¬r → (p → q))"
+  },
+  {
+    "c": "c02",
+    "q": "Quale formula usa soltanto ¬ e → ed è equivalente a p ↔ q?",
+    "o": [
+      "¬(p → ¬q)",
+      "¬((p → q) → ¬(q → p))",
+      "(p → q) → (q → p)",
+      "¬p → ¬q"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ¬((p → q) → ¬(q → p))"
+  },
+  {
+    "c": "c02",
+    "q": "Quale insieme di connettivi è da solo funzionalmente completo?",
+    "o": [
+      "{→}",
+      "{∧,∨}",
+      "{NAND}",
+      "{¬,↔}"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: {NAND}"
+  },
+  {
+    "c": "c02",
+    "q": "Nel tree form della formula p → (q → p), quante foglie compaiono?",
+    "o": [
+      "2",
+      "4",
+      "5",
+      "3"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: 3"
+  },
+  {
+    "c": "c02",
+    "q": "Assumendo le precedenze usuali, la stringa ¬p → q abbrevia:",
+    "o": [
+      "¬(p → q)",
+      "¬(p ∧ q)",
+      "p → ¬q",
+      "(¬p) → q"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: (¬p) → q"
+  },
+  {
+    "c": "c02",
+    "q": "Quale stringa è una formula ben formata secondo una grammatica binaria pienamente parentetizzata?",
+    "o": [
+      "(p → ∧ q)",
+      "((p → ¬q) ∧ (r ∨ p))",
+      "¬(p q)",
+      "((p ∨ q) r)"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ((p → ¬q) ∧ (r ∨ p))"
+  },
+  {
+    "c": "c03",
+    "q": "Su cinque atomi distinti, quante interpretazioni rendono veri esattamente due atomi?",
+    "o": [
+      "8",
+      "10",
+      "16",
+      "20"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: 10"
+  },
+  {
+    "c": "c03",
+    "q": "Se I(p)=V, I(q)=F e I(r)=F, quanto vale (p → q) ↔ (¬q ∨ r)?",
+    "o": [
+      "Falso",
+      "Vero",
+      "Indefinito",
+      "Dipende da un quarto atomo"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Falso"
+  },
+  {
+    "c": "c03",
+    "q": "Considerando gli atomi p,q,r, quanti modelli ha p → q?",
+    "o": [
+      "3",
+      "6",
+      "4",
+      "7"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: 6"
+  },
+  {
+    "c": "c03",
+    "q": "Quanti modelli ha (p ↔ q) ∧ (q ↔ r), considerando soltanto p,q,r?",
+    "o": [
+      "1",
+      "4",
+      "2",
+      "6"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: 2"
+  },
+  {
+    "c": "c03",
+    "q": "La formula ((p → q) ∧ p) → q assume:",
+    "o": [
+      "valore falso soltanto quando p è vero e q è falso",
+      "lo stesso valore di p",
+      "valore vero in ogni interpretazione",
+      "valore vero esattamente in tre interpretazioni"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: valore vero in ogni interpretazione"
+  },
+  {
+    "c": "c03",
+    "q": "Un'interpretazione parziale fissa p=V e q=F su un alfabeto di cinque atomi. Quante interpretazioni totali la estendono?",
+    "o": [
+      "4",
+      "8",
+      "16",
+      "32"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: 8"
+  },
+  {
+    "c": "c03",
+    "q": "Se due interpretazioni coincidono su tutti gli atomi che occorrono in A ma differiscono su altri atomi, allora:",
+    "o": [
+      "una soddisfa A e l'altra no",
+      "A deve essere una tautologia",
+      "A deve essere atomica",
+      "assegnano necessariamente lo stesso valore ad A"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: assegnano necessariamente lo stesso valore ad A"
+  },
+  {
+    "c": "c03",
+    "q": "Se I(p)=V, I(q)=F e I(r)=V, quanto vale ¬(p ↔ q) ↔ r?",
+    "o": [
+      "Falso",
+      "Uguale a q",
+      "Vero",
+      "Indefinito"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: Vero"
+  },
+  {
+    "c": "c03",
+    "q": "Quanti modelli ha la formula che afferma che esattamente una tra p,q,r è vera?",
+    "o": [
+      "1",
+      "4",
+      "6",
+      "3"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: 3"
+  },
+  {
+    "c": "c03",
+    "q": "Quanti modelli ha (p ∨ q) ∧ (¬p ∨ r), sugli atomi p,q,r?",
+    "o": [
+      "4",
+      "3",
+      "5",
+      "6"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: 4"
+  },
+  {
+    "c": "c03",
+    "q": "Per valutare una formula rispetto a un'interpretazione data, una procedura ricorsiva deve:",
+    "o": [
+      "enumerare tutte le 2^n interpretazioni possibili",
+      "trasformare sempre la formula in DNF canonica",
+      "valutare le sottoformule e applicare la funzione di verità del connettivo principale",
+      "costruire prima una prova formale"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: valutare le sottoformule e applicare la funzione di verità del connettivo principale"
+  },
+  {
+    "c": "c03",
+    "q": "Quanti modelli ha (p ↔ q) ∧ (r ∨ s), sugli atomi p,q,r,s?",
+    "o": [
+      "6",
+      "4",
+      "8",
+      "12"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: 6"
+  },
+  {
+    "c": "c04",
+    "q": "Come si classifica ((p → q) ∧ p) → q?",
+    "o": [
+      "Tautologia",
+      "Contraddizione",
+      "Contingente con un solo modello",
+      "Insoddisfacibile soltanto se p è falso"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Tautologia"
+  },
+  {
+    "c": "c04",
+    "q": "Come si classifica ¬(p ↔ p)?",
+    "o": [
+      "Tautologia",
+      "Contingente",
+      "Contraddizione",
+      "Soddisfacibile con p falso"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: Contraddizione"
+  },
+  {
+    "c": "c04",
+    "q": "Come si classifica p ↔ ¬q?",
+    "o": [
+      "Tautologia",
+      "Contraddizione",
+      "Valida soltanto se p e q sono distinti",
+      "Soddisfacibile ma non valida"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: Soddisfacibile ma non valida"
+  },
+  {
+    "c": "c04",
+    "q": "L'insieme {p ∨ q, ¬p, ¬q} è:",
+    "o": [
+      "soddisfacibile con p falso",
+      "insoddisfacibile",
+      "soddisfacibile con q falso",
+      "valido"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: insoddisfacibile"
+  },
+  {
+    "c": "c04",
+    "q": "L'insieme {p → q, q → r, p, ¬r} è:",
+    "o": [
+      "soddisfacibile con q falso",
+      "insoddisfacibile",
+      "soddisfacibile con p vero e r falso",
+      "una tautologia"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: insoddisfacibile"
+  },
+  {
+    "c": "c04",
+    "q": "Quale affermazione descrive correttamente Γ={p→q, q→r, p, ¬r}?",
+    "o": [
+      "Γ è soddisfacibile ma non valida",
+      "La sola coppia {p,¬r} è già insoddisfacibile",
+      "Eliminando q→r, Γ resta insoddisfacibile",
+      "Γ è minimamente insoddisfacibile: eliminando una qualunque formula diventa soddisfacibile"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: Γ è minimamente insoddisfacibile: eliminando una qualunque formula diventa soddisfacibile"
+  },
+  {
+    "c": "c04",
+    "q": "Una formula A è valida se e solo se:",
+    "o": [
+      "A è soddisfacibile",
+      "A ∧ ¬A è valida",
+      "¬A è insoddisfacibile",
+      "¬A ha almeno un modello"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ¬A è insoddisfacibile"
+  },
+  {
+    "c": "c04",
+    "q": "Una formula A è soddisfacibile se e solo se:",
+    "o": [
+      "¬A è insoddisfacibile",
+      "A è valida",
+      "¬A non è valida",
+      "A non contiene negazioni"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ¬A non è valida"
+  },
+  {
+    "c": "c04",
+    "q": "Come si classifica (p ∨ q) ∧ (¬p ∨ q)?",
+    "o": [
+      "Soddisfacibile ma non valida",
+      "Tautologia",
+      "Contraddizione",
+      "Valida soltanto per p vero"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Soddisfacibile ma non valida"
+  },
+  {
+    "c": "c04",
+    "q": "Quanti modelli ha p ∨ q ∨ r sugli atomi p,q,r?",
+    "o": [
+      "6",
+      "4",
+      "7",
+      "8"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: 7"
+  },
+  {
+    "c": "c04",
+    "q": "Un insieme di formule Γ è valido, nel senso che ogni interpretazione è modello di Γ, se e solo se:",
+    "o": [
+      "ogni formula appartenente a Γ è valida",
+      "almeno una formula di Γ è valida",
+      "la congiunzione delle formule di Γ è soddisfacibile",
+      "Γ contiene una tautologia"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: ogni formula appartenente a Γ è valida"
+  },
+  {
+    "c": "c05",
+    "q": "Quale caratterizzazione insiemistica esprime Γ ⊨ A?",
+    "o": [
+      "Mod(A) ⊆ Mod(Γ)",
+      "Mod(Γ) ∩ Mod(A)=∅",
+      "Mod(Γ) ⊆ Mod(A)",
+      "Mod(Γ)=∅ e Mod(A)≠∅"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: Mod(Γ) ⊆ Mod(A)"
+  },
+  {
+    "c": "c05",
+    "q": "Per dimostrare Γ ⊭ A è sufficiente trovare:",
+    "o": [
+      "un modello di Γ che falsifica A",
+      "un modello di A che falsifica almeno una formula di Γ",
+      "un'interpretazione che falsifica sia Γ sia A",
+      "una formula di Γ equivalente ad A"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: un modello di Γ che falsifica A"
+  },
+  {
+    "c": "c05",
+    "q": "Se Γ è insoddisfacibile, allora:",
+    "o": [
+      "Γ ⊭ A per ogni formula A",
+      "Γ ⊨ A per ogni formula A",
+      "Γ implica soltanto formule insoddisfacibili",
+      "Γ è logicamente equivalente all'insieme vuoto"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: Γ ⊨ A per ogni formula A"
+  },
+  {
+    "c": "c05",
+    "q": "Quale affermazione mostra che il converso della monotonia non vale in generale?",
+    "o": [
+      "Se Γ ⊨ A, allora Γ∪Δ ⊨ A",
+      "Se A∈Γ, allora Γ ⊨ A",
+      "Se Γ è insoddisfacibile, allora Γ ⊨ A",
+      "Può accadere che Γ∪Δ ⊨ A ma Γ ⊭ A"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: Può accadere che Γ∪Δ ⊨ A ma Γ ⊭ A"
+  },
+  {
+    "c": "c05",
+    "q": "La compattezza della conseguenza proposizionale afferma che, se Γ ⊨ A, allora:",
+    "o": [
+      "esiste un sottoinsieme finito Γ₀⊆Γ tale che Γ₀ ⊨ A",
+      "Γ deve essere finito",
+      "A contiene un numero finito di simboli ma Γ no",
+      "ogni sottoinsieme finito di Γ implica A"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: esiste un sottoinsieme finito Γ₀⊆Γ tale che Γ₀ ⊨ A"
+  },
+  {
+    "c": "c05",
+    "q": "Se Γ ⊨ A e Δ∪{A} ⊨ B, il principio di taglio permette di concludere:",
+    "o": [
+      "Γ∪Δ ⊨ B",
+      "Γ∩Δ ⊨ B",
+      "Γ ⊨ A∧B",
+      "Δ ⊨ A→B"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Γ∪Δ ⊨ B"
+  },
+  {
+    "c": "c05",
+    "q": "Il principio di deduzione semantico stabilisce:",
+    "o": [
+      "Γ∪{A} ⊨ B se e solo se Γ ⊨ B→A",
+      "Γ∪{A} ⊨ B se e solo se Γ ⊨ A→B",
+      "Γ ⊨ A se e solo se Γ∪{A} è insoddisfacibile",
+      "Γ ⊨ A→B se e solo se Γ∪{¬A} ⊨ B"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: Γ∪{A} ⊨ B se e solo se Γ ⊨ A→B"
+  },
+  {
+    "c": "c05",
+    "q": "Il principio di refutazione stabilisce:",
+    "o": [
+      "Γ ⊨ A se e solo se Γ∪{¬A} è insoddisfacibile",
+      "Γ ⊨ A se e solo se Γ∪{A} è insoddisfacibile",
+      "Γ ⊨ A se e solo se A è valida",
+      "Γ ⊨ A se e solo se Γ è soddisfacibile"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Γ ⊨ A se e solo se Γ∪{¬A} è insoddisfacibile"
+  },
+  {
+    "c": "c05",
+    "q": "Due formule F e G sono logicamente equivalenti se e solo se:",
+    "o": [
+      "⊨ F ↔ G",
+      "F ↔ G è soddisfacibile",
+      "F e G sono entrambe valide",
+      "F → G è valida ma G → F no"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: ⊨ F ↔ G"
+  },
+  {
+    "c": "c05",
+    "q": "Due insiemi di formule Γ₁ e Γ₂ sono logicamente equivalenti quando:",
+    "o": [
+      "hanno almeno un modello in comune",
+      "hanno esattamente gli stessi modelli",
+      "contengono lo stesso numero di formule",
+      "ogni formula di Γ₁ è sintatticamente presente in Γ₂"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: hanno esattamente gli stessi modelli"
+  },
+  {
+    "c": "c05",
+    "q": "Da Γ={p∨q, ¬p∨r, ¬q∨r} quale conseguenza segue?",
+    "o": [
+      "Γ ⊨ r",
+      "Γ ⊨ ¬r",
+      "Γ ⊨ p∧q",
+      "Γ ⊨ ¬p∧¬q"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Γ ⊨ r"
+  },
+  {
+    "c": "c05",
+    "q": "Da {p→q, q→r} quale formula segue logicamente?",
+    "o": [
+      "r→p",
+      "p→r",
+      "q→p",
+      "p↔r"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: p→r"
+  },
+  {
+    "c": "c06",
+    "q": "Quale espressione è una clausola proposizionale?",
+    "o": [
+      "p ∧ q",
+      "¬(p ∨ q)",
+      "(p ∨ q) ∧ r",
+      "¬p ∨ q ∨ ¬r"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: ¬p ∨ q ∨ ¬r"
+  },
+  {
+    "c": "c06",
+    "q": "Quale CNF è equivalente a ¬(p ↔ q)?",
+    "o": [
+      "(p ∨ q) ∧ (¬p ∨ ¬q)",
+      "(¬p ∨ q) ∧ (¬q ∨ p)",
+      "(p ∧ q) ∨ (¬p ∧ ¬q)",
+      "(¬p ∨ ¬q) ∧ (p ∨ ¬q)"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: (p ∨ q) ∧ (¬p ∨ ¬q)"
+  },
+  {
+    "c": "c06",
+    "q": "Quale CNF è equivalente a p ↔ q?",
+    "o": [
+      "(p ∨ q) ∧ (¬p ∨ ¬q)",
+      "(¬p ∨ q) ∧ (¬q ∨ p)",
+      "(p ∧ ¬q) ∨ (¬p ∧ q)",
+      "(p ∨ q) ∧ (¬p ∨ q)"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: (¬p ∨ q) ∧ (¬q ∨ p)"
+  },
+  {
+    "c": "c06",
+    "q": "Quale DNF è equivalente a p → q?",
+    "o": [
+      "p ∧ q",
+      "p ∨ ¬q",
+      "¬p ∧ q",
+      "¬p ∨ q"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: ¬p ∨ q"
+  },
+  {
+    "c": "c06",
+    "q": "La distribuzione corretta per trasformare p ∨ (q ∧ r) in CNF è:",
+    "o": [
+      "(p ∧ q) ∨ (p ∧ r)",
+      "(p ∨ q) ∨ r",
+      "(p ∨ q) ∧ (p ∨ r)",
+      "p ∧ (q ∨ r)"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: (p ∨ q) ∧ (p ∨ r)"
+  },
+  {
+    "c": "c06",
+    "q": "Quale CNF è equivalente a (p ∧ q) ∨ r?",
+    "o": [
+      "(p ∧ r) ∨ (q ∧ r)",
+      "(p ∨ q) ∧ r",
+      "p ∧ (q ∨ r)",
+      "(p ∨ r) ∧ (q ∨ r)"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: (p ∨ r) ∧ (q ∨ r)"
+  },
+  {
+    "c": "c06",
+    "q": "La clausola ¬p ∨ q ∨ ¬r è falsa esattamente quando:",
+    "o": [
+      "p=F, q=F, r=V",
+      "p=V, q=V, r=F",
+      "p=V, q=F, r=V",
+      "p=F, q=V, r=F"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: p=V, q=F, r=V"
+  },
+  {
+    "c": "c06",
+    "q": "In una CNF, una clausola che contiene sia p sia ¬p:",
+    "o": [
+      "può essere eliminata senza cambiare la formula, perché è sempre vera",
+      "rende l'intera CNF insoddisfacibile",
+      "deve essere sostituita dalla clausola vuota",
+      "è una clausola unitaria"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: può essere eliminata senza cambiare la formula, perché è sempre vera"
+  },
+  {
+    "c": "c06",
+    "q": "Che effetto ha la presenza della clausola vuota in una CNF?",
+    "o": [
+      "Rende la CNF insoddisfacibile",
+      "Rende la CNF valida",
+      "Non ha alcun effetto",
+      "Indica che tutte le clausole sono soddisfatte"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Rende la CNF insoddisfacibile"
+  },
+  {
+    "c": "c06",
+    "q": "Che cosa rappresenta l'insieme vuoto di clausole?",
+    "o": [
+      "La formula falsa",
+      "Una clausola senza letterali",
+      "Una formula con un solo modello",
+      "La formula vera, cioè una CNF già completamente soddisfatta"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: La formula vera, cioè una CNF già completamente soddisfatta"
+  },
+  {
+    "c": "c06",
+    "q": "Nella CNF canonica di una formula su n atomi, a ogni riga della tavola in cui la formula è falsa corrisponde:",
+    "o": [
+      "un termine congiuntivo vero esattamente in quella riga",
+      "una nuova variabile di Tseitin",
+      "una clausola unitaria sempre vera",
+      "una clausola massimale falsa esattamente in quella riga"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: una clausola massimale falsa esattamente in quella riga"
+  },
+  {
+    "c": "c06",
+    "q": "Quale descrizione della trasformazione di Tseitin è corretta?",
+    "o": [
+      "Produce in tempo lineare una CNF equisoddisfacibile introducendo variabili fresche",
+      "Produce sempre una CNF equivalente sullo stesso alfabeto senza variabili nuove",
+      "Elimina tutte le variabili originarie",
+      "Trasforma ogni formula in una singola clausola"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Produce in tempo lineare una CNF equisoddisfacibile introducendo variabili fresche"
+  },
+  {
+    "c": "c07",
+    "q": "Sia Φ={{p,q},{¬p,r},{¬q,r},{¬r,s}}. Qual è Φ|p?",
+    "o": [
+      "{{r},{¬q,r},{¬r,s}}",
+      "{{q},{¬p,r},{¬q,r},{¬r,s}}",
+      "{{p,q},{r},{¬q,r},{¬r,s}}",
+      "{{r},{¬r,s}}"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: {{r},{¬q,r},{¬r,s}}"
+  },
+  {
+    "c": "c07",
+    "q": "Sia Φ={{p,q},{¬p,r},{¬q,r},{¬r,s}}. Qual è Φ|¬p?",
+    "o": [
+      "{{p,q},{r},{¬q,r},{¬r,s}}",
+      "{{q},{¬p,r},{¬r,s}}",
+      "{{¬q,r},{¬r,s}}",
+      "{{q},{¬q,r},{¬r,s}}"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: {{q},{¬q,r},{¬r,s}}"
+  },
+  {
+    "c": "c07",
+    "q": "Applicando unit propagation a {{p},{¬p,q},{¬q,r},{¬r}}, quale esito si ottiene?",
+    "o": [
+      "Una contraddizione, quindi la clausola vuota",
+      "Un modello con p=q=r=vero",
+      "Un modello con p vero e q=r=falso",
+      "Nessuna assegnazione forzata"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Una contraddizione, quindi la clausola vuota"
+  },
+  {
+    "c": "c07",
+    "q": "Applicando unit propagation a {{¬p},{p,q},{¬q,r}}, quali valori sono forzati?",
+    "o": [
+      "p=V, q=F, r=F",
+      "p=F, q=F, r=V",
+      "soltanto p=F",
+      "p=F, q=V, r=V"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: p=F, q=V, r=V"
+  },
+  {
+    "c": "c07",
+    "q": "In un ramo DPLL, la comparsa della clausola vuota significa che:",
+    "o": [
+      "tutte le clausole sono state soddisfatte",
+      "occorre dichiarare immediatamente SAT",
+      "la formula residua è una tautologia",
+      "l'interpretazione parziale corrente non può essere estesa a un modello"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: l'interpretazione parziale corrente non può essere estesa a un modello"
+  },
+  {
+    "c": "c07",
+    "q": "In un ramo DPLL, la comparsa dell'insieme vuoto di clausole significa che:",
+    "o": [
+      "l'interpretazione parziale corrente può essere estesa a un modello",
+      "è stata prodotta una contraddizione",
+      "occorre necessariamente effettuare uno splitting",
+      "la formula iniziale è valida"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: l'interpretazione parziale corrente può essere estesa a un modello"
+  },
+  {
+    "c": "c07",
+    "q": "Quando si applica la regola di splitting nella versione base di DPLL del corso?",
+    "o": [
+      "Quando la formula residua non è terminale e non contiene clausole unitarie",
+      "Appena compare una clausola unitaria",
+      "Soltanto dopo aver trovato la clausola vuota",
+      "Prima di qualunque unit propagation"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Quando la formula residua non è terminale e non contiene clausole unitarie"
+  },
+  {
+    "c": "c07",
+    "q": "Dopo uno splitting su p, la formula iniziale è soddisfacibile se:",
+    "o": [
+      "entrambi i rami conducono a successo",
+      "il ramo p conduce a fallimento",
+      "i due rami producono la stessa interpretazione",
+      "almeno uno tra i rami p e ¬p conduce a successo"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: almeno uno tra i rami p e ¬p conduce a successo"
+  },
+  {
+    "c": "c07",
+    "q": "Nel derivation tree di DPLL, ogni tratto tra due nodi di splitting è costituito da:",
+    "o": [
+      "una trasformazione completa in DNF",
+      "una sequenza di passi di unit propagation",
+      "una prova di Hilbert",
+      "una sola applicazione del principio di refutazione"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: una sequenza di passi di unit propagation"
+  },
+  {
+    "c": "c07",
+    "q": "Quale clausola è di Horn?",
+    "o": [
+      "p ∨ q ∨ ¬r",
+      "¬p ∨ ¬q ∨ r",
+      "p ∨ q",
+      "p ∨ q ∨ r"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ¬p ∨ ¬q ∨ r"
+  },
+  {
+    "c": "c07",
+    "q": "La clausola di Horn ¬p ∨ ¬q ∨ r può essere letta come:",
+    "o": [
+      "r → (p ∧ q)",
+      "p → (q ∧ r)",
+      "(p ∧ q) → r",
+      "(p ∨ q) → r"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: (p ∧ q) → r"
+  },
+  {
+    "c": "c07",
+    "q": "Una clausola di Horn senza letterali positivi, come ¬p ∨ ¬q, esprime:",
+    "o": [
+      "il vincolo che p e q non possono essere entrambi veri",
+      "il fatto che almeno uno tra p e q deve essere vero",
+      "l'equivalenza p ↔ q",
+      "una tautologia"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: il vincolo che p e q non possono essere entrambi veri"
+  },
+  {
+    "c": "c07",
+    "q": "Quale formula di Horn viene riconosciuta insoddisfacibile dalla sola unit propagation?",
+    "o": [
+      "(p ∨ q) ∧ (¬p ∨ ¬q)",
+      "(p ∨ q ∨ r)",
+      "p ∧ (¬p ∨ q) ∧ (¬q ∨ r) ∧ ¬r",
+      "(p ∨ q) ∧ (¬r ∨ q)"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: p ∧ (¬p ∨ q) ∧ (¬q ∨ r) ∧ ¬r"
+  },
+  {
+    "c": "c08",
+    "q": "Un sistema di prova formale è determinato essenzialmente da:",
+    "o": [
+      "un insieme di interpretazioni privilegiate",
+      "una sola tavola di verità",
+      "un algoritmo SAT e un dominio",
+      "schemi di assiomi e regole di inferenza"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: schemi di assiomi e regole di inferenza"
+  },
+  {
+    "c": "c08",
+    "q": "In una derivazione da Γ, ogni riga deve essere:",
+    "o": [
+      "una tautologia scelta senza giustificazione",
+      "una formula atomica",
+      "un'ipotesi di Γ, un'istanza di assioma oppure conseguenza di righe precedenti mediante una regola",
+      "semanticamente equivalente alla riga precedente"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: un'ipotesi di Γ, un'istanza di assioma oppure conseguenza di righe precedenti mediante una regola"
+  },
+  {
+    "c": "c08",
+    "q": "Da φ e φ→ψ, il modus ponens consente di derivare:",
+    "o": [
+      "φ∨ψ",
+      "ψ→φ",
+      "¬ψ",
+      "ψ"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: ψ"
+  },
+  {
+    "c": "c08",
+    "q": "Quale formula è un'istanza di A1: φ→(ψ→φ)?",
+    "o": [
+      "(p→q) → (q→p)",
+      "(p∧q) → (r → (p∧q))",
+      "p → ((p→q)→q)",
+      "(p→q) → ((p→q)→p)"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: (p∧q) → (r → (p∧q))"
+  },
+  {
+    "c": "c08",
+    "q": "Quale formula è l'istanza di A2 con φ=p, ψ=q e θ=r?",
+    "o": [
+      "(p→q) → ((q→r)→(p→r))",
+      "p → (q→p)",
+      "(p→(q→r)) → ((p→q)→(p→r))",
+      "(¬q→¬p) → ((¬q→p)→q)"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: (p→(q→r)) → ((p→q)→(p→r))"
+  },
+  {
+    "c": "c08",
+    "q": "Quale formula è l'istanza di A3 con φ=p e ψ=q?",
+    "o": [
+      "(¬q→¬p) → ((¬q→p)→q)",
+      "(¬p→¬q) → ((p→q)→q)",
+      "(p→q) → (¬q→¬p)",
+      "(¬q→p) → ((q→p)→p)"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: (¬q→¬p) → ((¬q→p)→q)"
+  },
+  {
+    "c": "c08",
+    "q": "La correttezza (soundness) di un sistema Σ afferma:",
+    "o": [
+      "se Γ ⊢Σ A, allora Γ ⊨ A",
+      "se Γ ⊨ A, allora Γ ⊢Σ A",
+      "ogni formula soddisfacibile è derivabile",
+      "ogni formula derivabile è un assioma"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: se Γ ⊢Σ A, allora Γ ⊨ A"
+  },
+  {
+    "c": "c08",
+    "q": "La completezza di un sistema Σ afferma:",
+    "o": [
+      "se Γ ⊢Σ A, allora Γ ⊨ A",
+      "se Γ ⊨ A, allora Γ ⊢Σ A",
+      "ogni formula è derivabile da ogni Γ",
+      "ogni derivazione è finita per definizione"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: se Γ ⊨ A, allora Γ ⊢Σ A"
+  },
+  {
+    "c": "c08",
+    "q": "Se Σ è corretto e Γ ⊢Σ A, quale situazione è impossibile?",
+    "o": [
+      "Un'interpretazione che falsifica una formula di Γ",
+      "Una derivazione di A con più di un modus ponens",
+      "Un'interpretazione che soddisfa Γ e falsifica A",
+      "Che A sia contingente"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: Un'interpretazione che soddisfa Γ e falsifica A"
+  },
+  {
+    "c": "c08",
+    "q": "Se Σ è corretto e completo, allora per ogni Γ e A:",
+    "o": [
+      "Γ ⊢Σ A se e solo se Γ ⊨ A",
+      "Γ ⊢Σ A se e solo se A∈Γ",
+      "Γ ⊢Σ A se e solo se A è atomica",
+      "Γ ⊨ A soltanto quando Γ è soddisfacibile"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Γ ⊢Σ A se e solo se Γ ⊨ A"
+  },
+  {
+    "c": "c08",
+    "q": "Il teorema di deduzione sintattico, quando applicabile al sistema di Hilbert, stabilisce:",
+    "o": [
+      "Γ∪{A} ⊢ B se e solo se Γ ⊢ B→A",
+      "Γ ⊢ A se e solo se Γ∪{¬A} è soddisfacibile",
+      "Γ ⊢ A→B se e solo se Γ∪{A} ⊢ ¬B",
+      "Γ∪{A} ⊢ B se e solo se Γ ⊢ A→B"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: Γ∪{A} ⊢ B se e solo se Γ ⊢ A→B"
+  },
+  {
+    "c": "c09",
+    "q": "Con p: «il server è online» e q: «le richieste sono accettate», come si formalizza «Le richieste sono accettate solo se il server è online»?",
+    "o": [
+      "p → q",
+      "p ↔ q",
+      "¬p → q",
+      "q → p"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: q → p"
+  },
+  {
+    "c": "c09",
+    "q": "Con p: «ottengo il rimborso» e q: «presento la ricevuta», come si formalizza «Presentare la ricevuta è condizione necessaria per ottenere il rimborso»?",
+    "o": [
+      "q → p",
+      "p → q",
+      "p ↔ q",
+      "¬q → p"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: p → q"
+  },
+  {
+    "c": "c09",
+    "q": "Con p: «esco» e q: «piove», una formalizzazione standard di «Esco a meno che piova» è:",
+    "o": [
+      "p → ¬q",
+      "q → ¬p",
+      "¬q → p",
+      "p ↔ ¬q"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ¬q → p"
+  },
+  {
+    "c": "c09",
+    "q": "Con p: «Anna parte» e q: «Bruno parte», «Né Anna né Bruno partono» diventa:",
+    "o": [
+      "¬(p ∧ q)",
+      "p ↔ ¬q",
+      "¬p ∨ ¬q",
+      "¬p ∧ ¬q"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: ¬p ∧ ¬q"
+  },
+  {
+    "c": "c09",
+    "q": "Con p e q, «Non partono entrambi» significa:",
+    "o": [
+      "¬p ∧ ¬q",
+      "¬(p ∧ q)",
+      "p ∨ q",
+      "p ↔ q"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ¬(p ∧ q)"
+  },
+  {
+    "c": "c09",
+    "q": "Quale formula esprime che esattamente due tra p,q,r sono vere?",
+    "o": [
+      "(p∧q∧¬r) ∨ (p∧¬q∧r) ∨ (¬p∧q∧r)",
+      "(p∨q∨r) ∧ ¬(p∧q∧r)",
+      "(p∧q) ∨ (p∧r) ∨ (q∧r)",
+      "¬p ∨ ¬q ∨ ¬r"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: (p∧q∧¬r) ∨ (p∧¬q∧r) ∨ (¬p∧q∧r)"
+  },
+  {
+    "c": "c09",
+    "q": "Quale formula esprime che al massimo una tra p,q,r è vera?",
+    "o": [
+      "p∨q∨r",
+      "(p∧q)∨(p∧r)∨(q∧r)",
+      "¬(p∧q) ∧ ¬(p∧r) ∧ ¬(q∧r)",
+      "p↔q↔r"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ¬(p∧q) ∧ ¬(p∧r) ∧ ¬(q∧r)"
+  },
+  {
+    "c": "c09",
+    "q": "Quale formula esprime che almeno due tra p,q,r sono vere?",
+    "o": [
+      "(p∧q) ∨ (p∧r) ∨ (q∧r)",
+      "p∨q∨r",
+      "¬(p∧q∧r)",
+      "¬p∧¬q∧¬r"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: (p∧q) ∨ (p∧r) ∨ (q∧r)"
+  },
+  {
+    "c": "c09",
+    "q": "Con p: «studio», q: «supero», r: «frequento», «Supero se e solo se studio e frequento» diventa:",
+    "o": [
+      "q → (p ∧ r)",
+      "(p ∧ r) → q",
+      "q ↔ (p ∨ r)",
+      "q ↔ (p ∧ r)"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: q ↔ (p ∧ r)"
+  },
+  {
+    "c": "c09",
+    "q": "Come si formalizza «Se p allora q; altrimenti r»?",
+    "o": [
+      "p→(q∧r)",
+      "(p→q) ∧ (¬p→r)",
+      "(q→p) ∧ (r→¬p)",
+      "p∨q∨r"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: (p→q) ∧ (¬p→r)"
+  },
+  {
+    "c": "c09",
+    "q": "Quale formula esprime congiuntamente «p è sufficiente per q» e «r è necessaria per q»?",
+    "o": [
+      "(p→q) ∧ (q→r)",
+      "(q→p) ∧ (r→q)",
+      "p→(q→r)",
+      "q↔(p∧r)"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: (p→q) ∧ (q→r)"
+  },
+  {
+    "c": "c09",
+    "q": "Quale formalizzazione rappresenta il modus tollens «Se p allora q; non q; dunque non p»?",
+    "o": [
+      "{p→q, q} ⊨ p",
+      "{¬p→¬q, ¬q} ⊨ ¬p",
+      "{p∨q, ¬q} ⊨ p→q",
+      "{p→q, ¬q} ⊨ ¬p"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: {p→q, ¬q} ⊨ ¬p"
+  },
+  {
+    "c": "c10",
+    "q": "Un'interpretazione I è modello di una teoria proposizionale T quando:",
+    "o": [
+      "soddisfa almeno una formula di T",
+      "rende veri tutti gli atomi dell'alfabeto",
+      "T contiene una formula valida",
+      "soddisfa ogni formula di T"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: soddisfa ogni formula di T"
+  },
+  {
+    "c": "c10",
+    "q": "Una teoria T è soddisfacibile se e solo se:",
+    "o": [
+      "ogni sua formula è valida",
+      "possiede almeno un modello",
+      "contiene almeno una clausola unitaria",
+      "non contiene negazioni"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: possiede almeno un modello"
+  },
+  {
+    "c": "c10",
+    "q": "T ⊨ A significa che:",
+    "o": [
+      "A appartiene necessariamente a T",
+      "ogni modello di T è anche modello di A",
+      "A ha almeno un modello distinto dai modelli di T",
+      "T e A sono sintatticamente identici"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ogni modello di T è anche modello di A"
+  },
+  {
+    "c": "c10",
+    "q": "Per un grafo con n nodi e k colori, quante variabili color(i,c) vengono introdotte?",
+    "o": [
+      "n+k",
+      "n^k",
+      "k^n",
+      "n·k"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: n·k"
+  },
+  {
+    "c": "c10",
+    "q": "Quale clausola impone che il nodo i abbia almeno un colore?",
+    "o": [
+      "color(i,1) ∧ ··· ∧ color(i,k)",
+      "¬color(i,1) ∨ ··· ∨ ¬color(i,k)",
+      "color(i,1) → color(i,k)",
+      "color(i,1) ∨ ··· ∨ color(i,k)"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: color(i,1) ∨ ··· ∨ color(i,k)"
+  },
+  {
+    "c": "c10",
+    "q": "Quale famiglia di clausole impone che il nodo i abbia al massimo un colore?",
+    "o": [
+      "color(i,c) ∨ color(i,c′), per ogni c≠c′",
+      "¬color(i,c) ∨ ¬color(i,c′), per ogni c≠c′",
+      "color(i,c) ↔ color(i,c′), per ogni c≠c′",
+      "color(i,c), per ogni c"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ¬color(i,c) ∨ ¬color(i,c′), per ogni c≠c′"
+  },
+  {
+    "c": "c10",
+    "q": "Per un arco {i,j}, quale vincolo impedisce lo stesso colore c ai due estremi?",
+    "o": [
+      "color(i,c) ∨ color(j,c)",
+      "¬color(i,c) ∨ ¬color(j,c)",
+      "color(i,c) ↔ color(j,c)",
+      "¬color(i,c) ∨ color(j,c)"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ¬color(i,c) ∨ ¬color(j,c)"
+  },
+  {
+    "c": "c10",
+    "q": "Se edge(i,j) è trattata come variabile proposizionale, perché occorre aggiungere i fatti unitari relativi agli archi del grafo dato?",
+    "o": [
+      "Per obbligare ogni coppia di nodi a essere adiacente",
+      "Per rendere la teoria valida anziché soddisfacibile",
+      "Per eliminare le variabili color(i,c)",
+      "Senza tali fatti, un modello potrebbe porre edge(i,j)=falso ed evitare indebitamente i vincoli di adiacenza"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: Senza tali fatti, un modello potrebbe porre edge(i,j)=falso ed evitare indebitamente i vincoli di adiacenza"
+  },
+  {
+    "c": "c10",
+    "q": "La teoria T_G della k-colorazione è costruita in modo che:",
+    "o": [
+      "T_G è valida se e solo se G è completo",
+      "T_G è soddisfacibile se e solo se G è k-colorabile",
+      "T_G è insoddisfacibile per ogni k&gt;1",
+      "ogni modello assegna tutti i colori a ogni nodo"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: T_G è soddisfacibile se e solo se G è k-colorabile"
+  },
+  {
+    "c": "c10",
+    "q": "Nella codifica standard di un Sudoku 9×9, quante variabili in(n,r,c) esistono?",
+    "o": [
+      "81",
+      "243",
+      "729",
+      "6561"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: 729"
+  },
+  {
+    "c": "c10",
+    "q": "Quale clausola esprime che, fissati numero n e riga r, n compare in almeno una colonna?",
+    "o": [
+      "in(1,r,n) ∧ ··· ∧ in(9,r,n)",
+      "¬in(n,r,1) ∨ ··· ∨ ¬in(n,r,9)",
+      "in(n,r,1) → in(n,r,9)",
+      "in(n,r,1) ∨ ··· ∨ in(n,r,9)"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: in(n,r,1) ∨ ··· ∨ in(n,r,9)"
+  },
+  {
+    "c": "c11",
+    "q": "Se f/2 e g/1 sono simboli di funzione, a è una costante e x una variabile, quale espressione è un termine?",
+    "o": [
+      "f(g(a),x)",
+      "P(f(a),x)",
+      "∀x f(x,a)",
+      "f(P(a),x)"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: f(g(a),x)"
+  },
+  {
+    "c": "c11",
+    "q": "Se P/2 è un predicato, f/1 una funzione e a una costante, quale espressione è una formula atomica?",
+    "o": [
+      "f(P(a))",
+      "∀x P(x,a)",
+      "¬P(a,x)",
+      "P(f(a),x)"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: P(f(a),x)"
+  },
+  {
+    "c": "c11",
+    "q": "Quali sono le variabili libere di ∀x(P(x,y) → ∃y Q(x,y,z))?",
+    "o": [
+      "y e z",
+      "solo z",
+      "solo y",
+      "x, y e z"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: y e z"
+  },
+  {
+    "c": "c11",
+    "q": "Quale rinomina della variabile legata preserva il significato di ∃x P(x,y), assumendo z nuova?",
+    "o": [
+      "∃z P(x,z)",
+      "∃z P(z,y)",
+      "∃y P(y,y)",
+      "P(z,y)"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ∃z P(z,y)"
+  },
+  {
+    "c": "c11",
+    "q": "Qual è la sostituzione capture-avoiding di y al posto di x in ∀y R(x,y)?",
+    "o": [
+      "∀y R(y,y)",
+      "∀x R(y,x)",
+      "∀z R(y,z), con z nuova",
+      "R(y,y)"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ∀z R(y,z), con z nuova"
+  },
+  {
+    "c": "c11",
+    "q": "Nella semantica standard della logica del primo ordine, il dominio di un'interpretazione deve essere:",
+    "o": [
+      "finito",
+      "uguale all'insieme delle costanti",
+      "non vuoto",
+      "numerabile"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: non vuoto"
+  },
+  {
+    "c": "c11",
+    "q": "L'interpretazione di una costante c è:",
+    "o": [
+      "un sottoinsieme del dominio",
+      "un elemento del dominio",
+      "una funzione da D a D",
+      "un valore di verità indipendente dal dominio"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: un elemento del dominio"
+  },
+  {
+    "c": "c11",
+    "q": "L'interpretazione di una funzione n-aria f è:",
+    "o": [
+      "un sottoinsieme di D^n",
+      "una funzione D^n→{V,F}",
+      "una funzione totale D^n→D",
+      "un insieme di formule con n variabili"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: una funzione totale D^n→D"
+  },
+  {
+    "c": "c11",
+    "q": "L'interpretazione di un predicato n-ario P può essere rappresentata come:",
+    "o": [
+      "una funzione D^n→D",
+      "un singolo elemento di D",
+      "un sottoinsieme di D^n",
+      "una sostituzione di termini"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: un sottoinsieme di D^n"
+  },
+  {
+    "c": "c11",
+    "q": "Che cosa determina un'assegnazione α in una struttura del primo ordine?",
+    "o": [
+      "L'estensione di ogni predicato",
+      "Un elemento del dominio per ogni variabile",
+      "Il significato delle costanti",
+      "Il valore di verità di ogni frase indipendentemente dalla struttura"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: Un elemento del dominio per ogni variabile"
+  },
+  {
+    "c": "c11",
+    "q": "Perché il valore di verità di una frase chiusa non dipende dall'assegnazione?",
+    "o": [
+      "Perché non contiene occorrenze libere di variabili",
+      "Perché non contiene predicati",
+      "Perché tutte le costanti denotano lo stesso elemento",
+      "Perché ogni frase chiusa è valida"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Perché non contiene occorrenze libere di variabili"
+  },
+  {
+    "c": "c11",
+    "q": "Nella logica del primo ordine con uguaglianza standard, il simbolo = è interpretato come:",
+    "o": [
+      "una relazione arbitraria scelta dall'interpretazione",
+      "l'identità sul dominio",
+      "l'equivalenza logica tra formule",
+      "una funzione binaria nel dominio"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: l'identità sul dominio"
+  },
+  {
+    "c": "c11",
+    "q": "Quale clausola semantica per il quantificatore universale è corretta?",
+    "o": [
+      "⟨I,α⟩⊨∀x φ se esiste d∈D che soddisfa φ",
+      "⟨I,α⟩⊨∀x φ se per ogni d∈D vale ⟨I,α[x↦d]⟩⊨φ",
+      "⟨I,α⟩⊨∀x φ se α(x) è una costante",
+      "⟨I,α⟩⊨∀x φ se φ è valida in tutte le strutture"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ⟨I,α⟩⊨∀x φ se per ogni d∈D vale ⟨I,α[x↦d]⟩⊨φ"
+  },
+  {
+    "c": "c12",
+    "q": "Come si formalizza «Ogni A è B»?",
+    "o": [
+      "∀x(A(x)∧B(x))",
+      "∃x(A(x)→B(x))",
+      "∃x(A(x)∧B(x))",
+      "∀x(A(x)→B(x))"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: ∀x(A(x)→B(x))"
+  },
+  {
+    "c": "c12",
+    "q": "Come si formalizza «Solo gli A sono B»?",
+    "o": [
+      "∀x(A(x)→B(x))",
+      "∃x(B(x)∧A(x))",
+      "∀x(B(x)→A(x))",
+      "∀x(A(x)↔¬B(x))"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ∀x(B(x)→A(x))"
+  },
+  {
+    "c": "c12",
+    "q": "Quale formula esprime «Nessun A è B»?",
+    "o": [
+      "∀x(A(x)→B(x))",
+      "¬∀x(A(x)∧B(x))",
+      "∃x(A(x)∧¬B(x))",
+      "∀x(A(x)→¬B(x))"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: ∀x(A(x)→¬B(x))"
+  },
+  {
+    "c": "c12",
+    "q": "Quale formula è equivalente a «Non tutti gli A sono B»?",
+    "o": [
+      "∀x(A(x)→¬B(x))",
+      "∃x(A(x)→¬B(x))",
+      "∃x(A(x)∧¬B(x))",
+      "¬∃x A(x)"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ∃x(A(x)∧¬B(x))"
+  },
+  {
+    "c": "c12",
+    "q": "Quale formula esprime «Esiste esattamente un A»?",
+    "o": [
+      "∃x(A(x) ∧ ∀y(A(y)→y=x))",
+      "∃x A(x) ∧ ∃y A(y)",
+      "∀x∀y(A(x)∧A(y))",
+      "∀x(A(x)→∃y A(y))"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: ∃x(A(x) ∧ ∀y(A(y)→y=x))"
+  },
+  {
+    "c": "c12",
+    "q": "Quale formula esprime «Esistono almeno due A distinti»?",
+    "o": [
+      "∃x(A(x)∧x≠x)",
+      "∀x∃y(A(x)→A(y))",
+      "∃x∃y(A(x)∨A(y))",
+      "∃x∃y(A(x)∧A(y)∧x≠y)"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: ∃x∃y(A(x)∧A(y)∧x≠y)"
+  },
+  {
+    "c": "c12",
+    "q": "Come si formalizza «Ogni studente ammira almeno un professore»?",
+    "o": [
+      "∃y(Professor(y)∧∀x(Student(x)→Admires(x,y)))",
+      "∀x∀y((Student(x)∧Professor(y))→Admires(x,y))",
+      "∀x(Student(x)→∃y(Professor(y)∧Admires(x,y)))",
+      "∃x(Student(x)∧∀y(Professor(y)→Admires(x,y)))"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: ∀x(Student(x)→∃y(Professor(y)∧Admires(x,y)))"
+  },
+  {
+    "c": "c12",
+    "q": "Come si formalizza «Esiste un professore ammirato da ogni studente»?",
+    "o": [
+      "∀x(Student(x)→∃y(Professor(y)∧Admires(x,y)))",
+      "∃y(Professor(y)∧∀x(Student(x)→Admires(x,y)))",
+      "∀y(Professor(y)→∃x(Student(x)∧Admires(x,y)))",
+      "∃x(Student(x)∧∀y(Professor(y)→Admires(x,y)))"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ∃y(Professor(y)∧∀x(Student(x)→Admires(x,y)))"
+  },
+  {
+    "c": "c12",
+    "q": "Quale affermazione sul confronto tra ∀x∃y R(x,y) ed ∃y∀x R(x,y) è corretta?",
+    "o": [
+      "La prima implica la seconda in ogni struttura",
+      "Sono sempre equivalenti",
+      "La seconda implica la prima, ma non viceversa in generale",
+      "Sono entrambe insoddisfacibili nei domini con più di un elemento"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: La seconda implica la prima, ma non viceversa in generale"
+  },
+  {
+    "c": "c12",
+    "q": "Se father è una funzione unaria e luca una costante, «Il padre di Luca è italiano» si formalizza come:",
+    "o": [
+      "father(Italian(luca))",
+      "∃x(father(x)∧Italian(luca))",
+      "Italian(father(luca))",
+      "∀x(father(luca)=x→¬Italian(x))"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: Italian(father(luca))"
+  },
+  {
+    "c": "c12",
+    "q": "Assumendo domini non vuoti, quale formula è valida?",
+    "o": [
+      "∃x P(x) → ∀x P(x)",
+      "∀x P(x) → ∃x P(x)",
+      "∀x∃y R(x,y) → ∃y∀x R(x,y)",
+      "∃x P(x) ∧ ∀x ¬P(x)"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: ∀x P(x) → ∃x P(x)"
+  },
+  {
+    "c": "c13",
+    "q": "A una relazione R con n attributi nello schema relazionale corrisponde, nel linguaggio logico associato:",
+    "o": [
+      "una funzione n-aria R",
+      "una costante R",
+      "un predicato n-ario R",
+      "un insieme di n quantificatori"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: un predicato n-ario R"
+  },
+  {
+    "c": "c13",
+    "q": "Nel linguaggio del primo ordine associato a una base di dati relazionale, i valori che possono comparire nelle tuple sono rappresentati da:",
+    "o": [
+      "simboli di costante",
+      "variabili proposizionali",
+      "simboli di funzione unaria",
+      "schemi di assiomi di Hilbert"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: simboli di costante"
+  },
+  {
+    "c": "c13",
+    "q": "Quale descrizione della base di dati come interpretazione è corretta nel modello del corso?",
+    "o": [
+      "Il dominio è finito, ogni costante denota se stessa e ogni predicato è interpretato dalla relazione corrispondente",
+      "Il dominio coincide con l'insieme delle formule e le costanti denotano valori arbitrari",
+      "Ogni relazione è interpretata come una funzione totale",
+      "Il dominio deve essere infinito e privo di uguaglianza"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: Il dominio è finito, ogni costante denota se stessa e ogni predicato è interpretato dalla relazione corrispondente"
+  },
+  {
+    "c": "c13",
+    "q": "Una query di calcolo relazionale della forma {() : φ}, con φ chiusa, restituisce:",
+    "o": [
+      "una relazione unaria con tutte le costanti",
+      "un valore booleano determinato da D⊨φ",
+      "l'insieme delle variabili libere di φ",
+      "sempre la tupla vuota, indipendentemente da D"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: un valore booleano determinato da D⊨φ"
+  },
+  {
+    "c": "c13",
+    "q": "La query {(x₁,…,xₖ):φ(x₁,…,xₖ)} restituisce:",
+    "o": [
+      "le k-uple di costanti che, assegnate alle variabili libere, rendono vera φ in D",
+      "tutte le k-uple del dominio, indipendentemente da φ",
+      "una singola formula proposizionale",
+      "le sole costanti che compaiono sintatticamente in φ"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: le k-uple di costanti che, assegnate alle variabili libere, rendono vera φ in D"
+  },
+  {
+    "c": "c13",
+    "q": "Nella base has-father={(1,2),(2,3),(3,4),(4,5)}, che cosa restituisce {(x,y):∃z(has-father(x,z)∧has-father(z,y))}?",
+    "o": [
+      "{(1,3),(2,4),(3,5)}",
+      "{(1,2),(2,3),(3,4),(4,5)}",
+      "{(2,1),(3,2),(4,3),(5,4)}",
+      "{(1,4),(2,5)}"
+    ],
+    "correct": 0,
+    "e": "Risposta corretta: {(1,3),(2,4),(3,5)}"
+  },
+  {
+    "c": "c13",
+    "q": "Con Movie(title,director,actor) e Schedule(theater,mtitle), quale query trova i cinema che proiettano almeno un film di Tarantino?",
+    "o": [
+      "{(x):∀y(Schedule(x,y)→Movie(y,Tarantino,x))}",
+      "{(x):¬∃y Schedule(x,y)}",
+      "{(x):∃y∃z(Schedule(x,y)∧Movie(y,Tarantino,z))}",
+      "{(x):∃y(Movie(x,Tarantino,y)∧Schedule(y,x))}"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: {(x):∃y∃z(Schedule(x,y)∧Movie(y,Tarantino,z))}"
+  },
+  {
+    "c": "c13",
+    "q": "Quale query trova i cinema che proiettano qualcosa ma nessun film di Tarantino?",
+    "o": [
+      "{(x):¬∃z Schedule(x,z)}",
+      "{(x):∀y(Schedule(x,y)→∃w Movie(y,Tarantino,w))}",
+      "{(x):∃y∃w(Schedule(x,y)∧Movie(y,Tarantino,w))}",
+      "{(x):∃z Schedule(x,z) ∧ ¬∃y∃w(Schedule(x,y)∧Movie(y,Tarantino,w))}"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: {(x):∃z Schedule(x,z) ∧ ¬∃y∃w(Schedule(x,y)∧Movie(y,Tarantino,w))}"
+  },
+  {
+    "c": "c13",
+    "q": "Quale query esprime «i cinema che proiettano solo film di Tarantino» nella formalizzazione del corso?",
+    "o": [
+      "{(x):∀y((∃w Movie(y,Tarantino,w))→Schedule(x,y))}",
+      "{(x):∃y(Schedule(x,y)∧¬∃w Movie(y,Tarantino,w))}",
+      "{(x):¬∃y Schedule(x,y)}",
+      "{(x):∀y(Schedule(x,y)→∃w Movie(y,Tarantino,w))}"
+    ],
+    "correct": 3,
+    "e": "Risposta corretta: {(x):∀y(Schedule(x,y)→∃w Movie(y,Tarantino,w))}"
+  },
+  {
+    "c": "c13",
+    "q": "Quale query esprime «i cinema che proiettano tutti i film di Tarantino»?",
+    "o": [
+      "{(x):∀y(Schedule(x,y)→∃w Movie(y,Tarantino,w))}",
+      "{(x):∀y((∃w Movie(y,Tarantino,w))→Schedule(x,y))}",
+      "{(x):∃y∃w(Schedule(x,y)∧Movie(y,Tarantino,w))}",
+      "{(x):¬∃y Schedule(x,y)}"
+    ],
+    "correct": 1,
+    "e": "Risposta corretta: {(x):∀y((∃w Movie(y,Tarantino,w))→Schedule(x,y))}"
+  },
+  {
+    "c": "c13",
+    "q": "Se S=⟨Σ,Γ⟩ è uno schema con vincoli di integrità espressi in FOL, una base di dati D è legale per S quando:",
+    "o": [
+      "D contiene almeno una tupla per ogni relazione",
+      "ogni formula di Γ è una tautologia indipendente da D",
+      "D ⊨ Γ, cioè D è modello di tutti i vincoli",
+      "D è logicamente equivalente all'insieme vuoto"
+    ],
+    "correct": 2,
+    "e": "Risposta corretta: D ⊨ Γ, cioè D è modello di tutti i vincoli"
+  }
+];
+
+const LETTERS = ["A","B","C","D"];
+
+const state = {
+  base: QUESTIONS.map((c,i)=>({...c, id:i})),
+  order: [], idx:0, filter:"all", shuffleQ:false, shuffleA:false,
+  display:{},  // id -> array di indici originali nell'ordine mostrato
+  answers:{},  // id -> indice originale scelto
+};
+
+const $ = s=>document.querySelector(s);
+
+function activeList(){
+  return state.base.filter(c=> state.filter==="all" ? true : c.c===state.filter);
+}
+function shuffleArr(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function buildOrder(){
+  let list = activeList().map(c=>c.id);
+  if(state.shuffleQ) shuffleArr(list);
+  state.order=list; state.idx=0;
+  // ordine di visualizzazione delle opzioni per ogni domanda
+  state.display={};
+  state.base.forEach(c=>{
+    let d=[0,1,2,3];
+    if(state.shuffleA) shuffleArr(d);
+    state.display[c.id]=d;
+  });
+}
+function current(){ return state.base[state.order[state.idx]]; }
+
+function render(){
+  showQuiz();
+  const tot=state.order.length;
+  $("#tot").textContent=tot;
+  $("#nq").textContent=tot; $("#cur").textContent = tot? state.idx+1 : 0;
+  $("#bar").style.width = tot ? ((state.idx+1)/tot*100)+"%" : "0%";
+  if(tot===0){
+    $("#qtext").textContent="Nessuna domanda in questo filtro.";
+    $("#opts").innerHTML=""; $("#exp").className="exp";
+    updateScore(); return;
+  }
+  const c=current();
+  $("#cat").textContent=CATS[c.c].name;
+  $("#qnum").textContent="Domanda #"+(c.id+1);
+  $("#qtext").innerHTML=c.q;
+
+  const answered = state.answers[c.id]!==undefined;
+  const chosen = state.answers[c.id];
+  const box=$("#opts"); box.innerHTML="";
+  state.display[c.id].forEach((origIdx,pos)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.disabled=answered;
+    b.innerHTML='<span class="letter">'+LETTERS[pos]+'</span><span class="txt">'+c.o[origIdx]+'</span>';
+    if(answered){
+      if(origIdx===c.correct){ b.classList.add("correct"); b.insertAdjacentHTML("beforeend",'<span class="mk">✓</span>'); }
+      else if(origIdx===chosen){ b.classList.add("wrong"); b.insertAdjacentHTML("beforeend",'<span class="mk">✗</span>'); }
+      else b.classList.add("dim");
+    }
+    b.onclick=()=>answer(origIdx);
+    box.appendChild(b);
+  });
+
+  const exp=$("#exp");
+  if(answered){
+    const ok = chosen===c.correct;
+    exp.className="exp show "+(ok?"ok":"no");
+    $("#verdict").textContent = ok ? "Risposta corretta" : ("Errata — corretta: "+LETTERS[state.display[c.id].indexOf(c.correct)]);
+    $("#exptext").innerHTML=c.e;
+  } else {
+    exp.className="exp";
+  }
+
+  $("#prev").disabled = state.idx===0;
+  $("#next").disabled = state.idx===tot-1;
+  updateScore();
+}
+
+function answer(origIdx){
+  const c=current();
+  if(state.answers[c.id]!==undefined) return;
+  state.answers[c.id]=origIdx;
+  render();
+}
+function go(d){
+  const n=state.idx+d;
+  if(n<0||n>=state.order.length) return;
+  state.idx=n; render();
+}
+function stats(){
+  let ok=0,no=0,ans=0;
+  state.order.forEach(id=>{
+    const a=state.answers[id];
+    if(a!==undefined){ ans++; if(a===state.base[id].correct) ok++; else no++; }
+  });
+  return {ok,no,ans,tot:state.order.length};
+}
+function updateScore(){
+  const s=stats();
+  $("#nok").textContent=s.ok; $("#nno").textContent=s.no; $("#nans").textContent=s.ans;
+  $("#pct").textContent = s.ans? Math.round(s.ok/s.ans*100)+"%" : "—";
+}
+
+// filtri
+function buildChips(){
+  const box=$("#chips"); box.innerHTML="";
+  const mk=(key,label)=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.textContent=label;
+    b.setAttribute("aria-pressed", state.filter===key);
+    b.onclick=()=>{ state.filter=key; state.answers={}; buildOrder(); render(); buildChips(); };
+    box.appendChild(b);
+  };
+  mk("all","Tutte");
+  Object.entries(CATS).forEach(([k,v])=>mk(k,v.name));
+}
+
+// risultato finale
+function showResults(){
+  const s=stats();
+  $("#card").classList.add("hidden");
+  $("#controls").classList.add("hidden");
+  $("#scorebar").classList.add("hidden");
+  $("#results").classList.remove("hidden");
+  $("#rScore").textContent=s.ok; $("#rTot").textContent=s.tot;
+  const pct = s.tot? Math.round(s.ok/s.tot*100) : 0;
+  let msg;
+  if(pct>=90) msg="Ottimo! Padronanza solida della materia.";
+  else if(pct>=70) msg="Buon lavoro. Rivedi qualche argomento e ci sei.";
+  else if(pct>=50) msg="Base discreta: ripassa i macro-livelli più deboli.";
+  else msg="Da consolidare: riparti dai fondamenti e riprova.";
+  $("#rVerdict").textContent=pct+"% corrette · "+msg;
+
+  // breakdown per livello (sui soli livelli presenti nell'ordine attivo)
+  const bd=$("#breakdown"); bd.innerHTML="";
+  Object.entries(CATS).forEach(([k,v])=>{
+    const ids=state.order.filter(id=>state.base[id].c===k);
+    if(ids.length===0) return;
+    let ok=0; ids.forEach(id=>{ if(state.answers[id]===state.base[id].correct) ok++; });
+    const p=Math.round(ok/ids.length*100);
+    const row=document.createElement("div"); row.className="brow";
+    row.innerHTML='<span class="bl">'+k.replace('c','')+'</span>'
+      +'<span class="bn">'+v.name.replace(/^L\d · /,'')+'</span>'
+      +'<span class="bt"><span class="bf" style="width:'+p+'%"></span></span>'
+      +'<span class="bv">'+ok+'/'+ids.length+'</span>';
+    bd.appendChild(row);
+  });
+}
+function showQuiz(){
+  $("#card").classList.remove("hidden");
+  $("#controls").classList.remove("hidden");
+  $("#scorebar").classList.remove("hidden");
+  $("#results").classList.add("hidden");
+}
+
+// striscia binaria decorativa
+(function(){ let s=""; for(let i=0;i<150;i++) s+=(Math.random()<.5?"0":"1"); $("#binstrip").textContent=s; })();
+
+// eventi
+$("#next").onclick=()=>go(1);
+$("#prev").onclick=()=>go(-1);
+$("#finish").onclick=showResults;
+$("#restart").onclick=()=>{ state.answers={}; buildOrder(); render(); };
+$("#reset").onclick=()=>{ state.answers={}; render(); };
+
+const tQ=$("#shuffleQ");
+tQ.onclick=()=>{ state.shuffleQ=!state.shuffleQ; tQ.classList.toggle("on",state.shuffleQ); state.answers={}; buildOrder(); render(); };
+const tA=$("#shuffleA");
+tA.onclick=()=>{ state.shuffleA=!state.shuffleA; tA.classList.toggle("on",state.shuffleA); state.answers={}; buildOrder(); render(); };
+
+document.addEventListener("keydown", e=>{
+  if($("#results").classList.contains("hidden")===false) return;
+  if(e.key==="ArrowRight") go(1);
+  else if(e.key==="ArrowLeft") go(-1);
+  else if(["1","2","3","4"].includes(e.key)){
+    const c=current(); if(!c) return;
+    const pos=parseInt(e.key,10)-1;
+    const disp=state.display[c.id];
+    if(pos<disp.length && state.answers[c.id]===undefined) answer(disp[pos]);
+  }
+  else if(["a","b","c","d"].includes(e.key.toLowerCase())){
+    const c=current(); if(!c) return;
+    const pos=LETTERS.indexOf(e.key.toUpperCase());
+    const disp=state.display[c.id];
+    if(pos>=0 && pos<disp.length && state.answers[c.id]===undefined) answer(disp[pos]);
+  }
+});
+
+buildChips(); buildOrder(); render();
+</script>
+</body>
+</html>

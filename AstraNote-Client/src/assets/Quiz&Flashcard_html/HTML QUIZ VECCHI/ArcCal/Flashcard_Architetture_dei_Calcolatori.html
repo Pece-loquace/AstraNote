@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flashcard — Architetture dei Calcolatori</title>
+<style>
+  :root{
+    --ink:#14273f; --navy:#1F3A5F; --blue:#2E6CA4; --blue-soft:#5b8fc0;
+    --accent:#C0392B; --accent-soft:#e07b6f;
+    --paper:#eef3f8; --card:#ffffff; --line:#c9d6e3;
+    --muted:#5c6b7a; --good:#2f7d4f; --review:#b5852a;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:var(--sans); color:var(--ink);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(31,58,95,.10) 1px, transparent 0) 0 0/22px 22px,
+      linear-gradient(180deg,#f6f9fc 0%, var(--paper) 100%);
+    min-height:100%; display:flex; flex-direction:column; align-items:center;
+    padding:22px 16px 40px;
+  }
+  .wrap{width:100%; max-width:680px}
+
+  header{margin-bottom:14px}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--blue); margin:0 0 4px;
+  }
+  h1{font-size:26px; line-height:1.1; margin:0 0 4px; color:var(--navy); letter-spacing:-.01em}
+  .sub{margin:0; color:var(--muted); font-size:13px}
+  .binstrip{font-family:var(--mono); font-size:11px; color:rgba(46,108,164,.45); letter-spacing:.18em; margin-top:8px; overflow:hidden; white-space:nowrap}
+
+  /* progress */
+  .meta{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0 8px}
+  .count{font-family:var(--mono); font-size:13px; color:var(--navy)}
+  .count b{font-size:16px}
+  .track{flex:1; height:6px; background:#dbe5ef; border-radius:99px; overflow:hidden}
+  .bar{height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--navy)); transition:width .25s ease}
+
+  /* filters */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px}
+  .chip{
+    font-family:var(--mono); font-size:11px; letter-spacing:.04em; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--muted);
+    padding:5px 10px; border-radius:99px; transition:all .15s;
+  }
+  .chip:hover{border-color:var(--blue-soft); color:var(--navy)}
+  .chip[aria-pressed="true"]{background:var(--navy); color:#fff; border-color:var(--navy)}
+  .chip.exam[aria-pressed="true"]{background:var(--accent); border-color:var(--accent)}
+
+  /* card */
+  .scene{perspective:1600px; margin:14px 0}
+  .card{
+    position:relative; width:100%; min-height:300px; cursor:pointer;
+    transform-style:preserve-3d; transition:transform .5s cubic-bezier(.2,.7,.2,1);
+  }
+  .card.flipped{transform:rotateY(180deg)}
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 10px 30px -18px rgba(20,39,63,.45), 0 1px 0 rgba(255,255,255,.6) inset;
+    padding:26px 26px 58px; display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .face::before{ /* faint bit grid backing */
+    content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background:radial-gradient(circle at 1px 1px, rgba(31,58,95,.06) 1px, transparent 0) 0 0/16px 16px;
+  }
+  .front{ border-top:4px solid var(--blue) }
+  .back{ transform:rotateY(180deg); border-top:4px solid var(--navy) }
+  .card.exam .front{ border-top-color:var(--accent) }
+  .card.exam .back{ border-top-color:var(--accent) }
+
+  .cat{position:relative; display:flex; align-items:center; gap:8px; margin-bottom:14px}
+  .catname{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue)}
+  .card.exam .catname{color:var(--accent)}
+  .exambadge{
+    font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:#fff; background:var(--accent);
+    padding:2px 7px; border-radius:99px;
+  }
+  .kind{position:relative; font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
+  .qtext{position:relative; font-size:20px; line-height:1.35; color:var(--navy); font-weight:600; margin:2px 0}
+  .atext{position:relative; font-size:16px; line-height:1.5; color:var(--ink)}
+  .atext code, .qtext code{
+    font-family:var(--mono); font-size:.92em; background:#eef3f8; border:1px solid #dbe5ef;
+    padding:1px 5px; border-radius:5px; color:#12324d; white-space:nowrap;
+  }
+  .atext b{color:var(--navy)}
+  .hint{
+    position:absolute; left:0; right:0; bottom:14px; text-align:center;
+    font-family:var(--mono); font-size:11px; letter-spacing:.06em; color:var(--muted); pointer-events:none;
+  }
+
+  /* controls */
+  .controls{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px}
+  .navbtns{display:flex; gap:8px}
+  button.btn{
+    font-family:var(--sans); font-size:14px; cursor:pointer; border-radius:10px; padding:10px 16px;
+    border:1px solid var(--line); background:#fff; color:var(--navy); transition:all .15s; font-weight:600;
+  }
+  button.btn:hover{border-color:var(--blue); box-shadow:0 3px 10px -6px rgba(31,58,95,.4)}
+  button.btn:active{transform:translateY(1px)}
+  button.btn[disabled]{opacity:.4; cursor:default; box-shadow:none}
+  .btn.primary{background:var(--navy); color:#fff; border-color:var(--navy)}
+  .btn.primary:hover{background:#264b78}
+
+  .mark{display:flex; gap:8px}
+  .mbtn{font-family:var(--mono); font-size:12px; cursor:pointer; border-radius:99px; padding:8px 12px; border:1px solid var(--line); background:#fff}
+  .mbtn.know{color:var(--good)} .mbtn.know.on{background:var(--good); color:#fff; border-color:var(--good)}
+  .mbtn.rev{color:var(--review)} .mbtn.rev.on{background:var(--review); color:#fff; border-color:var(--review)}
+
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px; flex-wrap:wrap}
+  .toggle{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none}
+  .switch{width:38px; height:22px; border-radius:99px; background:#cdd9e5; position:relative; transition:background .15s}
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle.on .switch{background:var(--blue)} .toggle.on .switch::after{left:18px}
+  .txtbtn{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;font-family:var(--sans);padding:4px}
+  .txtbtn:hover{text-decoration:underline}
+
+  .stats{font-family:var(--mono); font-size:12px; color:var(--muted)}
+  .stats .g{color:var(--good)} .stats .r{color:var(--review)}
+
+  .done{text-align:center; padding:20px; color:var(--muted); font-size:13px}
+
+  @media (max-width:520px){
+    h1{font-size:22px}
+    .qtext{font-size:18px}
+    .controls{flex-direction:column; align-items:stretch}
+    .navbtns{justify-content:space-between}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card{transition:none} .bar{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Architetture dei Calcolatori · 330 carte</p>
+    <h1>Flashcard — Architetture dei Calcolatori</h1>
+    <p class="sub">Clicca la carta per girarla · usa ← → per navigare · barra spaziatrice per girare</p>
+    <div class="binstrip" id="binstrip"></div>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="meta">
+    <span class="count"><b id="cur">1</b> / <span id="tot">0</span></span>
+    <div class="track"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <div class="scene">
+    <div class="card" id="card" role="button" tabindex="0" aria-label="Flashcard, clicca per girare">
+      <div class="face front">
+        <div class="cat"><span class="catname" id="fcat"></span><span class="exambadge" id="fbadge" style="display:none">★ Probabile all'esame</span></div>
+        <div class="kind">Domanda</div>
+        <div class="qtext" id="fq"></div>
+        <div class="hint">clicca per la risposta</div>
+      </div>
+      <div class="face back">
+        <div class="cat"><span class="catname" id="bcat"></span></div>
+        <div class="kind">Risposta</div>
+        <div class="atext" id="ba"></div>
+        <div class="hint">clicca per tornare</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="navbtns">
+      <button class="btn" id="prev">← Precedente</button>
+      <button class="btn primary" id="next">Successiva →</button>
+    </div>
+    <div class="mark">
+      <button class="mbtn know" id="know">✓ Saputa</button>
+      <button class="mbtn rev" id="rev">↻ Da rivedere</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <label class="toggle" id="shuffleToggle"><span class="switch"></span> Mescola</label>
+    <span class="stats">Sapute: <span class="g" id="nknow">0</span> · Da rivedere: <span class="r" id="nrev">0</span></span>
+    <button class="txtbtn" id="reset">Ripristina progressi</button>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  l1: {name:"L1 \u00b7 Fondamenti"},
+  l2: {name:"L2 \u00b7 Timing, stato e HDL"},
+  l3: {name:"L3 \u00b7 ISA e processore"},
+  l4: {name:"L4 \u00b7 Pipeline e microarch."},
+  l5: {name:"L5 \u00b7 Gerarchia di memoria"},
+};
+
+// 330 flashcard dal PDF "Architetture dei Calcolatori", nei 5 macro-livelli, in ordine.
+const CARDS = [
+  // Macro-livello 1 — Fondamenti (1–60)
+  {c:"l1", q:"Che cos\u2019\u00e8 un\u2019architettura di calcolatore?", a:"\u00c8 l\u2019organizzazione dei componenti hardware e delle relative interfacce necessarie a eseguire programmi, considerando funzionalit\u00e0, prestazioni, consumo, affidabilit\u00e0 e sicurezza."},
+  {c:"l1", q:"Qual \u00e8 la catena di livelli tra problema ed elettroni?", a:"Problema \u2192 algoritmo \u2192 programma/linguaggio \u2192 sistema runtime e sistema operativo \u2192 ISA \u2192 microarchitettura \u2192 logica digitale \u2192 dispositivi \u2192 elettroni."},
+  {c:"l1", q:"Che cos\u2019\u00e8 un\u2019astrazione?", a:"\u00c8 un\u2019interfaccia che espone un comportamento ben definito nascondendo i dettagli dell\u2019implementazione sottostante."},
+  {c:"l1", q:"Perch\u00e9 i dettagli dell\u2019implementazione possono essere importanti?", a:"Perch\u00e9 possono \u201ctrapelare\u201d attraverso differenze di prestazioni, consumi o tempi di esecuzione e produrre anche vulnerabilit\u00e0 di tipo side-channel."},
+  {c:"l1", q:"Che cos\u2019\u00e8 un bit?", a:"La pi\u00f9 piccola unit\u00e0 di informazione digitale, con valore 0 oppure 1."},
+  {c:"l1", q:"Che differenza c\u2019\u00e8 tra nibble, byte e word?", a:"Un nibble contiene 4 bit; un byte 8 bit; una word \u00e8 una quantit\u00e0 di bit dipendente dall\u2019architettura, per esempio 32 o 64 bit."},
+  {c:"l1", q:"Che cosa indicano MSB e LSB?", a:"MSB \u00e8 il bit pi\u00f9 significativo, cio\u00e8 quello con peso maggiore; LSB \u00e8 il bit meno significativo, cio\u00e8 quello con peso minore."},
+  {c:"l1", q:"Come si interpreta un numero posizionale in base b?", a:"Come <b>N = \u03a3 x<sub>i</sub>\u00b7b<sup>i</sup></b>, dove ogni cifra x<sub>i</sub> \u00e8 compresa tra 0 e b\u22121."},
+  {c:"l1", q:"Come si converte un intero binario in decimale?", a:"Si sommano le potenze di 2 corrispondenti ai bit uguali a 1. Esempio: <code>1011</code><sub>2</sub> = 2<sup>3</sup> + 2<sup>1</sup> + 2<sup>0</sup> = <b>11</b><sub>10</sub>."},
+  {c:"l1", q:"Come si converte un intero decimale in binario?", a:"Si effettuano divisioni successive per 2 e si leggono i resti dal basso verso l\u2019alto."},
+  {c:"l1", q:"Come si converte la parte frazionaria decimale in binario?", a:"Si moltiplica ripetutamente la frazione per 2 e si prendono, nell\u2019ordine, le parti intere ottenute."},
+  {c:"l1", q:"Perch\u00e9 la conversione tra binario ed esadecimale \u00e8 immediata?", a:"Perch\u00e9 <b>16 = 2<sup>4</sup></b>: ogni cifra esadecimale corrisponde esattamente a quattro bit."},
+  {c:"l1", q:"Qual \u00e8 l\u2019intervallo unsigned rappresentabile con N bit?", a:"<b>0 \u2264 x \u2264 2<sup>N</sup> \u2212 1</b>. Sono disponibili 2<sup>N</sup> configurazioni differenti."},
+  {c:"l1", q:"Che cosa succede aggiungendo un bit a una rappresentazione unsigned?", a:"Il numero delle configurazioni rappresentabili raddoppia."},
+  {c:"l1", q:"Quali sono le regole fondamentali dell\u2019addizione binaria?", a:"0+0=0, 0+1=1, 1+0=1, 1+1=0 con riporto 1."},
+  {c:"l1", q:"Che cos\u2019\u00e8 il carry-out?", a:"\u00c8 il riporto prodotto oltre il bit pi\u00f9 significativo. Nell\u2019aritmetica unsigned segnala che il risultato completo richiederebbe un bit aggiuntivo."},
+  {c:"l1", q:"Qual \u00e8 il problema della rappresentazione segno-modulo?", a:"Presenta due rappresentazioni dello zero e non permette di usare direttamente la normale addizione binaria per tutti i numeri signed."},
+  {c:"l1", q:"Come si ottiene il complemento a due di un numero?", a:"Si negano tutti i bit e si aggiunge 1."},
+  {c:"l1", q:"Qual \u00e8 l\u2019intervallo del complemento a due su N bit?", a:"<b>\u22122<sup>N\u22121</sup> \u2264 x \u2264 2<sup>N\u22121</sup> \u2212 1</b>."},
+  {c:"l1", q:"Qual \u00e8 il peso dell\u2019MSB nel complemento a due?", a:"\u00c8 negativo e vale <b>\u22122<sup>N\u22121</sup></b>. Gli altri bit hanno i normali pesi positivi."},
+  {c:"l1", q:"Che cosa si fa con il carry oltre l\u2019MSB in un\u2019addizione in complemento a due?", a:"Si scarta. Non va confuso con l\u2019overflow signed."},
+  {c:"l1", q:"Quando si verifica overflow signed nell\u2019addizione?", a:"Quando si sommano due operandi con lo stesso segno e il risultato ha segno opposto."},
+  {c:"l1", q:"Pu\u00f2 esserci overflow sommando operandi di segno diverso?", a:"No. La somma di un positivo e di un negativo rimane nell\u2019intervallo compreso fra i due operandi."},
+  {c:"l1", q:"Che cos\u2019\u00e8 l\u2019estensione di segno?", a:"\u00c8 l\u2019aumento della lunghezza di un numero signed replicando il suo bit di segno nelle nuove posizioni pi\u00f9 significative."},
+  {c:"l1", q:"Come si esegue A\u2212B usando un sommatore?", a:"<b>A\u2212B = A + \u00acB + 1</b>."},
+  {c:"l1", q:"Com\u2019\u00e8 strutturato IEEE 754 a 32 bit?", a:"1 bit di segno, 8 bit di esponente con bias 127 e 23 bit di frazione o mantissa memorizzata."},
+  {c:"l1", q:"Qual \u00e8 il valore di un numero IEEE 754 normalizzato?", a:"<b>(\u22121)<sup>s</sup> \u00b7 1.m \u00b7 2<sup>E\u2212127</sup></b>, dove s \u00e8 il segno, E l\u2019esponente memorizzato e 1.m la significand normalizzata."},
+  {c:"l1", q:"Perch\u00e9 il primo 1 della mantissa normalizzata non viene memorizzato?", a:"Perch\u00e9 nei numeri normalizzati \u00e8 sempre presente. \u00c8 quindi un bit implicito che aumenta la precisione effettiva."},
+  {c:"l1", q:"Quali valori speciali identifica l\u2019esponente tutto a zero?", a:"Con frazione zero rappresenta +0 o \u22120; con frazione non nulla rappresenta un numero subnormale."},
+  {c:"l1", q:"Quali valori speciali identifica l\u2019esponente tutto a uno?", a:"Con frazione zero rappresenta +\u221e o \u2212\u221e; con frazione non nulla rappresenta NaN."},
+  {c:"l1", q:"Che cosa sono overflow e underflow floating point?", a:"L\u2019overflow si verifica quando il modulo \u00e8 troppo grande e pu\u00f2 produrre infinito; l\u2019underflow quando \u00e8 troppo piccolo e viene rappresentato come subnormale o zero."},
+  {c:"l1", q:"Come pu\u00f2 essere interpretato idealmente un transistor MOS?", a:"Come un interruttore controllato dalla tensione applicata al gate."},
+  {c:"l1", q:"Qual \u00e8 il ruolo della Pull-Down Network in una porta CMOS?", a:"Collegare l\u2019uscita a massa quando la funzione deve produrre 0. \u00c8 normalmente realizzata con transistor nMOS."},
+  {c:"l1", q:"Qual \u00e8 il ruolo della Pull-Up Network?", a:"Collegare l\u2019uscita a V quando la funzione deve produrre 1. \u00c8 normalmente realizzata con transistor pMOS. DD"},
+  {c:"l1", q:"Che relazione deve esserci tra PUN e PDN?", a:"Devono essere reti duali: idealmente una sola delle due deve condurre in ogni combinazione stabile degli ingressi."},
+  {c:"l1", q:"Che cos\u2019\u00e8 il margine di rumore?", a:"\u00c8 la quantit\u00e0 di disturbo che pu\u00f2 alterare una tensione senza causare un\u2019interpretazione logica errata."},
+  {c:"l1", q:"Qual \u00e8 la differenza tra potenza dinamica e statica?", a:"La potenza dinamica \u00e8 dovuta principalmente alle commutazioni e alla carica delle capacit\u00e0; quella statica alle correnti di leakage presenti anche senza commutazioni."},
+  {c:"l1", q:"Quali sono le porte logiche fondamentali?", a:"NOT, AND, OR, NAND, NOR, XOR e XNOR."},
+  {c:"l1", q:"Che cosa fa la XOR?", a:"Produce 1 quando gli ingressi sono diversi o, con pi\u00f9 ingressi, quando il numero di 1 \u00e8 dispari."},
+  {c:"l1", q:"Che cosa fa la XNOR?", a:"Produce 1 quando i due ingressi sono uguali."},
+  {c:"l1", q:"Perch\u00e9 NAND e NOR sono dette porte universali?", a:"Perch\u00e9 qualsiasi funzione booleana pu\u00f2 essere realizzata usando esclusivamente porte NAND oppure esclusivamente porte NOR."},
+  {c:"l1", q:"Quali sono le leggi di De Morgan?", a:"\u00ac(AB) = \u00acA + \u00acB e \u00ac(A+B) = \u00acA\u00b7\u00acB."},
+  {c:"l1", q:"Che cos\u2019\u00e8 un circuito combinatorio?", a:"Un circuito le cui uscite dipendono soltanto dagli ingressi correnti e non da uno stato precedente."},
+  {c:"l1", q:"Che cosa descrive una tabella di verit\u00e0?", a:"Il valore dell\u2019uscita per ogni possibile combinazione degli ingressi."},
+  {c:"l1", q:"Che cos\u2019\u00e8 un mintermine?", a:"Un prodotto AND contenente tutte le variabili, negate o non negate, che vale 1 per una sola riga della tabella di verit\u00e0."},
+  {c:"l1", q:"Che cos\u2019\u00e8 un maxtermine?", a:"Una somma OR contenente tutte le variabili che vale 0 per una sola riga della tabella di verit\u00e0."},
+  {c:"l1", q:"Che cos\u2019\u00e8 una forma SOP?", a:"Una somma di prodotti, cio\u00e8 un OR fra termini AND."},
+  {c:"l1", q:"Che cos\u2019\u00e8 una forma POS?", a:"Un prodotto di somme, cio\u00e8 un AND fra termini OR."},
+  {c:"l1", q:"Che differenza c\u2019\u00e8 tra forma canonica e forma minimizzata?", a:"La forma canonica usa mintermini o maxtermini completi; quella minimizzata elimina variabili e termini non necessari."},
+  {c:"l1", q:"Perch\u00e9 nelle mappe di Karnaugh si usa il codice Gray?", a:"Perch\u00e9 celle adiacenti devono differire in una sola variabile."},
+  {c:"l1", q:"Quali dimensioni possono avere i gruppi in una mappa di Karnaugh?", a:"Devono contenere una potenza di due celle: 1, 2, 4, 8, 16 e cos\u00ec via."},
+  {c:"l1", q:"Si possono sovrapporre i gruppi di Karnaugh?", a:"S\u00ec, quando la sovrapposizione permette di ottenere implicanti pi\u00f9 grandi o di coprire celle altrimenti scoperte."},
+  {c:"l1", q:"I bordi opposti della mappa di Karnaugh sono adiacenti?", a:"S\u00ec. La mappa si comporta come se fosse avvolta orizzontalmente e verticalmente."},
+  {c:"l1", q:"Che cos\u2019\u00e8 un implicante primo?", a:"Un gruppo di 1 che non pu\u00f2 essere ampliato senza includere uno 0."},
+  {c:"l1", q:"Che cos\u2019\u00e8 un implicante primo essenziale?", a:"Un implicante che copre almeno un 1 non coperto da nessun altro implicante primo."},
+  {c:"l1", q:"Come vengono usati i don\u2019t care?", a:"Possono essere trattati come 0 oppure come 1, scegliendo l\u2019opzione che produce la semplificazione migliore."},
+  {c:"l1", q:"Che cosa fa un multiplexer?", a:"Seleziona uno fra pi\u00f9 ingressi e lo inoltra a una singola uscita in base ai bit di selezione."},
+  {c:"l1", q:"Quanti bit di selezione servono per un MUX a N ingressi?", a:"<b>\u2308log<sub>2</sub>N\u2309</b>. Se N \u00e8 una potenza di due, il valore \u00e8 esattamente log<sub>2</sub>N."},
+  {c:"l1", q:"Che cosa fa un decoder?", a:"Attiva una delle proprie uscite in base al codice binario presente sugli ingressi."},
+  {c:"l1", q:"Che cosa fa un encoder?", a:"Produce il codice binario corrispondente all\u2019ingresso attivo. Un priority encoder stabilisce anche quale ingresso scegliere se ne sono attivi pi\u00f9 di uno."},
+  // Macro-livello 2 — Circuiti, timing e HDL (61–120)
+  {c:"l2", q:"Perch\u00e9 la sola funzione booleana non descrive completamente un circuito reale?", a:"Perch\u00e9 non indica quanto tempo impiegano le uscite a reagire e a stabilizzarsi dopo una variazione degli ingressi."},
+  {c:"l2", q:"Che cos\u2019\u00e8 il contamination delay t ? cd", a:"Il tempo minimo dopo il quale l\u2019uscita pu\u00f2 iniziare a cambiare."},
+  {c:"l2", q:"Che cos\u2019\u00e8 il propagation delay t pd ?", a:"Il tempo massimo entro il quale l\u2019uscita deve essersi stabilizzata sul nuovo valore corretto."},
+  {c:"l2", q:"Come si calcola il propagation delay di un circuito?", a:"Si sommano i t massimo. pd lungo ogni cammino ingresso-uscita e si sceglie il valore"},
+  {c:"l2", q:"Che cos\u2019\u00e8 il cammino critico?", a:"Il cammino con il massimo propagation delay complessivo. Determina la velocit\u00e0 massima del circuito."},
+  {c:"l2", q:"Che cos\u2019\u00e8 il cammino breve?", a:"Il cammino con il contamination delay complessivo minimo."},
+  {c:"l2", q:"Il cammino con pi\u00f9 porte \u00e8 sempre quello critico?", a:"No. Contano i ritardi effettivi delle porte, non soltanto il loro numero."},
+  {c:"l2", q:"Che cos\u2019\u00e8 un glitch?", a:"Una variazione transitoria indesiderata dell\u2019uscita causata da segnali che percorrono cammini con ritardi differenti."},
+  {c:"l2", q:"Che cos\u2019\u00e8 un hazard statico?", a:"La possibilit\u00e0 che un\u2019uscita che dovrebbe restare costante cambi temporaneamente durante una transizione degli ingressi."},
+  {c:"l2", q:"Come si pu\u00f2 eliminare un hazard statico?", a:"Aggiungendo un implicante ridondante che copra la transizione pericolosa nella mappa di Karnaugh."},
+  {c:"l2", q:"Minimizzare una funzione elimina automaticamente i glitch?", a:"No. La forma minima pu\u00f2 essere soggetta ad hazard e pu\u00f2 essere necessario aggiungere logica ridondante."},
+  {c:"l2", q:"Quali sono le equazioni dell\u2019half adder?", a:"<b>S = A \u2295 B; C = AB</b>."},
+  {c:"l2", q:"Quali sono le equazioni del full adder?", a:"<b>S = A \u2295 B \u2295 C<sub>in</sub>; C<sub>out</sub> = AB + AC<sub>in</sub> + BC<sub>in</sub></b>."},
+  {c:"l2", q:"Perch\u00e9 un full adder \u00e8 necessario negli stadi superiori di un sommatore?", a:"Perch\u00e9 deve sommare anche il carry proveniente dallo stadio precedente."},
+  {c:"l2", q:"Che cos\u2019\u00e8 un ripple-carry adder?", a:"Una catena di full adder nella quale ogni carry-out diventa il carry-in dello stadio successivo."},
+  {c:"l2", q:"Qual \u00e8 il principale limite del ripple-carry adder?", a:"Il carry pu\u00f2 dover attraversare sequenzialmente tutti gli stadi, creando un lungo cammino critico."},
+  {c:"l2", q:"Quali sono generate e propagate nella convenzione del corso?", a:"<b>g<sub>i</sub> = a<sub>i</sub>b<sub>i</sub>; p<sub>i</sub> = a<sub>i</sub> + b<sub>i</sub></b>."},
+  {c:"l2", q:"Qual \u00e8 l\u2019equazione fondamentale del carry-lookahead?", a:"<b>c<sub>i+1</sub> = g<sub>i</sub> + p<sub>i</sub>c<sub>i</sub></b>."},
+  {c:"l2", q:"Perch\u00e9 il carry-lookahead \u00e8 pi\u00f9 veloce?", a:"Perch\u00e9 calcola i carry tramite una rete combinatoria parallela, senza attendere la propagazione attraverso ogni full adder precedente."},
+  {c:"l2", q:"Qual \u00e8 il costo del carry-lookahead?", a:"Maggiore area, cablaggio e complessit\u00e0 logica."},
+  {c:"l2", q:"Come si trasforma un adder in un adder-subtractor?", a:"Si applica una XOR a ciascun bit di B con il comando di sottrazione e si usa lo stesso comando come carry-in iniziale."},
+  {c:"l2", q:"Qual \u00e8 la differenza tra carry e overflow?", a:"Il carry riguarda il riporto dell\u2019aritmetica unsigned; l\u2019overflow segnala un risultato signed non rappresentabile."},
+  {c:"l2", q:"Come si verifica l\u2019uguaglianza tra due parole binarie?", a:"Si applica una XNOR a ogni coppia di bit e poi un AND a tutti i risultati."},
+  {c:"l2", q:"Come si confrontano due numeri unsigned?", a:"Si parte dall\u2019MSB; la prima posizione in cui differiscono determina quale numero \u00e8 maggiore."},
+  {c:"l2", q:"Perch\u00e9 il confronto signed richiede attenzione?", a:"Perch\u00e9 il bit pi\u00f9 significativo rappresenta il segno e non pu\u00f2 essere trattato come un normale peso positivo."},
+  {c:"l2", q:"Che cos\u2019\u00e8 una ALU?", a:"Un circuito combinatorio capace di eseguire operazioni aritmetiche e logiche selezionate da segnali di controllo."},
+  {c:"l2", q:"Che cosa indica il flag Z?", a:"Che tutti i bit del risultato sono zero."},
+  {c:"l2", q:"Che cosa indica il flag N?", a:"Il bit di segno del risultato in complemento a due, normalmente coincidente con l\u2019MSB."},
+  {c:"l2", q:"Che cosa indica il flag C?", a:"Il carry-out dell\u2019operazione aritmetica, rilevante soprattutto nell\u2019interpretazione unsigned."},
+  {c:"l2", q:"Che cosa indica il flag V?", a:"Un overflow nell\u2019interpretazione signed."},
+  {c:"l2", q:"Qual \u00e8 la differenza fondamentale tra circuito combinatorio e sequenziale?", a:"Il circuito combinatorio dipende soltanto dagli ingressi correnti; quello sequenziale dipende anche dallo stato memorizzato."},
+  {c:"l2", q:"Che cos\u2019\u00e8 un latch?", a:"Un elemento di memoria sensibile al livello del segnale di abilitazione."},
+  {c:"l2", q:"Che cos\u2019\u00e8 un flip-flop?", a:"Un elemento di memoria edge-triggered che campiona l\u2019ingresso in corrispondenza di un fronte del clock."},
+  {c:"l2", q:"Che differenza c\u2019\u00e8 tra D latch e D flip-flop?", a:"Il D latch \u00e8 trasparente durante il livello attivo; il D flip-flop campiona D soltanto sul fronte attivo."},
+  {c:"l2", q:"Che cos\u2019\u00e8 un registro a N bit?", a:"Un insieme di N flip-flop che condividono lo stesso clock e memorizzano una parola di N bit."},
+  {c:"l2", q:"Che cos\u2019\u00e8 una macchina a stati finiti?", a:"Un circuito sequenziale descritto da un insieme finito di stati, una funzione di prossimo stato e una funzione di uscita."},
+  {c:"l2", q:"Da cosa dipende l\u2019uscita di una macchina di Moore?", a:"Soltanto dallo stato corrente."},
+  {c:"l2", q:"Da cosa dipende l\u2019uscita di una macchina di Mealy?", a:"Dallo stato corrente e dagli ingressi correnti."},
+  {c:"l2", q:"Quale modello pu\u00f2 reagire pi\u00f9 rapidamente a un ingresso?", a:"Mealy, perch\u00e9 l\u2019uscita pu\u00f2 cambiare senza attendere il passaggio a un nuovo stato."},
+  {c:"l2", q:"Quanti bit servono per codificare M stati?", a:"<b>\u2308log<sub>2</sub>M\u2309</b>."},
+  {c:"l2", q:"Che cos\u2019\u00e8 il setup time?", a:"Il tempo minimo durante il quale il dato deve essere stabile prima del fronte di clock."},
+  {c:"l2", q:"Che cos\u2019\u00e8 l\u2019hold time?", a:"Il tempo minimo durante il quale il dato deve restare stabile dopo il fronte di clock."},
+  {c:"l2", q:"Qual \u00e8 il vincolo di setup senza skew?", a:"<b>T<sub>clk</sub> \u2265 t<sub>pcq</sub> + t<sub>pd,comb</sub> + t<sub>setup</sub></b>."},
+  {c:"l2", q:"Come si calcola la frequenza massima?", a:"<b>f<sub>max</sub> = 1 / T<sub>clk,min</sub></b>."},
+  {c:"l2", q:"Qual \u00e8 il vincolo di hold senza skew?", a:"<b>t<sub>ccq</sub> + t<sub>cd,comb</sub> \u2265 t<sub>hold</sub></b>."},
+  {c:"l2", q:"Una violazione di hold si corregge rallentando il clock?", a:"No. Occorre aumentare il ritardo minimo del cammino, per esempio inserendo buffer."},
+  {c:"l2", q:"Che cos\u2019\u00e8 la metastabilit\u00e0?", a:"Una condizione fisica transitoria e imprevedibile del flip-flop causata, per esempio, dalla violazione di setup o hold."},
+  {c:"l2", q:"Verilog \u00e8 un normale linguaggio di programmazione?", a:"No. Descrive hardware concorrente; l\u2019ordine testuale non equivale necessariamente all\u2019ordine temporale di un programma software."},
+  {c:"l2", q:"Quando si usa assign?", a:"Per un continuous assignment che descrive logica combinatoria semplice."},
+  {c:"l2", q:"Come si descrive normalmente un blocco combinatorio procedurale?", a:"Con always @(*), assegnamenti blocking = e un\u2019assegnazione dell\u2019uscita in ogni possibile ramo."},
+  {c:"l2", q:"Come si descrive normalmente un blocco sequenziale?", a:"Con always @(posedge clk) o always @(negedge clk) e assegnamenti non-blocking <=."},
+  {c:"l2", q:"reg implica necessariamente un registro fisico?", a:"No. Significa che il segnale \u00e8 assegnato proceduralmente; l\u2019hardware inferito dipende dalla struttura del blocco."},
+  {c:"l2", q:"Quando viene inferito accidentalmente un latch?", a:"Quando in un blocco combinatorio un\u2019uscita non riceve un valore in tutti i possibili cammini di esecuzione."},
+  {c:"l2", q:"A cosa serve un testbench?", a:"A generare stimoli, controllare le uscite e verificare il modulo in simulazione. Non viene normalmente sintetizzato come hardware."},
+  {c:"l2", q:"Che cosa fanno initial, #10, $display e $finish?", a:"initial esegue un blocco una volta; #10 introduce un ritardo simulato; $display stampa; $finish termina la simulazione."},
+  {c:"l2", q:"Perch\u00e9 \u00e8 preferibile collegare i moduli Verilog per nome?", a:"Perch\u00e9 riduce il rischio di associare accidentalmente un segnale alla porta sbagliata."},
+  {c:"l2", q:"Che differenza c\u2019\u00e8 tra reset sincrono e asincrono?", a:"Il sincrono viene applicato soltanto sul fronte di clock; l\u2019asincrono pu\u00f2 modificare lo stato indipendentemente dal clock."},
+  {c:"l2", q:"Che cosa significa reset active low?", a:"Il reset \u00e8 attivo quando il relativo segnale vale 0, spesso indicato con nomi come reset_n."},
+  {c:"l2", q:"Perch\u00e9 non si dovrebbe pilotare lo stesso segnale da pi\u00f9 blocchi?", a:"Perch\u00e9 si possono creare driver multipli, conflitti e hardware non sintetizzabile o ambiguo."},
+  {c:"l2", q:"Qual \u00e8 la checklist essenziale per un circuito temporizzato?", a:"Funzione corretta, cammini di timing verificati, assenza di latch involontari, setup e hold rispettati, reset e assegnamenti Verilog coerenti."},
+  // Macro-livello 3 — ISA e processore (121–180)
+  {c:"l3", q:"Che cos\u2019\u00e8 una ISA?", a:"Il contratto tra software e hardware che definisce istruzioni, registri, tipi di dato, modalit\u00e0 di indirizzamento, eccezioni e comportamento visibile del processore."},
+  {c:"l3", q:"Come descrive formalmente un\u2019istruzione la ISA?", a:"Come una trasformazione non ambigua dello stato architetturale visibile: <b>S<sub>0</sub> \u2192 S<sub>1</sub></b>."},
+  {c:"l3", q:"ISA e microarchitettura sono la stessa cosa?", a:"No. La ISA specifica che cosa deve avvenire; la microarchitettura stabilisce come realizzarlo."},
+  {c:"l3", q:"Due processori diversi possono implementare la stessa ISA?", a:"S\u00ec. Possono avere pipeline, cache e unit\u00e0 interne differenti mantenendo lo stesso comportamento architetturale."},
+  {c:"l3", q:"Qual \u00e8 l\u2019idea fondamentale di una ISA load/store?", a:"Soltanto load e store accedono alla memoria; le operazioni aritmetiche lavorano sui registri."},
+  {c:"l3", q:"Qual \u00e8 la differenza generale tra RISC e CISC?", a:"RISC privilegia istruzioni semplici e regolari; CISC tende a offrire istruzioni pi\u00f9 complesse e modalit\u00e0 di indirizzamento pi\u00f9 ricche."},
+  {c:"l3", q:"Quali principi guidano tipicamente il progetto RISC?", a:"Semplicit\u00e0, regolarit\u00e0, istruzioni facili da decodificare, operazioni frequenti rese rapide e compromessi coerenti con l\u2019hardware."},
+  {c:"l3", q:"Quanti registri interi possiede la base RISC-V studiata?", a:"32 registri architetturali, indicati da x0 a x31."},
+  {c:"l3", q:"Qual \u00e8 la particolarit\u00e0 di x0?", a:"Leggerlo restituisce sempre zero e ogni tentativo di scrittura viene ignorato."},
+  {c:"l3", q:"Quanto \u00e8 lunga un\u2019istruzione RISC-V base?", a:"32 bit nelle istruzioni standard considerate."},
+  {c:"l3", q:"Quali campi ricorrono nelle istruzioni RISC-V?", a:"opcode, registri sorgente rs1 e rs2, registro destinazione rd, campi funct3 e funct7 e, quando necessario, un immediato."},
+  {c:"l3", q:"A cosa serve l\u2019opcode?", a:"Identifica la categoria principale dell\u2019istruzione e quindi il formato e il comportamento generale."},
+  {c:"l3", q:"A cosa servono funct3 e funct7?", a:"Distinguono operazioni che condividono lo stesso opcode principale."},
+  {c:"l3", q:"A cosa serve il formato R?", a:"Alle operazioni register-register, con due registri sorgente e un registro destinazione."},
+  {c:"l3", q:"A cosa serve il formato I?", a:"A operazioni con immediato, load e istruzioni come jalr."},
+  {c:"l3", q:"A cosa serve il formato S?", a:"Alle store. L\u2019immediato \u00e8 suddiviso in due parti perch\u00e9 non \u00e8 presente un campo rd."},
+  {c:"l3", q:"A cosa serve il formato B?", a:"Ai branch condizionati. Codifica un offset relativo al PC."},
+  {c:"l3", q:"A cosa servono i formati U e J?", a:"U gestisce immediati superiori come in <code>lui</code>; J codifica il grande offset relativo al PC di <code>jal</code>."},
+  {c:"l3", q:"Perch\u00e9 gli immediati sono spesso estesi di segno?", a:"Per conservarne il valore signed quando vengono portati alla larghezza del datapath."},
+  {c:"l3", q:"Qual \u00e8 la differenza tra add e addi?", a:"add usa due registri sorgente; addi usa un registro e un immediato."},
+  {c:"l3", q:"Qual \u00e8 la differenza tra shift logico e aritmetico a destra?", a:"Lo shift logico inserisce zeri; quello aritmetico replica il bit di segno."},
+  {c:"l3", q:"Come viene calcolato l\u2019indirizzo di una load o store?", a:"indirizzo = R[rs1] + signext(immediato)."},
+  {c:"l3", q:"Che cosa significa memoria byte-addressable?", a:"Ogni indirizzo identifica un singolo byte, anche se load e store possono trasferire parole pi\u00f9 grandi."},
+  {c:"l3", q:"Che cosa fa un branch condizionato?", a:"Confronta gli operandi e, se la condizione \u00e8 vera, carica nel PC l\u2019indirizzo target; altrimenti prosegue sequenzialmente."},
+  {c:"l3", q:"Che cosa fa jal?", a:"Salva l\u2019indirizzo di ritorno in rd e modifica il PC usando un offset relativo."},
+  {c:"l3", q:"Che cosa fa jalr?", a:"Salva l\u2019indirizzo di ritorno e calcola il target usando un registro pi\u00f9 un immediato."},
+  {c:"l3", q:"Che cos\u2019\u00e8 una pseudoinstruction?", a:"Un\u2019istruzione accettata dall\u2019assembler ma tradotta in una o pi\u00f9 istruzioni reali della ISA."},
+  {c:"l3", q:"Quali sono le cinque fasi logiche di un\u2019istruzione?", a:"IF, ID, EX, MEM e WB: fetch, decode, execute, memory access e write back."},
+  {c:"l3", q:"Che cosa avviene durante IF?", a:"Il PC indirizza la memoria delle istruzioni e viene letta l\u2019istruzione corrente; normalmente viene anche calcolato PC+4."},
+  {c:"l3", q:"Che cosa avviene durante ID?", a:"L\u2019istruzione viene decodificata, si leggono i registri sorgente e si genera l\u2019immediato esteso."},
+  {c:"l3", q:"Che cosa avviene durante EX?", a:"L\u2019ALU esegue l\u2019operazione, calcola un indirizzo di memoria o contribuisce al confronto e al target di un branch."},
+  {c:"l3", q:"Che cosa avviene durante MEM?", a:"Si legge o scrive la memoria dati quando l\u2019istruzione \u00e8 una load o una store."},
+  {c:"l3", q:"Che cosa avviene durante WB?", a:"Il risultato selezionato viene scritto nel register file se l\u2019istruzione prevede una destinazione."},
+  {c:"l3", q:"Che ruolo ha il PC?", a:"Contiene l\u2019indirizzo dell\u2019istruzione corrente e viene aggiornato con PC+4, con un target di branch o con un target di jump."},
+  {c:"l3", q:"Che ruolo ha il register file?", a:"Fornisce normalmente due porte di lettura e una porta di scrittura per gli operandi e i risultati."},
+  {c:"l3", q:"Perch\u00e9 nel datapath sono presenti multiplexer?", a:"Per scegliere tra sorgenti alternative, come registro o immediato, risultato ALU o dato di memoria, PC+4 o target."},
+  {c:"l3", q:"Che cosa fa la control unit?", a:"Decodifica l\u2019istruzione e genera i segnali che comandano register file, ALU, memorie e multiplexer."},
+  {c:"l3", q:"Che cosa fa l\u2019ALU control?", a:"Combina la categoria generale dell\u2019operazione con i campi funzione per determinare l\u2019operazione specifica dell\u2019ALU."},
+  {c:"l3", q:"Quali risorse usa un\u2019istruzione R-type?", a:"PC e memoria istruzioni, register file, ALU e percorso di write-back verso rd."},
+  {c:"l3", q:"Quali risorse usa una load?", a:"Register file, generatore dell\u2019immediato, ALU per l\u2019indirizzo, memoria dati e write-back del dato letto."},
+  {c:"l3", q:"Quali risorse usa una store?", a:"Register file, immediato, ALU per l\u2019indirizzo e memoria dati in scrittura; non effettua write-back su un registro."},
+  {c:"l3", q:"Quali risorse usa un branch?", a:"Register file, logica di confronto, calcolo del target e selezione del prossimo PC."},
+  {c:"l3", q:"Qual \u00e8 il CPI ideale del single-cycle?", a:"1, perch\u00e9 ogni istruzione termina in un solo ciclo di clock."},
+  {c:"l3", q:"Perch\u00e9 CPI 1 non significa necessariamente processore veloce?", a:"Perch\u00e9 il periodo di clock deve essere abbastanza lungo da completare l\u2019istruzione con il cammino combinatorio peggiore."},
+  {c:"l3", q:"Quale istruzione determina spesso il critical path del single-cycle?", a:"Una load, perch\u00e9 attraversa memoria istruzioni, register file, ALU, memoria dati e write-back."},
+  {c:"l3", q:"Qual \u00e8 il principale svantaggio del single-cycle?", a:"Tutte le istruzioni, anche quelle semplici, devono usare il lungo periodo richiesto dall\u2019istruzione pi\u00f9 lenta."},
+  {c:"l3", q:"Come si esprime il tempo di esecuzione della CPU?", a:"<b>T<sub>CPU</sub> = IC \u00b7 CPI \u00b7 T<sub>clk</sub> = IC \u00b7 CPI / f<sub>clk</sub></b>."},
+  {c:"l3", q:"Cosa bisogna verificare aggiungendo una nuova istruzione al datapath?", a:"Sorgenti, destinazioni, operazione ALU, immediato, eventuale accesso alla memoria, aggiornamento del PC, segnali di controllo e nuovo critical path."},
+  {c:"l3", q:"Perch\u00e9 memoria istruzioni e memoria dati sono spesso separate nel single-cycle?", a:"Per permettere fetch dell\u2019istruzione e accesso ai dati nello stesso ciclo senza conflitto strutturale."},
+  {c:"l3", q:"Qual \u00e8 il collegamento fra single-cycle e pipeline?", a:"La pipeline suddivide il datapath single-cycle in stadi separati da registri, permettendo la sovrapposizione di pi\u00f9 istruzioni."},
+  {c:"l3", q:"Qual \u00e8 il collegamento fra ISA e datapath?", a:"La ISA stabilisce le operazioni da supportare; il datapath contiene le risorse necessarie a realizzarle."},
+  {c:"l3", q:"Qual \u00e8 il collegamento fra load/store e gerarchia di memoria?", a:"Le istruzioni generano indirizzi e richieste che attraversano cache, memoria virtuale e memoria fisica."},
+  {c:"l3", q:"Che differenza c\u2019\u00e8 fra stato architetturale e stato microarchitetturale?", a:"Lo stato architetturale \u00e8 visibile alla ISA; quello microarchitetturale, come pipeline register o predittori, \u00e8 interno all\u2019implementazione."},
+  {c:"l3", q:"Una singola istruzione ISA deve essere realizzata fisicamente in un solo passaggio?", a:"No. La ISA descrive il risultato visibile, non il numero di cicli o operazioni interne necessari."},
+  {c:"l3", q:"Perch\u00e9 una codifica regolare semplifica il processore?", a:"Perch\u00e9 riduce la complessit\u00e0 del decoder e facilita il riconoscimento dei campi in hardware."},
+  {c:"l3", q:"Perch\u00e9 un gran numero di registri \u00e8 utile?", a:"Riduce gli accessi alla memoria e mantiene gli operandi vicino alle unit\u00e0 di esecuzione."},
+  {c:"l3", q:"Che cosa accade se RegWrite \u00e8 disattivato?", a:"Nessun registro architetturale viene modificato durante il write-back."},
+  {c:"l3", q:"Che cosa accade se MemWrite \u00e8 attivo?", a:"Il valore proveniente dal register file viene scritto nella memoria dati all\u2019indirizzo calcolato."},
+  {c:"l3", q:"Che cosa controlla ALUSrc?", a:"La scelta del secondo operando dell\u2019ALU, tipicamente tra un registro e l\u2019immediato esteso."},
+  {c:"l3", q:"Che cosa controlla il multiplexer del risultato?", a:"Sceglie quale valore scrivere in rd, per esempio risultato ALU, dato di memoria o PC+4."},
+  // Macro-livello 4 — Pipeline e microarchitettura (181–240)
+  {c:"l4", q:"Qual \u00e8 lo scopo principale della pipeline?", a:"Aumentare il throughput sovrapponendo l\u2019esecuzione di pi\u00f9 istruzioni."},
+  {c:"l4", q:"La pipeline riduce necessariamente la latenza di una singola istruzione?", a:"No. Pu\u00f2 aumentarla leggermente a causa dei registri di pipeline, ma aumenta il numero di istruzioni completate per unit\u00e0 di tempo."},
+  {c:"l4", q:"Quali sono i cinque stadi classici?", a:"IF, ID, EX, MEM e WB."},
+  {c:"l4", q:"A cosa servono i registri di pipeline?", a:"Conservano dati e segnali di controllo tra uno stadio e il successivo."},
+  {c:"l4", q:"Da cosa dipende il periodo di clock della pipeline?", a:"Dal ritardo dello stadio pi\u00f9 lento pi\u00f9 l\u2019overhead dei registri di pipeline."},
+  {c:"l4", q:"Qual \u00e8 lo speedup ideale di una pipeline a k stadi?", a:"Tende a k per un numero molto grande di istruzioni, con stadi perfettamente bilanciati e senza hazard."},
+  {c:"l4", q:"Perch\u00e9 lo speedup reale \u00e8 inferiore a quello ideale?", a:"Per sbilanciamento degli stadi, overhead dei registri, stall, flush e dipendenze."},
+  {c:"l4", q:"Che cosa sono riempimento e svuotamento della pipeline?", a:"I cicli iniziali necessari per occupare gli stadi e quelli finali necessari per completare le istruzioni residue."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un hazard strutturale?", a:"Un conflitto causato da pi\u00f9 istruzioni che richiedono contemporaneamente la stessa risorsa hardware."},
+  {c:"l4", q:"Come si pu\u00f2 risolvere un hazard strutturale?", a:"Duplicando o rendendo multiporta la risorsa, separando le risorse oppure inserendo uno stall."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un data hazard?", a:"Una situazione in cui un\u2019istruzione dipende da un risultato non ancora disponibile."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una dipendenza RAW?", a:"Read After Write: un\u2019istruzione deve leggere un dato che una precedente deve ancora scrivere. \u00c8 una dipendenza vera."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una dipendenza WAR?", a:"Write After Read: una scrittura anticipata potrebbe avvenire prima che un\u2019istruzione precedente abbia letto il vecchio valore."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una dipendenza WAW?", a:"Write After Write: due istruzioni scrivono la stessa destinazione e devono conservare il corretto ordine finale."},
+  {c:"l4", q:"WAR e WAW si manifestano nella pipeline in-order semplice a cinque stadi?", a:"Normalmente no, perch\u00e9 letture e scritture avvengono in ordine. Diventano rilevanti con multiple issue ed esecuzione fuori ordine."},
+  {c:"l4", q:"Che cos\u2019\u00e8 il forwarding?", a:"L\u2019invio diretto di un risultato da uno stadio avanzato all\u2019ingresso dell\u2019ALU, senza attendere il write-back nel register file."},
+  {c:"l4", q:"Il forwarding elimina tutti i data hazard?", a:"No. Non elimina normalmente il load-use hazard immediato."},
+  {c:"l4", q:"Perch\u00e9 una load seguita da un uso immediato richiede uno stall?", a:"Perch\u00e9 il dato letto dalla memoria diventa disponibile troppo tardi per lo stadio EX dell\u2019istruzione successiva."},
+  {c:"l4", q:"Che cos\u2019\u00e8 uno stall?", a:"Il blocco temporaneo di uno o pi\u00f9 stadi per attendere che dati o risorse diventino disponibili."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una bubble?", a:"Un\u2019operazione vuota inserita nella pipeline, equivalente a una NOP."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un control hazard?", a:"L\u2019incertezza sul prossimo valore del PC causata da branch, jump o altre modifiche del flusso di controllo."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un flush?", a:"L\u2019annullamento delle istruzioni entrate nella pipeline lungo un percorso che si \u00e8 rivelato errato."},
+  {c:"l4", q:"Da cosa dipende la branch penalty?", a:"Dal numero di istruzioni o cicli persi quando il branch viene risolto o predetto in modo errato."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una predizione statica?", a:"Una strategia che usa una regola fissa, per esempio \u201csempre not taken\u201d, senza apprendere dalla storia di esecuzione."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una predizione dinamica?", a:"Una strategia hardware che usa il comportamento passato dei branch per prevederne il comportamento futuro."},
+  {c:"l4", q:"Come funziona un predittore a 1 bit?", a:"Memorizza l\u2019ultimo esito del branch e lo usa come previsione successiva."},
+  {c:"l4", q:"Qual \u00e8 il limite del predittore a 1 bit nei cicli?", a:"Pu\u00f2 sbagliare sia all\u2019uscita sia al successivo ingresso nel ciclo, perch\u00e9 un singolo esito cambia completamente la previsione."},
+  {c:"l4", q:"Come funziona un predittore a 2 bit saturanti?", a:"Usa quattro stati: strongly/weakly taken e strongly/weakly not taken. Un singolo esito contrario non rovescia una previsione forte."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una BHT?", a:"Una Branch History Table indicizzata da bit del PC o da una loro combinazione, contenente stati di predizione."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un predittore locale a due livelli?", a:"Mantiene una storia recente per ciascun branch e usa tale storia per indicizzare una tabella di contatori."},
+  {c:"l4", q:"Che cos\u2019\u00e8 la global history?", a:"Una sequenza degli esiti degli ultimi branch eseguiti, usata per catturare correlazioni fra branch differenti."},
+  {c:"l4", q:"Come funziona gshare?", a:"Combina tipicamente tramite XOR alcuni bit del PC con la global history per indicizzare una tabella di contatori a 2 bit."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un tournament predictor?", a:"Un predittore ibrido che usa un selettore adattivo per scegliere fra due o pi\u00f9 predittori, per esempio locale e globale."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un BTB?", a:"Un Branch Target Buffer che memorizza target associati ai branch, permettendo di predire non soltanto l\u2019esito ma anche il prossimo PC."},
+  {c:"l4", q:"Perch\u00e9 predire soltanto taken/not taken non \u00e8 sufficiente?", a:"Perch\u00e9 per continuare immediatamente il fetch occorre conoscere anche l\u2019indirizzo target."},
+  {c:"l4", q:"Che cosa significa multiple issue?", a:"Possibilit\u00e0 di emettere o avviare pi\u00f9 istruzioni nello stesso ciclo."},
+  {c:"l4", q:"Che differenza c\u2019\u00e8 tra pipeline profonda e pipeline larga?", a:"La profondit\u00e0 indica il numero di stadi; la larghezza quante istruzioni possono avanzare o essere eseguite in parallelo."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un processore superscalare?", a:"Un processore capace di emettere dinamicamente pi\u00f9 istruzioni per ciclo su pi\u00f9 unit\u00e0 funzionali."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una pianificazione statica?", a:"Il compilatore decide in anticipo quali istruzioni possono essere eseguite parallelamente."},
+  {c:"l4", q:"Che cos\u2019\u00e8 una pianificazione dinamica?", a:"L\u2019hardware decide a runtime quando eseguire le istruzioni in base alla disponibilit\u00e0 di operandi e unit\u00e0."},
+  {c:"l4", q:"Che cos\u2019\u00e8 l\u2019esecuzione out-of-order?", a:"L\u2019esecuzione delle istruzioni pronte prima di altre istruzioni precedenti bloccate, preservando il risultato architetturale corretto."},
+  {c:"l4", q:"Perch\u00e9 l\u2019out-of-order migliora le prestazioni?", a:"Permette di utilizzare le unit\u00e0 funzionali durante latenze e dipendenze che bloccherebbero una pipeline strettamente in-order."},
+  {c:"l4", q:"Che differenza c\u2019\u00e8 tra dipendenza vera e dipendenza falsa?", a:"RAW rappresenta un reale flusso di dati; WAR e WAW derivano dal riuso degli stessi nomi di registro."},
+  {c:"l4", q:"Che cos\u2019\u00e8 il register renaming?", a:"L\u2019associazione dei registri architetturali a registri fisici differenti per eliminare WAR e WAW."},
+  {c:"l4", q:"Il renaming elimina le dipendenze RAW?", a:"No. Le dipendenze RAW rappresentano valori realmente necessari."},
+  {c:"l4", q:"A cosa servono le reservation station?", a:"Mantengono operazioni in attesa degli operandi e le inviano all\u2019unit\u00e0 funzionale quando diventano pronte."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un reorder buffer?", a:"Una struttura che conserva risultati e stato delle istruzioni in volo, permettendo il commit in ordine."},
+  {c:"l4", q:"Perch\u00e9 il commit viene normalmente effettuato in ordine?", a:"Per mantenere uno stato architetturale coerente, gestire correttamente errori e ottenere eccezioni precise."},
+  {c:"l4", q:"Che cos\u2019\u00e8 l\u2019esecuzione speculativa?", a:"L\u2019esecuzione anticipata di istruzioni prima che sia certo che appartengano al percorso corretto."},
+  {c:"l4", q:"Cosa accade quando una speculazione \u00e8 errata?", a:"I risultati speculativi vengono annullati e lo stato corretto viene ripristinato."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un\u2019eccezione precisa?", a:"Una situazione in cui tutte le istruzioni precedenti risultano completate e nessuna istruzione successiva ha modificato lo stato architetturale."},
+  {c:"l4", q:"Che cos\u2019\u00e8 un\u2019eccezione imprecisa?", a:"Una situazione in cui lo stato visibile non corrisponde chiaramente a un punto preciso dell\u2019ordine del programma."},
+  {c:"l4", q:"Qual \u00e8 la differenza tra completamento ed esecuzione?", a:"Un\u2019istruzione pu\u00f2 terminare il calcolo fuori ordine, ma rendere il risultato architetturalmente visibile soltanto al commit."},
+  {c:"l4", q:"Che cos\u2019\u00e8 l\u2019issue width?", a:"Il numero massimo di istruzioni che il processore pu\u00f2 emettere in un ciclo."},
+  {c:"l4", q:"Un\u2019issue width elevata garantisce un IPC elevato?", a:"No. Dipendenze, branch, cache miss e disponibilit\u00e0 delle unit\u00e0 possono impedire di sfruttarla completamente."},
+  {c:"l4", q:"Qual \u00e8 la relazione tra IPC e CPI?", a:"Idealmente IPC = 1/CPI, ma con multiple issue l\u2019IPC pu\u00f2 essere maggiore di 1 e il CPI medio minore di 1."},
+  {c:"l4", q:"Che cosa limita il parallelismo fra istruzioni?", a:"Dipendenze dati, dipendenze di controllo, conflitti di risorse, cache miss e limitata finestra di istruzioni."},
+  {c:"l4", q:"Perch\u00e9 una cache miss \u00e8 particolarmente dannosa in un processore avanzato?", a:"Pu\u00f2 bloccare a lungo un\u2019istruzione e tutte le operazioni che dipendono dal dato richiesto."},
+  {c:"l4", q:"Perch\u00e9 la speculazione pu\u00f2 avere implicazioni di sicurezza?", a:"Anche operazioni poi annullate possono modificare stato microarchitetturale, come la cache, osservabile tramite timing."},
+  {c:"l4", q:"Qual \u00e8 l\u2019obiettivo complessivo della microarchitettura avanzata?", a:"Aumentare l\u2019ILP e il throughput senza modificare il comportamento visibile definito dalla ISA."},
+  // Macro-livello 5 — Gerarchia di memoria (241–330)
+  {c:"l5", q:"Perch\u00e9 si usa una gerarchia di memoria?", a:"Per avvicinare al processore una piccola quantit\u00e0 di memoria veloce e mantenere pi\u00f9 lontano grandi quantit\u00e0 di memoria economica ma lenta."},
+  {c:"l5", q:"Qual \u00e8 l\u2019ordine tipico della gerarchia?", a:"Registri \u2192 cache L1 \u2192 cache L2/L3 \u2192 memoria principale \u2192 memoria secondaria."},
+  {c:"l5", q:"Che cos\u2019\u00e8 la localit\u00e0 temporale?", a:"La tendenza a riutilizzare presto dati e istruzioni usati recentemente."},
+  {c:"l5", q:"Che cos\u2019\u00e8 la localit\u00e0 spaziale?", a:"La tendenza ad accedere presto a indirizzi vicini a quello appena utilizzato."},
+  {c:"l5", q:"Qual \u00e8 la differenza essenziale tra SRAM e DRAM?", a:"La SRAM \u00e8 pi\u00f9 veloce, costosa e meno densa; la DRAM \u00e8 pi\u00f9 lenta, pi\u00f9 densa ed economica e richiede refresh."},
+  {c:"l5", q:"Dove vengono normalmente usate SRAM e DRAM?", a:"SRAM nelle cache; DRAM nella memoria principale."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un blocco di memoria?", a:"L\u2019unit\u00e0 di dati trasferita fra due livelli della gerarchia."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una cache line?", a:"La posizione della cache che contiene un blocco di dati, il tag e i relativi bit di stato."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un cache hit?", a:"Il blocco richiesto \u00e8 gi\u00e0 presente e valido nella cache."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un cache miss?", a:"Il blocco non \u00e8 disponibile nella cache e deve essere recuperato da un livello inferiore."},
+  {c:"l5", q:"Che cosa sono hit time, miss rate e miss penalty?", a:"Hit time \u00e8 il tempo di accesso in caso di hit; miss rate \u00e8 la frazione di accessi che producono miss; miss penalty \u00e8 il costo aggiuntivo di un miss."},
+  {c:"l5", q:"Qual \u00e8 la formula dell\u2019AMAT?", a:"AMAT = Hit Time + Miss Rate \u00b7 Miss Penalty."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una cache direct-mapped?", a:"Una cache in cui ogni blocco di memoria pu\u00f2 essere collocato in una sola linea."},
+  {c:"l5", q:"Come si determina la linea in una direct-mapped?", a:"linea = numero del blocco mod numero delle linee."},
+  {c:"l5", q:"Qual \u00e8 il vantaggio della direct-mapped?", a:"Hardware semplice e hit time ridotto."},
+  {c:"l5", q:"Qual \u00e8 lo svantaggio della direct-mapped?", a:"Blocchi diversi che mappano sulla stessa linea possono sostituirsi ripetutamente, causando conflict miss."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una cache k-way set-associative?", a:"Ogni blocco mappa in un solo set, ma pu\u00f2 essere collocato in una delle k vie del set."},
+  {c:"l5", q:"Quanti set contiene una cache k-way?", a:"set = capacit\u00e0 cache / (dimensione blocco \u00b7 k)."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una cache fully associative?", a:"Una cache in cui ogni blocco pu\u00f2 essere collocato in qualunque linea."},
+  {c:"l5", q:"Qual \u00e8 il vantaggio della fully associative?", a:"Elimina i conflict miss dovuti a una posizione obbligata."},
+  {c:"l5", q:"Qual \u00e8 il suo svantaggio?", a:"Richiede il confronto simultaneo del tag con molte linee e una politica di sostituzione pi\u00f9 complessa."},
+  {c:"l5", q:"In quali campi viene suddiviso un indirizzo di cache?", a:"Tag, index o set index e block offset."},
+  {c:"l5", q:"A cosa serve il block offset?", a:"A selezionare il byte o la parola desiderata all\u2019interno del blocco."},
+  {c:"l5", q:"Quanti bit di offset servono per blocchi da B byte?", a:"<b>log<sub>2</sub>B</b>."},
+  {c:"l5", q:"A cosa serve l\u2019index?", a:"A selezionare la linea nella direct-mapped oppure il set nella set-associative."},
+  {c:"l5", q:"Quanti bit di index servono con S set?", a:"<b>log<sub>2</sub>S</b>."},
+  {c:"l5", q:"Come si calcola il numero di bit di tag?", a:"tag bit = bit indirizzo \u2212 index bit \u2212 offset bit."},
+  {c:"l5", q:"A cosa serve il tag?", a:"A identificare quale blocco di memoria occupa la linea o una delle vie del set selezionato."},
+  {c:"l5", q:"A cosa serve il valid bit?", a:"Indica se la linea contiene un blocco significativo. Un tag uguale non produce hit se il valid bit \u00e8 zero."},
+  {c:"l5", q:"A cosa serve il dirty bit?", a:"In una cache write-back indica che il blocco \u00e8 stato modificato e deve essere scritto al livello inferiore prima della sostituzione."},
+  {c:"l5", q:"Che effetto ha aumentare la dimensione del blocco?", a:"Pu\u00f2 sfruttare meglio la localit\u00e0 spaziale, ma blocchi troppo grandi aumentano miss penalty, traffico e riducono il numero di linee disponibili."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un compulsory miss?", a:"Il miss del primo accesso a un blocco, che non era mai stato caricato nella cache."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un capacity miss?", a:"Un miss dovuto al fatto che la cache non \u00e8 abbastanza grande da contenere l\u2019insieme di dati attivi."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un conflict miss?", a:"Un miss causato da pi\u00f9 blocchi che competono per lo stesso set o la stessa linea nonostante nella cache esista spazio complessivo."},
+  {c:"l5", q:"Quale tipo di miss viene ridotto aumentando l\u2019associativit\u00e0?", a:"Soprattutto i conflict miss."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una politica di sostituzione?", a:"La regola usata per scegliere quale linea rimuovere quando tutte le vie del set sono occupate."},
+  {c:"l5", q:"Che cosa fa LRU?", a:"Sostituisce il blocco usato meno recentemente."},
+  {c:"l5", q:"Perch\u00e9 LRU esatto pu\u00f2 essere costoso?", a:"Perch\u00e9 mantenere l\u2019ordine completo degli accessi richiede stato e logica che crescono rapidamente con l\u2019associativit\u00e0."},
+  {c:"l5", q:"Quali alternative a LRU vengono usate?", a:"Pseudo-LRU, FIFO o sostituzione casuale."},
+  {c:"l5", q:"Che cos\u2019\u00e8 write-through?", a:"Ogni scrittura aggiorna sia la cache sia immediatamente il livello di memoria inferiore."},
+  {c:"l5", q:"Qual \u00e8 il vantaggio di write-through?", a:"Mantiene cache e memoria sottostante coerenti e semplifica la sostituzione delle linee."},
+  {c:"l5", q:"Qual \u00e8 lo svantaggio di write-through?", a:"Produce molto traffico di scrittura; viene spesso affiancata da un write buffer."},
+  {c:"l5", q:"Che cos\u2019\u00e8 write-back?", a:"Le scritture modificano soltanto la cache; il blocco viene scritto al livello inferiore quando una linea dirty viene sostituita."},
+  {c:"l5", q:"Qual \u00e8 il vantaggio di write-back?", a:"Pi\u00f9 scritture sullo stesso blocco possono essere riunite in un\u2019unica scrittura verso il livello inferiore."},
+  {c:"l5", q:"Qual \u00e8 lo svantaggio di write-back?", a:"Hardware e gestione pi\u00f9 complessi e maggiore penalit\u00e0 quando viene sostituita una linea dirty."},
+  {c:"l5", q:"Che cos\u2019\u00e8 write-allocate?", a:"In caso di write miss il blocco viene prima caricato nella cache e poi modificato."},
+  {c:"l5", q:"Che cos\u2019\u00e8 no-write-allocate?", a:"In caso di write miss si scrive direttamente al livello inferiore senza caricare il blocco nella cache."},
+  {c:"l5", q:"Quali associazioni di politiche sono frequenti?", a:"Write-back con write-allocate; write-through con no-write-allocate, anche se non sono combinazioni obbligatorie."},
+  {c:"l5", q:"Come si estende l\u2019AMAT a una cache L2?", a:"<b>AMAT = T<sub>L1</sub> + MR<sub>L1</sub>(T<sub>L2</sub> + MR<sub>L2</sub> \u00b7 P<sub>mem</sub>)</b>, usando miss rate definiti in modo coerente."},
+  {c:"l5", q:"Che cos\u2019\u00e8 la memoria virtuale?", a:"Un meccanismo che fornisce a ogni processo uno spazio di indirizzamento virtuale separato e traduce gli indirizzi virtuali in indirizzi fisici."},
+  {c:"l5", q:"Quali vantaggi offre la memoria virtuale?", a:"Isolamento, protezione, rilocazione, condivisione controllata e possibilit\u00e0 di usare uno spazio virtuale pi\u00f9 grande della RAM disponibile."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una pagina?", a:"Un blocco di dimensione fissa dello spazio di indirizzamento virtuale."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un frame?", a:"Un blocco della memoria fisica avente la stessa dimensione di una pagina."},
+  {c:"l5", q:"Come viene suddiviso un indirizzo virtuale?", a:"In virtual page number e page offset."},
+  {c:"l5", q:"Come viene formato l\u2019indirizzo fisico?", a:"Si sostituisce il virtual page number con il physical page number, lasciando invariato il page offset."},
+  {c:"l5", q:"Perch\u00e9 il page offset non cambia durante la traduzione?", a:"Perch\u00e9 pagina e frame hanno la stessa dimensione e la posizione interna al blocco resta uguale."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una page table?", a:"Una struttura che associa pagine virtuali a frame fisici e conserva informazioni di validit\u00e0, protezione e stato."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una PTE?", a:"Una Page Table Entry contenente il numero del frame fisico e bit di controllo relativi alla pagina."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un page fault?", a:"Un\u2019eccezione generata quando la pagina richiesta non \u00e8 presente in memoria fisica o l\u2019accesso non \u00e8 consentito."},
+  {c:"l5", q:"Che cosa accade durante un page fault per pagina non residente?", a:"Il sistema operativo sceglie un frame, eventualmente salva una pagina sostituita, carica la pagina richiesta, aggiorna le strutture e riavvia l\u2019istruzione."},
+  {c:"l5", q:"Perch\u00e9 il page fault \u00e8 molto costoso?", a:"Pu\u00f2 richiedere un accesso alla memoria secondaria, enormemente pi\u00f9 lenta della RAM."},
+  {c:"l5", q:"Che cos\u2019\u00e8 una TLB?", a:"Una piccola cache associativa delle traduzioni recenti da virtual page number a physical page number."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un TLB hit?", a:"La traduzione richiesta \u00e8 presente nella TLB e non \u00e8 necessario consultare normalmente la page table."},
+  {c:"l5", q:"Che cos\u2019\u00e8 un TLB miss?", a:"La traduzione non \u00e8 nella TLB e deve essere recuperata dalla page table."},
+  {c:"l5", q:"TLB miss e page fault sono la stessa cosa?", a:"No. Un TLB miss pu\u00f2 trovare una PTE valida in memoria; il page fault significa che la traduzione non pu\u00f2 essere completata normalmente."},
+  {c:"l5", q:"Che cosa succede dopo un TLB miss con pagina presente?", a:"Viene consultata la page table, la traduzione viene inserita nella TLB e l\u2019accesso viene ripetuto."},
+  {c:"l5", q:"Perch\u00e9 la TLB \u00e8 fondamentale per le prestazioni?", a:"Senza TLB, ogni normale accesso alla memoria potrebbe richiedere ulteriori accessi per percorrere la page table."},
+  {c:"l5", q:"Che relazione c\u2019\u00e8 tra dimensione della pagina e bit di offset?", a:"Con pagine da P byte servono <b>log<sub>2</sub>P</b> bit di page offset."},
+  {c:"l5", q:"Qual \u00e8 il vantaggio delle pagine grandi?", a:"Page table pi\u00f9 piccole, maggiore TLB reach e trasferimenti pi\u00f9 efficienti."},
+  {c:"l5", q:"Qual \u00e8 lo svantaggio delle pagine grandi?", a:"Maggiore frammentazione interna e possibile trasferimento di dati non utilizzati."},
+  {c:"l5", q:"Che cosa significa TLB reach?", a:"La quantit\u00e0 complessiva di memoria virtuale coperta dalle traduzioni presenti nella TLB: numero entry \u00d7 dimensione pagina."},
+  {c:"l5", q:"Perch\u00e9 la TLB deve distinguere processi differenti?", a:"Perch\u00e9 lo stesso indirizzo virtuale pu\u00f2 essere tradotto diversamente in processi diversi. Si possono usare flush o identificatori come gli ASID."},
+  {c:"l5", q:"Che cosa significa cache physically tagged?", a:"Il confronto del tag viene effettuato usando bit dell\u2019indirizzo fisico ottenuto dalla traduzione."},
+  {c:"l5", q:"Che cosa significa cache virtually tagged?", a:"Il tag deriva dall\u2019indirizzo virtuale, rendendo l\u2019accesso rapido ma introducendo problemi di alias e di distinzione fra processi."},
+  {c:"l5", q:"Qual \u00e8 il problema dei sinonimi virtuali?", a:"Indirizzi virtuali differenti possono riferirsi allo stesso indirizzo fisico e creare copie incoerenti dello stesso blocco nella cache."},
+  {c:"l5", q:"Qual \u00e8 il problema degli omonimi virtuali?", a:"Lo stesso indirizzo virtuale pu\u00f2 riferirsi a pagine fisiche differenti in processi diversi."},
+  {c:"l5", q:"Come cooperano TLB e cache?", a:"La TLB traduce l\u2019indirizzo; la cache usa l\u2019indirizzo appropriato per individuare set, linea e tag del dato."},
+  {c:"l5", q:"Che cosa accade alla pipeline durante un cache miss?", a:"L\u2019istruzione interessata e spesso altre istruzioni dipendenti devono attendere il recupero del blocco."},
+  {c:"l5", q:"Qual \u00e8 la differenza fra cache miss e page fault?", a:"Il cache miss recupera normalmente il dato da un livello di memoria pi\u00f9 basso; il page fault richiede l\u2019intervento del sistema operativo e pu\u00f2 coinvolgere il disco."},
+  {c:"l5", q:"Qual \u00e8 la procedura fondamentale per un esercizio tag-index-offset?", a:"Calcolare dimensione del blocco, numero di set e associativit\u00e0; ricavare prima offset e index; assegnare al tag tutti i bit rimanenti."},
+  {c:"l5", q:"Qual \u00e8 la procedura per simulare una cache?", a:"Per ogni accesso calcolare blocco e set, confrontare tag e valid bit, classificare hit/miss, applicare sostituzione e aggiornare dirty/LRU."},
+  {c:"l5", q:"Qual \u00e8 l\u2019errore tipico nel calcolo dell\u2019index?", a:"Usare il numero totale di linee invece del numero di set in una cache set-associative."},
+  {c:"l5", q:"Qual \u00e8 l\u2019errore tipico nel calcolo dell\u2019offset?", a:"Calcolarlo sulla dimensione della cache invece che sulla dimensione del singolo blocco."},
+  {c:"l5", q:"Qual \u00e8 l\u2019errore tipico nella verifica di un hit?", a:"Controllare soltanto l\u2019index senza verificare tag e valid bit."},
+  {c:"l5", q:"L\u2019aumento dell\u2019associativit\u00e0 \u00e8 sempre gratuito?", a:"No. Riduce i conflict miss ma aumenta confronti, consumo, complessit\u00e0 e potenzialmente hit time."},
+  {c:"l5", q:"Una cache pi\u00f9 grande \u00e8 sempre pi\u00f9 veloce?", a:"No. Pu\u00f2 ridurre i miss ma avere un hit time maggiore."},
+  {c:"l5", q:"Una linea dirty deve essere sempre scritta in memoria dopo ogni store?", a:"No. In write-back viene scritta soltanto quando viene sostituita o esplicitamente sincronizzata."},
+  {c:"l5", q:"Quale tipo di localit\u00e0 sfrutta principalmente la dimensione del blocco?", a:"La localit\u00e0 spaziale."},
+  {c:"l5", q:"Quale tipo di localit\u00e0 sfrutta la permanenza di un blocco in cache?", a:"La localit\u00e0 temporale."},
+  {c:"l5", q:"Qual \u00e8 l\u2019idea unificante dell\u2019intera gerarchia di memoria?", a:"Conservare vicino alla CPU i dati pi\u00f9 probabilmente necessari, sfruttando localit\u00e0 temporale e spaziale per ottenere l\u2019illusione di una memoria grande e veloce."},
+];
+
+// Nessuna carta \u00e8 marcata "esame" in questo materiale.
+const EXAM_INDICES = new Set();
+CARDS.forEach((c,i)=>{ if(CATS[c.c].exam) EXAM_INDICES.add(i); });
+
+const state = {
+  base: CARDS.map((c,i)=>({...c, id:i, exam:EXAM_INDICES.has(i)})),
+  order: [], idx:0, flipped:false, filter:"all", shuffle:false,
+  status:{}, // id -> 'know' | 'rev'
+};
+
+const $ = s=>document.querySelector(s);
+const cardEl=$("#card");
+
+function activeList(){
+  let list = state.base.filter(c=> state.filter==="all" ? true : c.c===state.filter);
+  return list;
+}
+function buildOrder(){
+  let list = activeList().map(c=>c.id);
+  if(state.shuffle){
+    for(let i=list.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[list[i],list[j]]=[list[j],list[i]];}
+  }
+  state.order=list; state.idx=0;
+}
+function current(){ return state.base[state.order[state.idx]]; }
+
+function render(){
+  const tot=state.order.length;
+  $("#tot").textContent=tot;
+  if(tot===0){ return; }
+  const c=current();
+  const cat=CATS[c.c];
+  $("#fcat").textContent=cat.name; $("#bcat").textContent=cat.name;
+  $("#fbadge").style.display = c.exam ? "inline-block":"none";
+  $("#fq").innerHTML=c.q; $("#ba").innerHTML=c.a;
+  cardEl.classList.toggle("exam", !!c.exam);
+  // reset flip
+  state.flipped=false; cardEl.classList.remove("flipped");
+  $("#cur").textContent=state.idx+1;
+  $("#bar").style.width=((state.idx+1)/tot*100)+"%";
+  $("#prev").disabled = state.idx===0;
+  $("#next").disabled = state.idx===tot-1;
+  // mark buttons
+  const st=state.status[c.id];
+  $("#know").classList.toggle("on", st==="know");
+  $("#rev").classList.toggle("on", st==="rev");
+  updateStats();
+}
+function flip(){ state.flipped=!state.flipped; cardEl.classList.toggle("flipped", state.flipped); }
+function go(d){
+  const n=state.idx+d;
+  if(n<0||n>=state.order.length) return;
+  state.idx=n; render();
+}
+function mark(kind){
+  const c=current();
+  state.status[c.id] = state.status[c.id]===kind ? undefined : kind;
+  render();
+}
+function updateStats(){
+  let k=0,r=0;
+  Object.values(state.status).forEach(v=>{ if(v==="know")k++; else if(v==="rev")r++; });
+  $("#nknow").textContent=k; $("#nrev").textContent=r;
+}
+
+// chips
+function buildChips(){
+  const box=$("#chips"); box.innerHTML="";
+  const mk=(key,label,exam)=>{
+    const b=document.createElement("button");
+    b.className="chip"+(exam?" exam":""); b.textContent=label;
+    b.setAttribute("aria-pressed", state.filter===key);
+    b.onclick=()=>{ state.filter=key; buildOrder(); render(); buildChips(); };
+    box.appendChild(b);
+  };
+  mk("all","Tutte");
+  Object.entries(CATS).forEach(([k,v])=>mk(k,v.name,v.exam));
+}
+
+// binary decoration strip
+(function(){
+  let s=""; for(let i=0;i<120;i++) s+= (Math.random()<.5?"0":"1");
+  $("#binstrip").textContent=s;
+})();
+
+// events
+cardEl.addEventListener("click", flip);
+cardEl.addEventListener("keydown", e=>{ if(e.key===" "||e.key==="Enter"){e.preventDefault(); flip();} });
+$("#next").onclick=()=>go(1);
+$("#prev").onclick=()=>go(-1);
+$("#know").onclick=()=>mark("know");
+$("#rev").onclick=()=>mark("rev");
+$("#reset").onclick=()=>{ state.status={}; render(); };
+const sh=$("#shuffleToggle");
+sh.onclick=()=>{ state.shuffle=!state.shuffle; sh.classList.toggle("on",state.shuffle); buildOrder(); render(); };
+document.addEventListener("keydown", e=>{
+  if(e.target===cardEl) return;
+  if(e.key==="ArrowRight") go(1);
+  else if(e.key==="ArrowLeft") go(-1);
+  else if(e.key===" "){ e.preventDefault(); flip(); }
+});
+
+buildChips(); buildOrder(); render();
+</script>
+</body>
+</html>

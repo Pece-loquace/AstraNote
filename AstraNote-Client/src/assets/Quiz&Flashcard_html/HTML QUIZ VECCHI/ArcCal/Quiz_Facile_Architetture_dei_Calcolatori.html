@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Architetture dei Calcolatori</title>
+<style>
+  :root{
+    --ink:#14273f; --navy:#1F3A5F; --blue:#2E6CA4; --blue-soft:#5b8fc0;
+    --accent:#C0392B; --accent-soft:#e07b6f;
+    --paper:#eef3f8; --card:#ffffff; --line:#c9d6e3;
+    --muted:#5c6b7a; --good:#2f7d4f; --good-soft:#e4f2e9; --review:#b5852a;
+    --wrong-soft:#fbe6e3;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:var(--sans); color:var(--ink);
+    background:
+      radial-gradient(circle at 1px 1px, rgba(31,58,95,.10) 1px, transparent 0) 0 0/22px 22px,
+      linear-gradient(180deg,#f6f9fc 0%, var(--paper) 100%);
+    min-height:100%; display:flex; flex-direction:column; align-items:center;
+    padding:22px 16px 40px;
+  }
+  .wrap{width:100%; max-width:680px}
+
+  header{margin-bottom:14px}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--blue); margin:0 0 4px;
+  }
+  h1{font-size:26px; line-height:1.1; margin:0 0 4px; color:var(--navy); letter-spacing:-.01em}
+  .sub{margin:0; color:var(--muted); font-size:13px}
+  .binstrip{font-family:var(--mono); font-size:11px; color:rgba(46,108,164,.45); letter-spacing:.18em; margin-top:8px; overflow:hidden; white-space:nowrap}
+
+  /* progress */
+  .meta{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:16px 0 8px}
+  .count{font-family:var(--mono); font-size:13px; color:var(--navy)}
+  .count b{font-size:16px}
+  .track{flex:1; height:6px; background:#dbe5ef; border-radius:99px; overflow:hidden}
+  .bar{height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--navy)); transition:width .25s ease}
+
+  /* filters */
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 4px}
+  .chip{
+    font-family:var(--mono); font-size:11px; letter-spacing:.04em; cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--muted);
+    padding:5px 10px; border-radius:99px; transition:all .15s;
+  }
+  .chip:hover{border-color:var(--blue-soft); color:var(--navy)}
+  .chip[aria-pressed="true"]{background:var(--navy); color:#fff; border-color:var(--navy)}
+
+  /* card */
+  .card{
+    position:relative; width:100%; margin:14px 0;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 10px 30px -18px rgba(20,39,63,.45), 0 1px 0 rgba(255,255,255,.6) inset;
+    padding:24px 24px 20px; border-top:4px solid var(--blue); overflow:hidden;
+  }
+  .card::before{
+    content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+    background:radial-gradient(circle at 1px 1px, rgba(31,58,95,.06) 1px, transparent 0) 0 0/16px 16px;
+  }
+  .cat{position:relative; display:flex; align-items:center; gap:8px; margin-bottom:12px}
+  .catname{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--blue)}
+  .qnum{font-family:var(--mono); font-size:11px; color:var(--muted); margin-left:auto}
+  .kind{position:relative; font-family:var(--mono); font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
+  .qtext{position:relative; font-size:19px; line-height:1.35; color:var(--navy); font-weight:600; margin:2px 0 14px}
+  .qtext code, .exp code{
+    font-family:var(--mono); font-size:.92em; background:#eef3f8; border:1px solid #dbe5ef;
+    padding:1px 5px; border-radius:5px; color:#12324d; white-space:nowrap;
+  }
+
+  /* options */
+  .opts{position:relative; display:flex; flex-direction:column; gap:9px}
+  .opt{
+    display:flex; align-items:flex-start; gap:11px; width:100%; text-align:left;
+    font-family:var(--sans); font-size:15px; line-height:1.4; color:var(--ink);
+    border:1px solid var(--line); background:#fff; border-radius:11px;
+    padding:12px 14px; cursor:pointer; transition:all .13s;
+  }
+  .opt:hover:not(:disabled){border-color:var(--blue-soft); box-shadow:0 3px 10px -7px rgba(31,58,95,.5)}
+  .opt:disabled{cursor:default}
+  .opt .letter{
+    flex:none; font-family:var(--mono); font-size:12px; font-weight:700; color:var(--blue);
+    width:24px; height:24px; border-radius:50%; border:1px solid var(--line);
+    display:grid; place-items:center; background:#f4f8fc; transition:all .13s;
+  }
+  .opt.correct{border-color:var(--good); background:var(--good-soft)}
+  .opt.correct .letter{background:var(--good); color:#fff; border-color:var(--good)}
+  .opt.wrong{border-color:var(--accent); background:var(--wrong-soft)}
+  .opt.wrong .letter{background:var(--accent); color:#fff; border-color:var(--accent)}
+  .opt.dim{opacity:.55}
+  .opt .mk{margin-left:auto; font-family:var(--mono); font-size:12px; font-weight:700; align-self:center}
+  .opt.correct .mk{color:var(--good)}
+  .opt.wrong .mk{color:var(--accent)}
+
+  /* explanation */
+  .exp{
+    position:relative; margin-top:14px; border-radius:11px; padding:13px 15px;
+    font-size:14px; line-height:1.5; color:var(--ink); border:1px solid var(--line);
+    background:#f7fafd; display:none;
+  }
+  .exp.show{display:block}
+  .exp .verdict{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; margin-bottom:5px; display:block}
+  .exp.ok{border-color:#bfe0cd; background:var(--good-soft)}
+  .exp.ok .verdict{color:var(--good)}
+  .exp.no{border-color:#f2cfc9; background:var(--wrong-soft)}
+  .exp.no .verdict{color:var(--accent)}
+
+  /* controls */
+  .controls{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:14px}
+  .navbtns{display:flex; gap:8px}
+  button.btn{
+    font-family:var(--sans); font-size:14px; cursor:pointer; border-radius:10px; padding:10px 16px;
+    border:1px solid var(--line); background:#fff; color:var(--navy); transition:all .15s; font-weight:600;
+  }
+  button.btn:hover:not([disabled]){border-color:var(--blue); box-shadow:0 3px 10px -6px rgba(31,58,95,.4)}
+  button.btn:active:not([disabled]){transform:translateY(1px)}
+  button.btn[disabled]{opacity:.4; cursor:default; box-shadow:none}
+  .btn.primary{background:var(--navy); color:#fff; border-color:var(--navy)}
+  .btn.primary:hover:not([disabled]){background:#264b78}
+
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .toggle{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer; user-select:none}
+  .switch{width:38px; height:22px; border-radius:99px; background:#cdd9e5; position:relative; transition:background .15s; flex:none}
+  .switch::after{content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .toggle.on .switch{background:var(--blue)} .toggle.on .switch::after{left:18px}
+  .toggles{display:flex; gap:16px; flex-wrap:wrap}
+  .txtbtn{background:none;border:none;color:var(--blue);font-size:13px;cursor:pointer;font-family:var(--sans);padding:4px}
+  .txtbtn:hover{text-decoration:underline}
+
+  .scorebar{
+    display:flex; align-items:center; gap:14px; margin-top:14px; flex-wrap:wrap;
+    font-family:var(--mono); font-size:12px; color:var(--muted);
+  }
+  .scorebar .g{color:var(--good); font-weight:700}
+  .scorebar .r{color:var(--accent); font-weight:700}
+  .scorebar .pct{color:var(--navy); font-weight:700; font-size:14px}
+
+  /* results screen */
+  .results{
+    position:relative; margin:14px 0; background:var(--card); border:1px solid var(--line);
+    border-radius:16px; border-top:4px solid var(--navy); padding:26px; text-align:center;
+    box-shadow:0 10px 30px -18px rgba(20,39,63,.45);
+  }
+  .results h2{margin:0 0 6px; color:var(--navy); font-size:22px}
+  .bigscore{font-family:var(--mono); font-size:44px; font-weight:700; color:var(--navy); margin:10px 0 2px; line-height:1}
+  .bigscore span{font-size:22px; color:var(--muted)}
+  .verdict-line{color:var(--muted); font-size:14px; margin:2px 0 18px}
+  .breakdown{display:flex; flex-direction:column; gap:8px; text-align:left; margin:0 auto; max-width:420px}
+  .brow{display:flex; align-items:center; gap:10px; font-size:13px}
+  .brow .bl{font-family:var(--mono); font-size:11px; color:var(--muted); flex:none; width:40px}
+  .brow .bn{flex:none; width:170px; color:var(--ink)}
+  .brow .bt{flex:1; height:8px; background:#e2ebf3; border-radius:99px; overflow:hidden}
+  .brow .bf{height:100%; background:linear-gradient(90deg,var(--good),#3fa06a); border-radius:99px}
+  .brow .bv{font-family:var(--mono); font-size:11px; color:var(--navy); flex:none; width:44px; text-align:right}
+  .results .btn{margin-top:20px}
+
+  .hidden{display:none !important}
+
+  @media (max-width:520px){
+    h1{font-size:22px}
+    .qtext{font-size:17px}
+    .controls{flex-direction:column; align-items:stretch}
+    .navbtns{justify-content:space-between}
+    .brow .bn{width:120px}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .opt,.bar,.switch,.switch::after{transition:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Architetture dei Calcolatori · 100 domande</p>
+    <h1>Quiz — Simulazione d'esame</h1>
+    <p class="sub">Scegli una risposta · vedi subito soluzione e spiegazione · usa 1-4 per rispondere e ← → per navigare</p>
+    <div class="binstrip" id="binstrip"></div>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="meta">
+    <span class="count"><b id="cur">1</b> / <span id="tot">0</span></span>
+    <div class="track"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <!-- Question card -->
+  <div class="card" id="card">
+    <div class="cat">
+      <span class="catname" id="cat"></span>
+      <span class="qnum" id="qnum"></span>
+    </div>
+    <div class="kind">Domanda</div>
+    <div class="qtext" id="qtext"></div>
+    <div class="opts" id="opts"></div>
+    <div class="exp" id="exp"><span class="verdict" id="verdict"></span><span id="exptext"></span></div>
+  </div>
+
+  <!-- Results card -->
+  <div class="results hidden" id="results">
+    <div class="kind" style="text-align:center">Risultato della simulazione</div>
+    <h2>Quiz completato</h2>
+    <div class="bigscore"><span id="rScore">0</span><span>/<span id="rTot">0</span></span></div>
+    <div class="verdict-line" id="rVerdict"></div>
+    <div class="breakdown" id="breakdown"></div>
+    <button class="btn primary" id="restart">↻ Ricomincia</button>
+  </div>
+
+  <div class="controls" id="controls">
+    <div class="navbtns">
+      <button class="btn" id="prev">← Precedente</button>
+      <button class="btn primary" id="next">Successiva →</button>
+    </div>
+    <button class="txtbtn" id="finish">Vai al risultato</button>
+  </div>
+
+  <div class="scorebar" id="scorebar">
+    Corrette: <span class="g" id="nok">0</span> · Errate: <span class="r" id="nno">0</span> · Risposte: <span id="nans">0</span>/<span id="nq">0</span> · <span class="pct" id="pct">—</span>
+  </div>
+
+  <div class="toolbar">
+    <div class="toggles">
+      <label class="toggle" id="shuffleQ"><span class="switch"></span> Mescola domande</label>
+      <label class="toggle" id="shuffleA"><span class="switch"></span> Mescola risposte</label>
+    </div>
+    <button class="txtbtn" id="reset">Azzera risposte</button>
+  </div>
+</div>
+
+<script>
+const CATS = {
+  l1: {name:"L1 · Fondamenti"},
+  l2: {name:"L2 · Timing, stato e Verilog"},
+  l3: {name:"L3 · ISA e processore"},
+  l4: {name:"L4 · Pipeline e microarch."},
+  l5: {name:"L5 · Gerarchia di memoria"},
+};
+
+// 100 domande a risposta multipla dal PDF "Quiz simulazione d'esame".
+// o = opzioni in ordine originale; correct = indice (0=A,1=B,2=C,3=D); e = spiegazione.
+const QUESTIONS = [
+  // ── Macro-livello 1 — Fondamenti numerici, logica e circuiti combinatori ──
+  {c:"l1", q:"Un bit può assumere:", o:["Qualsiasi numero decimale","Solo valori negativi","Otto valori diversi","Solo i valori 0 e 1"], correct:3, e:"Il bit è l'unità minima dell'informazione digitale: può rappresentare soltanto due stati logici, indicati con 0 e 1, che nei circuiti corrispondono a due intervalli di tensione."},
+  {c:"l1", q:"Un byte contiene:", o:["2 bit","4 bit","8 bit","16 bit"], correct:2, e:"Un byte è formato da 8 bit. Con un byte si rappresentano 2⁸ = 256 configurazioni, da 00000000 a 11111111."},
+  {c:"l1", q:"Il numero binario 1010 corrisponde in decimale a:", o:["8","12","14","10"], correct:3, e:"Ogni cifra binaria pesa una potenza di 2: 1010₂ = 1·2³ + 0·2² + 1·2¹ + 0·2⁰ = 8 + 2 = 10."},
+  {c:"l1", q:"La cifra esadecimale A vale in decimale:", o:["10","8","11","16"], correct:0, e:"Il sistema esadecimale usa 0-9 e poi A-F: A=10, B=11, C=12, D=13, E=14, F=15."},
+  {c:"l1", q:"Il massimo valore unsigned rappresentabile con n bit è:", o:["2ⁿ","2ⁿ⁻¹ − 1","2ⁿ − 1","2ⁿ⁺¹"], correct:2, e:"Con n bit esistono 2ⁿ configurazioni; poiché si parte da 0, il massimo è 2ⁿ − 1. Con 8 bit il massimo è 255."},
+  {c:"l1", q:"Per ottenere il complemento a due di un numero binario si:", o:["Aggiunge soltanto 1","Invertono i bit e si aggiunge 1","Inverte soltanto il bit più significativo","Raddoppia il numero"], correct:1, e:"Si invertono tutti i bit e si aggiunge 1. Es.: 00000101 → 11111010, +1 → 11111011, cioè −5 su 8 bit."},
+  {c:"l1", q:"L'intervallo dei numeri in complemento a due su n bit è:", o:["Da 0 a 2ⁿ − 1","Da −2ⁿ a 2ⁿ","Da −2ⁿ⁻¹ + 1 a 2ⁿ⁻¹","Da −2ⁿ⁻¹ a 2ⁿ⁻¹ − 1"], correct:3, e:"Il bit più significativo ha peso negativo, quindi l'intervallo è da −2ⁿ⁻¹ a 2ⁿ⁻¹ − 1. Con 8 bit: da −128 a 127."},
+  {c:"l1", q:"Nella somma signed, l'overflow può verificarsi quando:", o:["Gli operandi hanno sempre segno diverso","Il risultato è zero","Non compare alcun carry intermedio","Si sommano operandi dello stesso segno e il risultato ha segno opposto"], correct:3, e:"L'overflow signed avviene quando il risultato non è rappresentabile: due positivi danno un negativo, oppure due negativi danno un positivo."},
+  {c:"l1", q:"In IEEE 754, il bit di segno indica:", o:["La base numerica","Se il numero è positivo o negativo","Il numero di byte","La posizione della virgola da solo"], correct:1, e:"Il bit di segno vale 0 per i positivi e 1 per i negativi. Il valore completo dipende anche da esponente e frazione."},
+  {c:"l1", q:"Nella rappresentazione floating point, il bias è usato per:", o:["Calcolare la mantissa in complemento a due","Azzerare il bit di segno","Memorizzare l'esponente senza un segno separato","Trasformare il numero in esadecimale"], correct:2, e:"Il bias consente di memorizzare esponenti positivi e negativi in un campo unsigned. In IEEE 754 a 32 bit il bias è 127."},
+  {c:"l1", q:"La porta NOT produce:", o:["Sempre 1","La somma di due ingressi","Il complemento logico dell'ingresso","Il riporto"], correct:2, e:"La NOT ha un solo ingresso e produce il valore opposto: 0→1 e 1→0."},
+  {c:"l1", q:"Una porta AND vale 1 quando:", o:["Almeno un ingresso vale 1","Tutti i suoi ingressi valgono 1","Gli ingressi sono diversi","Tutti gli ingressi valgono 0"], correct:1, e:"La AND realizza il prodotto logico: con due ingressi l'uscita vale 1 solo nella combinazione 1,1."},
+  {c:"l1", q:"Una porta XOR a due ingressi vale 1 quando:", o:["Gli ingressi sono diversi","Entrambi gli ingressi valgono 1","Entrambi gli ingressi valgono 0","Gli ingressi sono sempre uguali"], correct:0, e:"La XOR vale 1 quando esattamente uno dei due ingressi vale 1: combinazioni 01 e 10."},
+  {c:"l1", q:"NAND e NOR sono dette porte universali perché:", o:["Permettono di realizzare qualsiasi funzione booleana","Hanno sempre tre ingressi","Non introducono ritardi","Funzionano soltanto in CMOS"], correct:0, e:"Con una sola di queste porte si possono costruire NOT, AND e OR e quindi qualunque funzione booleana."},
+  {c:"l1", q:"Un inverter CMOS usa tipicamente:", o:["Due resistori senza transistor","Un PMOS di pull-up e un NMOS di pull-down","Soltanto un NMOS","Un flip-flop e un decoder"], correct:1, e:"Il PMOS collega l'uscita a VDD quando l'ingresso è basso, l'NMOS a massa quando è alto. Idealmente conduce solo uno dei due."},
+  {c:"l1", q:"Secondo De Morgan, NOT(A AND B) equivale a:", o:["NOT A AND NOT B","A OR B","A XOR B","NOT A OR NOT B"], correct:3, e:"La negazione di un prodotto logico è la somma dei negati: ¬(A·B) = ¬A + ¬B."},
+  {c:"l1", q:"In una mappa di Karnaugh, due celle adiacenti differiscono per:", o:["Tutti i bit","Due bit esatti","Un solo bit","Nessun bit"], correct:2, e:"Le celle seguono il codice Gray: da una cella alla successiva cambia una sola variabile, che si elimina nel raggruppamento."},
+  {c:"l1", q:"Un multiplexer 2:1 serve a:", o:["Memorizzare due bit","Sommare due parole","Generare un clock","Selezionare uno tra due ingressi dati"], correct:3, e:"Ha due ingressi dati, un selettore e un'uscita: il selettore decide quale ingresso viene trasferito all'uscita."},
+  {c:"l1", q:"Un decoder con n ingressi può avere fino a:", o:["n uscite","n² uscite","2n uscite","2ⁿ uscite"], correct:3, e:"Un decoder con n ingressi distingue 2ⁿ combinazioni e può avere fino a 2ⁿ uscite, di norma una sola attiva."},
+  {c:"l1", q:"Una ROM è normalmente usata per:", o:["Amplificare il clock","Eliminare ogni ritardo","Memorizzare contenuti fissi indirizzabili","Sostituire sempre la RAM"], correct:2, e:"Una ROM contiene parole selezionate tramite indirizzo; il contenuto è fisso o modificabile solo con procedure specifiche, a differenza della RAM."},
+
+  // ── Macro-livello 2 — Timing, circuiti aritmetici, stato e Verilog ──
+  {c:"l2", q:"Il propagation delay indica:", o:["Il tempo minimo prima del primo cambiamento","Il tempo massimo entro cui l'uscita si stabilizza","La durata del periodo di clock","Il numero di porte del circuito"], correct:1, e:"Il propagation delay (tpd) è il massimo intervallo tra la variazione di un ingresso e la stabilizzazione dell'uscita sul nuovo valore corretto."},
+  {c:"l2", q:"Il contamination delay indica:", o:["Il tempo massimo di stabilizzazione","Il tempo di setup","Il tempo minimo dopo cui l'uscita può iniziare a cambiare","Il tempo totale di simulazione"], correct:2, e:"Il contamination delay (tcd) è il tempo minimo dopo cui l'uscita può iniziare a cambiare: tcd indica il primo cambiamento possibile, tpd l'ultimo."},
+  {c:"l2", q:"Il critical path è il cammino con:", o:["Il minimo contamination delay","Il minor numero di porte","Il massimo propagation delay","Il maggior numero di ingressi"], correct:2, e:"Il critical path è il cammino combinatorio più lento del circuito: il suo ritardo massimo determina il periodo minimo del clock."},
+  {c:"l2", q:"Un glitch è spesso causato da:", o:["Un clock perfettamente stabile","Cammini riconvergenti con ritardi differenti","Un registro con enable","Una ROM vuota"], correct:1, e:"Un glitch è una variazione temporanea indesiderata, tipica quando uno stesso segnale raggiunge una porta per cammini riconvergenti con ritardi diversi."},
+  {c:"l2", q:"La somma di un half adder è:", o:["A AND B","A OR B","NOT A","A XOR B"], correct:3, e:"L'half adder somma due bit: la somma è A XOR B, mentre il riporto è A AND B."},
+  {c:"l2", q:"Rispetto all'half adder, il full adder possiede anche:", o:["Un segnale di reset obbligatorio","Un carry in ingresso","Una memoria interna","Un clock più veloce"], correct:1, e:"Il full adder somma A, B e il carry in ingresso Cin, producendo un bit di somma e un carry-out; l'half adder non possiede Cin."},
+  {c:"l2", q:"Nel ripple-carry adder, il carry:", o:["Viene ignorato","È sempre zero","Si propaga da uno stadio al successivo","È calcolato soltanto nell'ultimo bit"], correct:2, e:"Il riporto prodotto da uno stadio diventa l'ingresso del successivo; il ritardo cresce con il numero di bit perché ogni stadio attende il carry precedente."},
+  {c:"l2", q:"Il carry-lookahead è più veloce perché:", o:["Non calcola la somma","Calcola i carry con logica anticipata e parallela","Usa un solo bit","Elimina tutti i transistor"], correct:1, e:"Usa i segnali generate e propagate per calcolare i carry in anticipo e in parallelo, senza attendere la propagazione sequenziale attraverso tutti i full adder."},
+  {c:"l2", q:"L'ALU esegue principalmente:", o:["Solo accessi al disco","Operazioni aritmetiche e logiche","Solo istruzioni di salto","La traduzione degli indirizzi virtuali"], correct:1, e:"L'ALU esegue addizione, sottrazione, AND, OR, XOR e confronti; nel datapath può calcolare anche indirizzi di memoria o target di branch."},
+  {c:"l2", q:"Un latch è sensibile:", o:["Al livello del segnale di abilitazione","Soltanto a un fronte di clock","Alla cache miss","Al contenuto della ROM"], correct:0, e:"Un latch è level-sensitive: con enable attivo è trasparente e l'uscita segue l'ingresso, con enable disattivo conserva il valore."},
+  {c:"l2", q:"Un flip-flop edge-triggered campiona il dato:", o:["Durante tutto il livello alto","Soltanto durante il reset","Quando cambia qualsiasi ingresso","Sul fronte attivo del clock"], correct:3, e:"Acquisisce il dato solo sul fronte attivo del clock (positivo o negativo secondo il componente); tra due fronti conserva il valore memorizzato."},
+  {c:"l2", q:"Un registro da N bit è normalmente composto da:", o:["Un solo transistor","N flip-flop","N decoder","2ⁿ ALU"], correct:1, e:"Servono N elementi di memoria, uno per bit: un registro da 32 bit contiene 32 flip-flop più l'eventuale logica di controllo."},
+  {c:"l2", q:"In una macchina di Moore, l'uscita dipende:", o:["Dallo stato corrente","Solo dall'ingresso corrente","Dalla memoria cache","Dal tempo di propagazione"], correct:0, e:"In una macchina di Moore l'uscita dipende soltanto dallo stato corrente; gli ingressi influenzano il calcolo dello stato successivo."},
+  {c:"l2", q:"In una macchina di Mealy, l'uscita dipende:", o:["Solo dallo stato corrente","Dallo stato corrente e dall'ingresso corrente","Solo dal clock","Dal numero di registri"], correct:1, e:"In una macchina di Mealy l'uscita dipende sia dallo stato sia dall'ingresso correnti, e può cambiare subito al variare di un ingresso."},
+  {c:"l2", q:"Il setup time richiede che il dato sia stabile:", o:["Solo dopo il fronte di clock","Durante tutto il programma","Prima del fronte di clock","Soltanto quando il reset è attivo"], correct:2, e:"Il setup time è l'intervallo minimo in cui il dato deve essere stabile prima del fronte attivo, affinché il flip-flop lo acquisisca correttamente."},
+  {c:"l2", q:"L'hold time richiede che il dato resti stabile:", o:["Prima dell'accensione","Per tutto il periodo di clock precedente","Dopo il fronte di clock","Soltanto durante un branch"], correct:2, e:"L'hold time è l'intervallo minimo in cui il dato resta stabile dopo il fronte. Setup e hold definiscono una finestra critica attorno al fronte."},
+  {c:"l2", q:"Una violazione di setup o hold può causare:", o:["Un hit in cache","Metastabilità","Una codifica Gray","Un'istruzione NOP"], correct:1, e:"Se il dato cambia troppo vicino al fronte di clock, il flip-flop può entrare in metastabilità e non stabilizzarsi rapidamente su un valore affidabile."},
+  {c:"l2", q:"In Verilog, assign è usato tipicamente per:", o:["Un aggiornamento di registro sul clock","Un assegnamento continuo combinatorio","Una chiamata di funzione software","Una tabella delle pagine"], correct:1, e:"assign descrive un assegnamento continuo combinatorio: l'espressione viene rivalutata a ogni cambiamento degli ingressi (es. <code>assign y = a & b;</code>)."},
+  {c:"l2", q:"Nei blocchi sequenziali Verilog si usa normalmente:", o:["Soltanto assign","L'assegnamento blocking = in ogni caso","L'assegnamento non-blocking <=","L'operatore di divisione"], correct:2, e:"Nei blocchi sincronizzati col clock si usa l'assegnamento non-blocking <=, coerente col comportamento parallelo dei registri (es. <code>always @(posedge clk) q &lt;= d;</code>)."},
+  {c:"l2", q:"Un testbench serve principalmente a:", o:["Simulare e verificare un modulo","Essere sintetizzato come parte obbligatoria del circuito","Sostituire l'ALU","Memorizzare le istruzioni"], correct:0, e:"Un testbench applica stimoli agli ingressi e osserva le uscite per verificare il progetto; normalmente non rappresenta hardware sintetizzabile."},
+
+  // ── Macro-livello 3 — ISA, RISC-V e processore single-cycle ──
+  {c:"l3", q:"L'ISA definisce:", o:["Il layout fisico dei transistor","L'interfaccia visibile tra software e hardware","Il solo contenuto della cache","La frequenza del clock"], correct:1, e:"L'ISA definisce ciò che software, compilatore e programmatore osservano: istruzioni, registri, formati, indirizzamento ed eccezioni; non la realizzazione interna del processore."},
+  {c:"l3", q:"RISC-V è un'architettura load-store: ciò significa che:", o:["Ogni istruzione accede alla memoria","Solo load e store accedono direttamente alla memoria dati","Non esistono registri","Le istruzioni aritmetiche lavorano sul disco"], correct:1, e:"In una ISA load-store le operazioni aritmetiche lavorano sui registri; per elaborare un dato in memoria bisogna prima caricarlo con una load."},
+  {c:"l3", q:"Nel RISC-V, il registro x0 contiene sempre:", o:["Il Program Counter","L'ultima istruzione","L'indirizzo dello stack","Il valore zero"], correct:3, e:"x0 è cablato a zero: ogni lettura restituisce 0 e ogni tentativo di scrittura viene ignorato."},
+  {c:"l3", q:"Il Program Counter contiene:", o:["Il risultato dell'ALU","Il dato letto dalla cache","L'indirizzo dell'istruzione da prelevare","Il numero di registri"], correct:2, e:"Il PC contiene l'indirizzo dell'istruzione da acquisire; di norma è incrementato, ma branch e salti possono caricarvi un indirizzo diverso."},
+  {c:"l3", q:"In RV32I, una normale istruzione occupa:", o:["8 bit","32 bit","16 bit","64 byte"], correct:1, e:"Le istruzioni base RV32I hanno lunghezza fissa di 32 bit. Le estensioni compresse (16 bit) non fanno parte del formato base."},
+  {c:"l3", q:"Il formato R è usato tipicamente per:", o:["Salti con offset molto grande soltanto","Operazioni tra registri","Memorizzare pagine virtuali","Definire il clock"], correct:1, e:"Il formato R è usato per istruzioni tra registri, come <code>add x5, x6, x7</code>: due sorgenti, una destinazione e i campi dell'operazione."},
+  {c:"l3", q:"L'istruzione addi usa il formato:", o:["I","R","S","B"], correct:0, e:"addi usa un registro sorgente, un immediato e un registro destinazione: questa struttura corrisponde al formato I."},
+  {c:"l3", q:"L'istruzione lw:", o:["Carica una word dalla memoria in un registro","Salva sempre il PC","Somma due registri senza memoria","Svuota la cache"], correct:0, e:"lw calcola l'indirizzo come registro base + offset, legge una word dalla memoria e la scrive nel registro destinazione (es. <code>lw x5, 8(x6)</code>)."},
+  {c:"l3", q:"L'istruzione sw:", o:["Legge una word dalla memoria","Confronta due registri","Scrive una word da un registro in memoria","Aggiorna il TLB"], correct:2, e:"sw calcola l'indirizzo come base + offset e scrive in memoria il contenuto del registro sorgente (es. <code>sw x5, 8(x6)</code>)."},
+  {c:"l3", q:"L'istruzione beq effettua il branch quando:", o:["Il primo registro è sempre zero","La cache è piena","Il clock è basso","I due registri confrontati sono uguali"], correct:3, e:"beq = branch if equal: se i due registri sorgente sono uguali il PC prende il target del branch, altrimenti si continua in sequenza."},
+  {c:"l3", q:"L'istruzione jal:", o:["Esegue soltanto una somma","Salta e salva l'indirizzo di ritorno","Carica un byte dalla memoria","Disabilita il register file"], correct:1, e:"jal = jump and link: salto PC-relative che salva nel registro destinazione l'indirizzo dell'istruzione successiva, utile per il ritorno da funzione."},
+  {c:"l3", q:"La sign extension serve a:", o:["Azzerare sempre l'immediato","Estendere un immediato preservandone il segno","Convertire un registro in cache","Raddoppiare il numero di istruzioni"], correct:1, e:"Replica il bit di segno nelle posizioni aggiunte, così un immediato negativo mantiene il proprio valore quando viene esteso a più bit."},
+  {c:"l3", q:"Il register file permette normalmente di:", o:["Leggere operandi e scrivere risultati nei registri","Memorizzare le pagine su disco","Predire i branch","Generare il clock"], correct:0, e:"Il register file contiene i registri architetturali; in un normale datapath RISC-V consente spesso due letture e una scrittura per ciclo."},
+  {c:"l3", q:"Nel datapath, l'ALU può essere usata per:", o:["Conservare permanentemente le istruzioni","Tradurre direttamente ogni pagina virtuale","Calcoli aritmetici e calcolo degli indirizzi","Sostituire il PC"], correct:2, e:"Oltre alle operazioni aritmetiche e logiche, l'ALU calcola l'indirizzo effettivo di load/store (base + offset) e confronta registri per i branch."},
+  {c:"l3", q:"In un processore single-cycle, ogni istruzione:", o:["Completa il proprio lavoro in un singolo ciclo di clock","Richiede sempre cinque cicli","Non usa la memoria","Viene eseguita fuori ordine"], correct:0, e:"Nel single-cycle ogni istruzione attraversa tutte le risorse necessarie entro lo stesso periodo; anche le istruzioni semplici attendono la durata del ciclo comune."},
+  {c:"l3", q:"Nel single-cycle, il periodo di clock è determinato:", o:["Dall'istruzione più veloce","Dal numero di registri inutilizzati","Solo dal branch predictor","Dal cammino dell'istruzione più lenta"], correct:3, e:"Tutte le istruzioni devono completarsi in un ciclo, quindi il periodo deve contenere il cammino peggiore. La load è spesso tra le più lente."},
+  {c:"l3", q:"La control unit genera:", o:["I dati contenuti nella RAM","I bit del TLB","Le tensioni analogiche esterne","I segnali che comandano mux, memorie, ALU e registri"], correct:3, e:"La control unit interpreta l'opcode e genera i segnali che controllano multiplexer, register file, memoria, ALU e aggiornamento del PC."},
+  {c:"l3", q:"Una pseudoistruzione RISC-V è:", o:["Una notazione assemblativa tradotta in una o più istruzioni reali","Un errore della CPU","Un formato fisico della cache","Un segnale di clock"], correct:0, e:"Una pseudoistruzione rende il codice più leggibile ma non corrisponde a un'istruzione hardware distinta: l'assemblatore la traduce in una o più istruzioni reali."},
+  {c:"l3", q:"Un interrupt è generalmente:", o:["Un'operazione AND","Una cella della cache","Un evento esterno che richiede l'attenzione del processore","Un formato di istruzione R"], correct:2, e:"Un interrupt è di norma un evento asincrono (timer, periferica) che richiede l'intervento del processore; l'eccezione deriva invece dall'esecuzione di un'istruzione."},
+  {c:"l3", q:"Per un branch RISC-V, il target è ottenuto tipicamente:", o:["Sommando al PC un offset codificato nell'istruzione","Moltiplicando il PC per zero","Leggendo sempre x0","Usando soltanto il valore della cache"], correct:0, e:"I branch usano indirizzamento PC-relative: il target si ottiene sommando al PC un offset ricostruito dai campi dell'istruzione ed esteso con segno."},
+
+  // ── Macro-livello 4 — Pipeline, branch prediction e microarchitettura avanzata ──
+  {c:"l4", q:"La pipeline migliora soprattutto:", o:["La capacità della memoria principale","Il numero di bit di un byte","La precisione del floating point","Il throughput, cioè le istruzioni completate per unità di tempo"], correct:3, e:"La pipeline sovrappone l'esecuzione di istruzioni diverse: non riduce necessariamente la latenza della singola istruzione, ma aumenta il throughput."},
+  {c:"l4", q:"La classica pipeline RISC a 5 stadi è:", o:["IF, ID, EX, MEM, WB","ID, IF, WB, EX, MEM","FETCH, CACHE, TLB, ROM, ALU","R, I, S, B, U"], correct:0, e:"I cinque stadi classici sono Instruction Fetch, Instruction Decode, Execute, Memory e Write Back."},
+  {c:"l4", q:"Nello stadio IF avviene:", o:["La scrittura finale nel registro","L'accesso alla memoria dati","Il prelievo dell'istruzione","Il commit fuori ordine"], correct:2, e:"Nello stadio IF il processore usa il PC per leggere l'istruzione dalla memoria istruzioni e prepara il valore del PC successivo."},
+  {c:"l4", q:"Nello stadio ID avviene normalmente:", o:["La scrittura in cache","La traduzione della pagina","La decodifica e la lettura dei registri","Il calcolo dell'AMAT"], correct:2, e:"Nello stadio ID si interpretano opcode e campi dell'istruzione, si leggono i registri sorgente e si ricostruisce l'immediato."},
+  {c:"l4", q:"Nello stadio EX viene usata tipicamente:", o:["La memoria secondaria","La ROM del testbench","La TLB soltanto","L'ALU"], correct:3, e:"Nello stadio EX l'ALU esegue somme, sottrazioni, operazioni logiche, calcolo di indirizzi e confronti per i branch."},
+  {c:"l4", q:"Nello stadio MEM avviene, per load e store:", o:["L'accesso alla memoria dati","La lettura del codice sorgente","Il reset della CPU","La generazione del clock"], correct:0, e:"Per la load il MEM legge la memoria dati, per la store scrive il dato; le altre istruzioni attraversano lo stadio senza usare pienamente la memoria."},
+  {c:"l4", q:"Nello stadio WB avviene:", o:["La scrittura del risultato nel registro destinazione","Il fetch dell'istruzione","La predizione del branch","La selezione della pagina virtuale"], correct:0, e:"Nel WB il risultato proveniente dall'ALU o dalla memoria viene scritto nel registro destinazione, se l'istruzione lo prevede."},
+  {c:"l4", q:"Un hazard strutturale nasce da:", o:["Una dipendenza tra dati","Un branch preso","Un numero negativo","Un conflitto nell'uso della stessa risorsa hardware"], correct:3, e:"Nasce quando due istruzioni richiedono nello stesso ciclo la stessa risorsa hardware, ad esempio una memoria unica condivisa tra fetch e accesso ai dati."},
+  {c:"l4", q:"Un data hazard nasce da:", o:["Un errore nella tabella delle pagine","Un clock troppo lento soltanto","Una porta universale","Una dipendenza tra istruzioni sui dati"], correct:3, e:"Nasce quando un'istruzione usa un valore prodotto da una precedente non ancora disponibile; il caso più comune è la dipendenza RAW (read after write)."},
+  {c:"l4", q:"Un control hazard è legato soprattutto a:", o:["Branch e salti","Somme senza carry","Registri inutilizzati","Porte NAND"], correct:0, e:"Nasce perché, finché un branch o un salto non è risolto, non si sa con certezza quale sia la prossima istruzione da acquisire."},
+  {c:"l4", q:"Il forwarding serve a:", o:["Scrivere il risultato su disco","Aumentare il numero di bit","Eliminare il clock","Inviare direttamente un risultato a uno stadio che ne ha bisogno"], correct:3, e:"Il forwarding trasferisce un risultato da uno stadio avanzato direttamente all'ingresso dello stadio che lo richiede, senza attendere scrittura e rilettura dal register file."},
+  {c:"l4", q:"Una dipendenza load-use può richiedere:", o:["La cancellazione della memoria","Uno stall anche in presenza di forwarding","Un nuovo formato RISC-V","La rimozione dell'ALU"], correct:1, e:"Il dato letto dalla memoria è disponibile solo dopo lo stadio MEM, mentre l'istruzione successiva potrebbe servirlo già in EX: può essere necessario uno stall."},
+  {c:"l4", q:"Uno stall introduce nella pipeline:", o:["Una pausa o bolla","Un nuovo registro architetturale","Una pagina fisica","Una porta XOR"], correct:0, e:"Durante uno stall una o più istruzioni si bloccano e viene inserita una bolla, equivalente a un'operazione che non modifica lo stato architetturale."},
+  {c:"l4", q:"La branch prediction tenta di:", o:["Calcolare la mantissa","Ridurre la dimensione del byte","Sostituire il register file","Indovinare l'esito o il target di un branch prima che sia risolto"], correct:3, e:"Permette di proseguire il fetch senza attendere la risoluzione del branch; se la previsione è errata, le istruzioni speculative vengono eliminate."},
+  {c:"l4", q:"Un predittore statico usa:", o:["La storia dinamica di ogni branch obbligatoriamente","Il TLB","Il contenuto dell'ALU","Una regola fissa"], correct:3, e:"Un predittore statico non usa la storia di esecuzione: può prevedere sempre not taken o applicare una regola fissa basata sulla direzione del branch."},
+  {c:"l4", q:"Un predittore dinamico usa spesso:", o:["La storia dei branch precedenti","Solo il bit di segno IEEE 754","La ROM del testbench","La tensione di alimentazione"], correct:0, e:"Aggiorna il proprio stato in base ai risultati osservati; può usare contatori saturanti, history register e tabelle indicizzate dal PC."},
+  {c:"l4", q:"Dopo una branch misprediction occorre normalmente:", o:["Scartare le istruzioni del cammino sbagliato","Azzerare tutta la memoria principale","Cambiare ISA","Disabilitare per sempre la pipeline"], correct:0, e:"Le istruzioni acquisite o eseguite dal percorso sbagliato vengono invalidate e il fetch riparte dall'indirizzo corretto."},
+  {c:"l4", q:"Un processore multiple-issue può:", o:["Eseguire una sola istruzione per programma","Usare un solo registro","Eliminare tutte le dipendenze","Avviare più di un'istruzione nello stesso ciclo"], correct:3, e:"Dispone di più vie di emissione o unità funzionali: se istruzioni, dipendenze e risorse lo consentono, può avviare più operazioni nello stesso ciclo."},
+  {c:"l4", q:"Nell'esecuzione out-of-order:", o:["Le istruzioni vengono sempre completate in ordine casuale","Il PC non esiste","Un'istruzione pronta può essere eseguita prima di una precedente bloccata","Non servono controlli sulle dipendenze"], correct:2, e:"Le istruzioni si eseguono quando operandi e unità funzionali sono disponibili: una lunga dipendenza non deve bloccare le istruzioni successive indipendenti."},
+  {c:"l4", q:"Il commit in ordine aiuta a mantenere:", o:["La cache sempre vuota","Il clock analogico","Uno stato architetturale preciso","L'esponente floating point"], correct:2, e:"Anche se l'esecuzione interna è fuori ordine, il commit in ordine conserva uno stato architetturale preciso, utile in caso di eccezione."},
+
+  // ── Macro-livello 5 — Gerarchia di memoria, cache, memoria virtuale e TLB ──
+  {c:"l5", q:"La gerarchia di memoria combina livelli con:", o:["Identica velocità e capacità","Solo memoria secondaria","Nessuna località","Velocità, costo e capacità differenti"], correct:3, e:"Usa memorie piccole e veloci vicino alla CPU e memorie grandi ma lente nei livelli inferiori, per ottenere buone prestazioni a costi sostenibili."},
+  {c:"l5", q:"Tra registri, cache e memoria principale, i più veloci sono normalmente:", o:["La memoria principale","Il disco","I registri","La memoria virtuale"], correct:2, e:"I registri si trovano direttamente nel processore e sono il livello più veloce; seguono cache, memoria principale e memoria secondaria."},
+  {c:"l5", q:"Le cache sono realizzate tipicamente con:", o:["SRAM","DRAM soltanto","Dischi magnetici","ROM ottiche"], correct:0, e:"La SRAM è veloce e non richiede refresh, ma occupa più area ed è costosa: per questo è usata soprattutto nelle cache, di capacità ridotta."},
+  {c:"l5", q:"La memoria principale è realizzata tipicamente con:", o:["SRAM soltanto","DRAM","Flip-flop, uno per byte","TLB"], correct:1, e:"La DRAM è più densa ed economica della SRAM, ma più lenta e con refresh: queste caratteristiche la rendono adatta alla memoria principale."},
+  {c:"l5", q:"La località temporale indica che:", o:["Gli indirizzi vicini saranno sempre ignorati","Il tempo di clock è costante","Un dato usato di recente sarà probabilmente riusato presto","La cache non contiene blocchi"], correct:2, e:"Un dato o un'istruzione usati di recente hanno buona probabilità di essere riusati a breve, come accade con variabili e cicli."},
+  {c:"l5", q:"La località spaziale indica che:", o:["Lo stesso dato non verrà mai riusato","Ogni accesso causa un page fault","La memoria non ha indirizzi","Dati con indirizzi vicini possono essere usati a breve"], correct:3, e:"I programmi accedono spesso a elementi contigui (istruzioni consecutive, elementi di array): per questo la cache trasferisce interi blocchi."},
+  {c:"l5", q:"Un cache hit si verifica quando:", o:["Il dato richiesto è presente nella cache","Il dato è assente da ogni memoria","Il processore si arresta","Il TLB viene svuotato"], correct:0, e:"In caso di hit il dato richiesto è già presente nella cache e l'accesso è soddisfatto senza attendere il livello inferiore."},
+  {c:"l5", q:"Un cache miss si verifica quando:", o:["Il dato è trovato immediatamente","L'ALU produce zero","Il dato richiesto non è presente nella cache","Il branch è predetto correttamente"], correct:2, e:"In caso di miss il blocco richiesto non è nella cache e va recuperato da un livello inferiore, introducendo una miss penalty."},
+  {c:"l5", q:"La formula base dell'AMAT è:", o:["Hit time × miss rate","Hit time + miss rate × miss penalty","Miss penalty − hit time","Hit rate + numero di set"], correct:1, e:"AMAT = hit time + miss rate × miss penalty. Anche una miss rate piccola può incidere molto se la penalità di miss è elevata."},
+  {c:"l5", q:"In una cache direct-mapped, ogni blocco di memoria può andare:", o:["In qualsiasi linea senza vincoli","Soltanto nel TLB","In tutte le linee contemporaneamente","In una sola linea determinata"], correct:3, e:"L'indice determina un'unica linea candidata; blocchi diversi con lo stesso indice competono per quella linea e possono causare conflict miss."},
+  {c:"l5", q:"In una cache set-associative, un blocco può occupare:", o:["Una delle linee del set selezionato","Soltanto una linea dell'intera cache","Qualsiasi pagina del disco","Il registro x0"], correct:0, e:"In una cache a N vie l'indice seleziona un set e il blocco può stare in una qualunque delle N linee del set."},
+  {c:"l5", q:"In una cache fully associative, un blocco può essere collocato:", o:["Solo nella prima linea","Solo nel set zero","Solo nella memoria virtuale","In qualsiasi linea della cache"], correct:3, e:"La fully associative non usa un indice per il set: il blocco può stare in qualsiasi linea, ma il tag va confrontato con tutte le linee."},
+  {c:"l5", q:"I bit di offset selezionano:", o:["Il set della cache","La posizione all'interno del blocco","L'identità completa del blocco","Il registro destinazione"], correct:1, e:"L'offset individua il byte o la parola all'interno del blocco: se il blocco contiene 2ᵇ byte, servono b bit di offset."},
+  {c:"l5", q:"I bit di index selezionano:", o:["Il byte dentro il blocco","Il set o la linea candidata della cache","Il segno del numero","L'istruzione successiva"], correct:1, e:"L'index seleziona la linea in una direct-mapped o il set in una set-associative; da solo non identifica il blocco, perciò serve anche il tag."},
+  {c:"l5", q:"I bit di tag servono a:", o:["Identificare quale blocco di memoria è presente","Selezionare il byte nel blocco","Calcolare il clock","Definire il formato RISC-V"], correct:0, e:"Il tag dell'indirizzo viene confrontato con quello memorizzato nella linea o nelle vie del set; se tag e valid bit coincidono si ha un hit."},
+  {c:"l5", q:"Con write-through, una scrittura aggiorna:", o:["Soltanto il registro x0","Solo il TLB","La cache e il livello inferiore","Nessuna memoria"], correct:2, e:"Con write-through ogni scrittura aggiorna subito sia la copia in cache sia il livello inferiore: semplifica la coerenza ma può aumentare il traffico."},
+  {c:"l5", q:"Con write-back, il livello inferiore viene aggiornato normalmente:", o:["A ogni lettura","Quando un blocco modificato viene sostituito","Prima di ogni fetch","Solo durante il reset"], correct:1, e:"Con write-back la scrittura modifica prima solo la cache; il blocco è marcato dirty e scritto nel livello inferiore quando viene sostituito."},
+  {c:"l5", q:"Un compulsory miss avviene tipicamente:", o:["Perché la cache è sempre fully associative","Quando il dato è già nel registro","Al primo accesso a un blocco","Dopo ogni hit"], correct:2, e:"Il compulsory miss (cold miss) avviene al primo accesso a un blocco, perché il blocco non è mai stato caricato nella cache."},
+  {c:"l5", q:"Un page fault avviene quando:", o:["La pagina richiesta non è presente in memoria fisica","Il dato è presente nella cache","Il registro x0 cambia","L'ALU esegue una XOR"], correct:0, e:"Se la pagina virtuale richiesta non è in RAM si verifica un page fault: il sistema operativo la recupera dalla memoria secondaria e aggiorna le strutture di traduzione."},
+  {c:"l5", q:"Il TLB memorizza:", o:["Traduzioni recenti da pagine virtuali a frame fisici","I risultati di tutte le ALU","Le istruzioni Verilog","I segnali di clock"], correct:0, e:"Il TLB è una piccola cache delle entry della page table: memorizza associazioni recenti tra Virtual Page Number e Physical Frame Number, riducendo il costo della traduzione."},
+];
+
+const LETTERS = ["A","B","C","D"];
+
+const state = {
+  base: QUESTIONS.map((c,i)=>({...c, id:i})),
+  order: [], idx:0, filter:"all", shuffleQ:false, shuffleA:false,
+  display:{},  // id -> array di indici originali nell'ordine mostrato
+  answers:{},  // id -> indice originale scelto
+};
+
+const $ = s=>document.querySelector(s);
+
+function activeList(){
+  return state.base.filter(c=> state.filter==="all" ? true : c.c===state.filter);
+}
+function shuffleArr(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function buildOrder(){
+  let list = activeList().map(c=>c.id);
+  if(state.shuffleQ) shuffleArr(list);
+  state.order=list; state.idx=0;
+  // ordine di visualizzazione delle opzioni per ogni domanda
+  state.display={};
+  state.base.forEach(c=>{
+    let d=[0,1,2,3];
+    if(state.shuffleA) shuffleArr(d);
+    state.display[c.id]=d;
+  });
+}
+function current(){ return state.base[state.order[state.idx]]; }
+
+function render(){
+  showQuiz();
+  const tot=state.order.length;
+  $("#tot").textContent=tot;
+  $("#nq").textContent=tot; $("#cur").textContent = tot? state.idx+1 : 0;
+  $("#bar").style.width = tot ? ((state.idx+1)/tot*100)+"%" : "0%";
+  if(tot===0){
+    $("#qtext").textContent="Nessuna domanda in questo filtro.";
+    $("#opts").innerHTML=""; $("#exp").className="exp";
+    updateScore(); return;
+  }
+  const c=current();
+  $("#cat").textContent=CATS[c.c].name;
+  $("#qnum").textContent="Domanda #"+(c.id+1);
+  $("#qtext").innerHTML=c.q;
+
+  const answered = state.answers[c.id]!==undefined;
+  const chosen = state.answers[c.id];
+  const box=$("#opts"); box.innerHTML="";
+  state.display[c.id].forEach((origIdx,pos)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.disabled=answered;
+    b.innerHTML='<span class="letter">'+LETTERS[pos]+'</span><span class="txt">'+c.o[origIdx]+'</span>';
+    if(answered){
+      if(origIdx===c.correct){ b.classList.add("correct"); b.insertAdjacentHTML("beforeend",'<span class="mk">✓</span>'); }
+      else if(origIdx===chosen){ b.classList.add("wrong"); b.insertAdjacentHTML("beforeend",'<span class="mk">✗</span>'); }
+      else b.classList.add("dim");
+    }
+    b.onclick=()=>answer(origIdx);
+    box.appendChild(b);
+  });
+
+  const exp=$("#exp");
+  if(answered){
+    const ok = chosen===c.correct;
+    exp.className="exp show "+(ok?"ok":"no");
+    $("#verdict").textContent = ok ? "Risposta corretta" : ("Errata — corretta: "+LETTERS[state.display[c.id].indexOf(c.correct)]);
+    $("#exptext").innerHTML=c.e;
+  } else {
+    exp.className="exp";
+  }
+
+  $("#prev").disabled = state.idx===0;
+  $("#next").disabled = state.idx===tot-1;
+  updateScore();
+}
+
+function answer(origIdx){
+  const c=current();
+  if(state.answers[c.id]!==undefined) return;
+  state.answers[c.id]=origIdx;
+  render();
+}
+function go(d){
+  const n=state.idx+d;
+  if(n<0||n>=state.order.length) return;
+  state.idx=n; render();
+}
+function stats(){
+  let ok=0,no=0,ans=0;
+  state.order.forEach(id=>{
+    const a=state.answers[id];
+    if(a!==undefined){ ans++; if(a===state.base[id].correct) ok++; else no++; }
+  });
+  return {ok,no,ans,tot:state.order.length};
+}
+function updateScore(){
+  const s=stats();
+  $("#nok").textContent=s.ok; $("#nno").textContent=s.no; $("#nans").textContent=s.ans;
+  $("#pct").textContent = s.ans? Math.round(s.ok/s.ans*100)+"%" : "—";
+}
+
+// filtri
+function buildChips(){
+  const box=$("#chips"); box.innerHTML="";
+  const mk=(key,label)=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.textContent=label;
+    b.setAttribute("aria-pressed", state.filter===key);
+    b.onclick=()=>{ state.filter=key; state.answers={}; buildOrder(); render(); buildChips(); };
+    box.appendChild(b);
+  };
+  mk("all","Tutte");
+  Object.entries(CATS).forEach(([k,v])=>mk(k,v.name));
+}
+
+// risultato finale
+function showResults(){
+  const s=stats();
+  $("#card").classList.add("hidden");
+  $("#controls").classList.add("hidden");
+  $("#scorebar").classList.add("hidden");
+  $("#results").classList.remove("hidden");
+  $("#rScore").textContent=s.ok; $("#rTot").textContent=s.tot;
+  const pct = s.tot? Math.round(s.ok/s.tot*100) : 0;
+  let msg;
+  if(pct>=90) msg="Ottimo! Padronanza solida della materia.";
+  else if(pct>=70) msg="Buon lavoro. Rivedi qualche argomento e ci sei.";
+  else if(pct>=50) msg="Base discreta: ripassa i macro-livelli più deboli.";
+  else msg="Da consolidare: riparti dai fondamenti e riprova.";
+  $("#rVerdict").textContent=pct+"% corrette · "+msg;
+
+  // breakdown per livello (sui soli livelli presenti nell'ordine attivo)
+  const bd=$("#breakdown"); bd.innerHTML="";
+  Object.entries(CATS).forEach(([k,v])=>{
+    const ids=state.order.filter(id=>state.base[id].c===k);
+    if(ids.length===0) return;
+    let ok=0; ids.forEach(id=>{ if(state.answers[id]===state.base[id].correct) ok++; });
+    const p=Math.round(ok/ids.length*100);
+    const row=document.createElement("div"); row.className="brow";
+    row.innerHTML='<span class="bl">'+k.toUpperCase()+'</span>'
+      +'<span class="bn">'+v.name.replace(/^L\d · /,'')+'</span>'
+      +'<span class="bt"><span class="bf" style="width:'+p+'%"></span></span>'
+      +'<span class="bv">'+ok+'/'+ids.length+'</span>';
+    bd.appendChild(row);
+  });
+}
+function showQuiz(){
+  $("#card").classList.remove("hidden");
+  $("#controls").classList.remove("hidden");
+  $("#scorebar").classList.remove("hidden");
+  $("#results").classList.add("hidden");
+}
+
+// striscia binaria decorativa
+(function(){ let s=""; for(let i=0;i<120;i++) s+=(Math.random()<.5?"0":"1"); $("#binstrip").textContent=s; })();
+
+// eventi
+$("#next").onclick=()=>go(1);
+$("#prev").onclick=()=>go(-1);
+$("#finish").onclick=showResults;
+$("#restart").onclick=()=>{ state.answers={}; buildOrder(); render(); };
+$("#reset").onclick=()=>{ state.answers={}; render(); };
+
+const tQ=$("#shuffleQ");
+tQ.onclick=()=>{ state.shuffleQ=!state.shuffleQ; tQ.classList.toggle("on",state.shuffleQ); state.answers={}; buildOrder(); render(); };
+const tA=$("#shuffleA");
+tA.onclick=()=>{ state.shuffleA=!state.shuffleA; tA.classList.toggle("on",state.shuffleA); state.answers={}; buildOrder(); render(); };
+
+document.addEventListener("keydown", e=>{
+  if($("#results").classList.contains("hidden")===false) return;
+  if(e.key==="ArrowRight") go(1);
+  else if(e.key==="ArrowLeft") go(-1);
+  else if(["1","2","3","4"].includes(e.key)){
+    const c=current(); if(!c) return;
+    const pos=parseInt(e.key,10)-1;
+    const disp=state.display[c.id];
+    if(pos<disp.length && state.answers[c.id]===undefined) answer(disp[pos]);
+  }
+  else if(["a","b","c","d"].includes(e.key.toLowerCase())){
+    const c=current(); if(!c) return;
+    const pos=LETTERS.indexOf(e.key.toUpperCase());
+    const disp=state.display[c.id];
+    if(pos>=0 && pos<disp.length && state.answers[c.id]===undefined) answer(disp[pos]);
+  }
+});
+
+buildChips(); buildOrder(); render();
+</script>
+</body>
+</html>
