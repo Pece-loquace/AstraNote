@@ -3,6 +3,22 @@ const express = require("express");
 const router = express.Router();
 const supabase = require("../config/supabase");
 
+function utenteCorrente(req)
+{
+    return req.session?.user?.id || null;
+}
+
+function richiedeLogin(req, res)
+{
+    const userId = utenteCorrente(req);
+    if (!userId)
+    {
+        res.status(401).json({ errore: "Devi essere autenticato." });
+        return null;
+    }
+    return userId;
+}
+
 // Inizializza l'SDK di Gemini
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -30,6 +46,9 @@ const QuizSchema = {
 // 1. GET: Recupera i quiz esistenti per un determinato appunto (e le info dell'appunto)
 router.get('/api/appunti/:appuntoId/quiz', async (req, res) =>
 {
+    const userId = richiedeLogin(req, res);
+    if (!userId) return;
+
     const { appuntoId } = req.params;
     try
     {
@@ -45,11 +64,11 @@ router.get('/api/appunti/:appuntoId/quiz', async (req, res) =>
             return res.status(404).json({ errore: "Appunto non trovato" });
         }
 
-        // Recupera i quiz salvati nel database per questo appunto
         const { data: quizList, error: errQuiz } = await supabase
             .from('quiz')
             .select('*')
-            .eq('appunto_id', appuntoId);
+            .eq('appunto_id', appuntoId)
+            .eq('user_id', userId);
 
         if (errQuiz) throw errQuiz;
 
@@ -67,6 +86,9 @@ router.get('/api/appunti/:appuntoId/quiz', async (req, res) =>
 // 2. POST: Genera un nuovo quiz tramite Gemini leggendo il PDF dell'appunto
 router.post('/api/appunti/:appuntoId/quiz', async (req, res) =>
 {
+    const userId = richiedeLogin(req, res);
+    if (!userId) return;
+
     const { appuntoId } = req.params;
     const { numero = 10 } = req.body; // Numero di domande richieste
 
@@ -96,30 +118,23 @@ router.post('/api/appunti/:appuntoId/quiz', async (req, res) =>
 
         console.log("Quiz generato da Gemini con successo, salvataggio su Supabase...");
         // 4. Salva il quiz generato nel database Supabase
-        const payload = {
-            appunto_id: appuntoId,
-            titolo: quizGenerato.quiz_title,
-            domande: quizGenerato.questions,
-            totale: quizGenerato.questions.length,
-            risposte: 0,
-            corrette: 0,
-            creato_il: new Date()
-        };
-        if (req.session?.user?.id) payload.user_id = req.session.user.id;
-
-        let { data: nuovoQuiz, error: errSave } = await supabase
+        const { data: nuovoQuiz, error: errSave } = await supabase
             .from('quiz')
-            .insert([payload])
+            .insert([
+                {
+                    appunto_id: appuntoId,
+                    user_id: userId,
+                    titolo: quizGenerato.quiz_title,
+                    domande: quizGenerato.questions,
+                    totale: quizGenerato.questions.length,
+                    risposte: 0,
+                    corrette: 0,
+                    creato_il: new Date()
+                }
+            ])
             .select()
             .single();
 
-        if (errSave && payload.user_id)
-        {
-            delete payload.user_id;
-            const retry = await supabase.from('quiz').insert([payload]).select().single();
-            nuovoQuiz = retry.data;
-            errSave = retry.error;
-        }
         if (errSave) throw errSave;
 
         // Restituisce l'ID del nuovo quiz creato al frontend
@@ -145,17 +160,10 @@ router.get('/api/quiz/miei', async (req, res) =>
         const userId = req.session?.user?.id;
         if (!userId) return res.status(401).json({ errore: "Non autenticato" });
 
-        let { data: quizRows, error } = await supabase
+        const { data: quizRows, error } = await supabase
             .from('quiz')
             .select('id, appunto_id, user_id')
             .eq('user_id', userId);
-
-        if (error)
-        {
-            const fallback = await supabase.from('quiz').select('id, appunto_id');
-            quizRows = fallback.data;
-            error = fallback.error;
-        }
 
         if (error) throw error;
 
@@ -192,6 +200,9 @@ router.get('/api/quiz/miei', async (req, res) =>
 // 4. GET: Recupera un quiz specifico con le domande
 router.get('/api/quiz/:id', async (req, res) =>
 {
+    const userId = richiedeLogin(req, res);
+    if (!userId) return;
+
     const { id } = req.params;
     try
     {
@@ -199,6 +210,7 @@ router.get('/api/quiz/:id', async (req, res) =>
             .from('quiz')
             .select('*')
             .eq('id', id)
+            .eq('user_id', userId)
             .single();
 
         if (error || !data)
@@ -216,6 +228,9 @@ router.get('/api/quiz/:id', async (req, res) =>
 // 4. PATCH: Aggiorna il punteggio del quiz
 router.patch('/api/quiz/:id', async (req, res) =>
 {
+    const userId = richiedeLogin(req, res);
+    if (!userId) return;
+
     const { id } = req.params;
     const { risposte, corrette } = req.body;
     try
@@ -224,6 +239,7 @@ router.patch('/api/quiz/:id', async (req, res) =>
             .from('quiz')
             .update({ risposte, corrette })
             .eq('id', id)
+            .eq('user_id', userId)
             .select()
             .single();
 
@@ -238,10 +254,13 @@ router.patch('/api/quiz/:id', async (req, res) =>
 // 5. DELETE: Elimina un quiz specifico
 router.delete('/api/quiz/:id', async (req, res) =>
 {
+    const userId = richiedeLogin(req, res);
+    if (!userId) return;
+
     const { id } = req.params;
     try
     {
-        const { error } = await supabase.from('quiz').delete().eq('id', id);
+        const { error } = await supabase.from('quiz').delete().eq('id', id).eq('user_id', userId);
         if (error) throw error;
         res.status(200).json({ success: true });
     } catch (error)
