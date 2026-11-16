@@ -5,6 +5,7 @@ const catalogoRoutes = require("./catalogo.routes");
 const preferitiRoutes = require("./preferiti.routes");
 const utentiRoutes = require("./utenti.routes");
 const authRoutes = require("./auth.routes");
+const quizRoutes = require("./quiz.routes");
 
 // Stesso ordine di registrazione di server/index.js
 function registerRoutes(app) {
@@ -15,6 +16,7 @@ function registerRoutes(app) {
   app.use(preferitiRoutes);
   app.use(utentiRoutes);
   app.use(authRoutes);
+  app.use(quizRoutes);
 }
 
 module.exports = registerRoutes;

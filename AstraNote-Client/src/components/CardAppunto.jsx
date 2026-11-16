@@ -1,293 +1,141 @@
-import { useRef, useState } from "react";
-import { useEffect } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
-import Segnala from "./Segnala";
-import BookMark from "../assets/bookMark.png"
-import BookMarkSelected from "../assets/bookmarkSelected.png"
-import '../style/CardAppunto.css'
-import StelleValutazioni from "./StelleValutazioni";
-import ModificaNote from "./ModificaAppunto";
-import Matita from "../assets/matita.svg"
-import profile from "../assets/profile-circle.svg";
-import { useAuth } from "./AuthContext"
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import '../style/CardAppunto.css';
+import Matita from "../assets/matita.svg";
+import { useAuth } from "./AuthContext";
+import ConfermaDialog from "./ConfermaDialog";
 
+function stelleDaRecensioni(recensioni)
+{
+    if (!recensioni || recensioni.length === 0) return "☆".repeat(5);
+    const somma = recensioni.reduce((acc, rec) => acc + rec.valutazione, 0);
+    const media = Math.round(somma / recensioni.length);
+    return "⭐".repeat(media) + "☆".repeat(5 - media);
+}
 
 export default function CardAppunto({ appunto, onSave, sectionActivate })
 {
     const [stelle, setStelle] = useState("");
-    const [autore, setAutore] = useState([])
-    const [showSegnala, setShowSegnala] = useState(false);
-    const [showModifica, setShowModifica] = useState(false);
-    const [bookMark, setBookMark] = useState(false)
-    const [errore, setErrore] = useState(false)
-    const [valutazioneUtente, setValutazioneUtente] = useState(0)
+    const [bookMark, setBookMark] = useState(false);
+    const [errore, setErrore] = useState("");
     const [recensioni, setRecensioni] = useState([]);
     const [caricamentoCard, setCaricamentoCard] = useState(true);
-    const navigate = useNavigate();
-    const { utente, caricamentoAuth } = useAuth();
+    const [confermaElimina, setConfermaElimina] = useState(false);
 
-    /*Controlla se l'URL corrente è libreria */
+    const navigate = useNavigate();
+    const { utente } = useAuth();
     const location = useLocation();
     const isLibreria = location.pathname === "/libreria";
 
-    //Variabili di riferimento per il modal
-    const modalRef = useRef(null);
-    const [modalAperto, setModalAperto] = useState(false);
     useEffect(() =>
     {
-        const modalEl = modalRef.current;
-        if (!modalEl) return;
-
-        const handleShow = () => setModalAperto(true);
-        const handleHide = () => setModalAperto(false);
-
-        modalEl.addEventListener('shown.bs.modal', handleShow);
-        modalEl.addEventListener('hidden.bs.modal', handleHide);
-
-        return () =>
-        {
-            modalEl.removeEventListener('shown.bs.modal', handleShow);
-            modalEl.removeEventListener('hidden.bs.modal', handleHide);
-        };
-    }, [caricamentoCard]);
-
-
-    useEffect(() =>
-    {
-        fetchCard()
-    }, [])
+        fetchCard();
+    }, [appunto.id]);
 
     const fetchCard = async () =>
     {
-        const appuntoId = appunto.id;
         try
         {
             setCaricamentoCard(true);
-            const response = await fetch(`/api/appunti/${appuntoId}/dettagli`);
+            const response = await fetch(`/api/appunti/${appunto.id}/dettagli`);
             if (!response.ok) throw new Error("Errore nel recupero dati");
-            const { preferiti, recensioni, autore } = await response.json();
-            setAutore(autore);
-            /* Controllo se l'utente corrente ha salvato l'appunto*/
-            const isPresente = preferiti.some(p => String(p.user_id) === String(utente?.id));
-            setBookMark(isPresente);
+            const { preferiti, recensioni } = await response.json();
+            setBookMark(preferiti.some(p => String(p.user_id) === String(utente?.id)));
             setRecensioni(recensioni);
-
-            /*Setta le stelle */
-            if (recensioni.length == 0)
-            {
-                setStelle("☆".repeat(5))
-            } else
-            {
-                const somma = recensioni.reduce((acc, rec) => acc + rec.valutazione, 0);
-                const media = somma / recensioni.length;
-                const valutazioneMedia = Math.round(media);
-                const stringaStelle = "⭐".repeat(valutazioneMedia) + "☆".repeat(5 - valutazioneMedia);
-                setStelle(stringaStelle)
-            }
-
-            const recensioneUtente = recensioni.find(r => String(r.utente_valutante) === String(utente?.id));
-            setValutazioneUtente(recensioneUtente ? recensioneUtente.valutazione : 0);
-
+            setStelle(stelleDaRecensioni(recensioni));
         } catch (error)
         {
-            alert(error.message)
+            setErrore(error.message);
         } finally
         {
             setCaricamentoCard(false);
         }
-    }
+    };
 
     const saveCard = async () =>
     {
-        try
-        {
-            const response = await fetch("/api/preferiti", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ appunto_id: appunto.id })
-            })
-            if (!response.ok) throw new Error("Errore nel recupero dati");
-
-        } catch (error)
-        {
-            setErrore("Errore nel salvare la card")
-            console.log(error)
-        }
-    }
-
+        const response = await fetch("/api/preferiti", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ appunto_id: appunto.id })
+        });
+        if (!response.ok) throw new Error("Errore nel salvataggio");
+    };
 
     const deleteSavedCard = async () =>
     {
+        const response = await fetch("/api/preferiti", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ appunto_id: appunto.id })
+        });
+        if (!response.ok) throw new Error("Errore nella rimozione");
+    };
+
+    const togglePreferito = async (e) =>
+    {
+        e.stopPropagation();
+        const stavaSalvato = bookMark;
+        setBookMark(!stavaSalvato);
         try
         {
-            const response = await fetch('/api/preferiti', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ appunto_id: appunto.id })
-            })
-            if (!response.ok) throw new Error("Errore nel recupero dati");
-
-        } catch (error)
+            if (stavaSalvato)
+            {
+                await deleteSavedCard();
+                if (isLibreria)
+                {
+                    onSave?.({ tipo: "unsave", id: appunto.id });
+                }
+            }
+            else
+            {
+                await saveCard();
+                if (isLibreria)
+                {
+                    onSave?.({ tipo: "save", appunto });
+                }
+            }
+        } catch
         {
-            setErrore("Errore nell'eliminare il salvataggio")
-            console.log(error)
-        }
-    }
-
-    const ricalcolaStelle = (recensioniAggiornate) =>
-    {
-        if (recensioniAggiornate.length === 0)
-        {
-            setStelle("☆".repeat(5));
-        } else
-        {
-            const somma = recensioniAggiornate.reduce((acc, curr) => acc + curr.valutazione, 0);
-            const media = Math.round(somma / recensioniAggiornate.length);
-            setStelle("⭐".repeat(media) + "☆".repeat(5 - media));
+            setBookMark(stavaSalvato);
+            setErrore("Errore nell'aggiornare i preferiti");
         }
     };
 
-
-    const changeRecensioni = async (stelle) =>
+    const apriAppunto = () =>
     {
-        try
-        {
-            let response;
-            let recensioniAggiornate = [];
-
-            if (valutazioneUtente === 0)
-            {
-                response = await fetch('/api/recensioni', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        stelle,
-                        appunto_id: appunto.id
-                    })
-                });
-
-                if (!response.ok)
-                {
-                    throw new Error("Errore nel creare la recensione");
-                }
-
-                recensioniAggiornate = [
-                    ...recensioni,
-                    {
-                        valutazione: stelle,
-                        utente_valutante: utente.id
-                    }
-                ];
-            } else
-            {
-                response = await fetch('/api/recensioni', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        stelle,
-                        appunto_id: appunto.id
-                    })
-                });
-
-                if (!response.ok)
-                {
-                    throw new Error("Errore nel modificare la recensione");
-                }
-
-                recensioniAggiornate = recensioni.map(r =>
-                    String(r.utente_valutante) === String(utente?.id)
-                        ? { ...r, valutazione: stelle }
-                        : r
-                );
-            }
-
-            setRecensioni(recensioniAggiornate);
-            ricalcolaStelle(recensioniAggiornate);
-            setValutazioneUtente(stelle);
-
-            const somma = recensioniAggiornate.reduce(
-                (acc, rec) => acc + rec.valutazione,
-                0
-            );
-
-            const media = somma / recensioniAggiornate.length;
-            const valutazioneMedia = Math.round(media);
-
-            response = await fetch(`/api/appunti/${appunto.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    valutazione: valutazioneMedia
-                })
-            });
-
-            if (!response.ok)
-            {
-                throw new Error("Errore nell'aggiornare la valutazione");
-            }
-
-            // NON ricaricare tutta la Homepage qui
-            // onSave();
-
-        } catch (error)
-        {
-            alert(error.message);
-        }
+        navigate(`/appunto/${appunto.id}`, { state: { from: location.pathname } });
     };
 
-    const eliminaAppunto = async () =>
+    const modificaAppunto = (e) =>
     {
-        const conferma = window.confirm(
-            "Sei sicuro di voler eliminare questo appunto? L'operazione non si può annullare."
-        );
-        if (!conferma) return;
-        try
+        e.stopPropagation();
+        navigate(`/modifica/${appunto.id}`);
+    };
+
+    const chiediElimina = (e) =>
+    {
+        e.stopPropagation();
+        setConfermaElimina(true);
+    };
+
+    const confermaEliminazione = () =>
+    {
+        setConfermaElimina(false);
+        onSave?.({ tipo: "delete", id: appunto.id });
+
+        fetch(`/api/appunti/${appunto.id}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url_thumbnail: appunto.url_thumbnail, url_file: appunto.url_file })
+        }).then((response) =>
         {
-            const response = await fetch(`/api/appunti/${appunto.id}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    url_thumbnail: appunto.url_thumbnail,
-                    url_file: appunto.url_file,
-                }),
-            });
             if (!response.ok) throw new Error("Errore nell'eliminazione");
-            onSave(); // ricarica lista
-        } catch (error)
+        }).catch(() =>
         {
-            alert(error.message);
-        }
+            onSave?.({ tipo: "restore", appunto, errore: "Impossibile eliminare l'appunto. Riprova." });
+        });
     };
-
-    const modificaAppunto = () =>
-    {
-        // Rimuove il backdrop del modal manualmente
-        document.body.classList.remove("modal-open");
-        document.body.style.removeProperty("overflow");
-        document.body.style.removeProperty("padding-right");
-        const backdrop = document.querySelector(".modal-backdrop");
-        if (backdrop) backdrop.remove();
-
-        setTimeout(() =>
-        {
-            navigate(`/modifica/${appunto.id}`);
-        }, 300);
-    };
-
-    const autoreAppunto = () =>
-    {
-        document.body.classList.remove("modal-open");
-        document.body.style.removeProperty("overflow");
-        document.body.style.removeProperty("padding-right");
-        const backdrop = document.querySelector(".modal-backdrop");
-        if (backdrop) backdrop.remove();
-
-        setTimeout(() =>
-        {
-            navigate(`/utente/${autore.id}`);
-        }, 300);
-    }
-
 
     if (caricamentoCard)
     {
@@ -307,158 +155,68 @@ export default function CardAppunto({ appunto, onSave, sectionActivate })
     }
 
     return (
-        <div className=" col-lg-4  col-md-6 col-12 h-100">
-            <div className="cardCnt ">
+        <div className="col-lg-4 col-md-6 col-12 h-100">
+            <div className="cardCnt" onClick={apriAppunto} role="button" tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter") apriAppunto(); }}>
                 <div className="position-absolute top-0 end-0 m-2 d-flex flex-column align-items-center" style={{ zIndex: 1 }}>
-                    {/* Bookmark */}
-                    <div className="bookmarkCnt">
-                        <svg className="bookmarkImg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill={bookMark ? "currentColor" : "none"}
-                            onClick={() => { if (!bookMark) { saveCard(); } else { deleteSavedCard(); } setBookMark(!bookMark); if (isLibreria) { onSave(); } }}>
+                    <div className="bookmarkCnt" onClick={togglePreferito}>
+                        <svg className="bookmarkImg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill={bookMark ? "currentColor" : "none"}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
                         </svg>
                     </div>
 
-                    {/* Matita */}
-                    {(isLibreria && sectionActivate === 'caricati') && (
-                        <img className="pencilImg"
-                            src={Matita}
-                            alt="Modifica"
-                            onClick={modificaAppunto}
-                        />
+                    {(isLibreria && sectionActivate === "caricati") && (
+                        <>
+                            <button type="button" className="cardActionBtn" title="Modifica" aria-label="Modifica appunto" onClick={modificaAppunto}>
+                                <img className="pencilImg" src={Matita} alt="" />
+                            </button>
+                            <button type="button" className="cardActionBtn" title="Elimina" aria-label="Elimina appunto" onClick={chiediElimina}>
+                                <svg className="trashImg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673A2.25 2.25 0 0 1 15.916 21.75H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg>
+                            </button>
+                        </>
                     )}
                 </div>
 
-                {
-                    errore && (
-                        <div className="alert alert-danger position-fixed bottom-0 end-0 m-3" role="alert">
-                            {errore}
-                        </div>
-                    )
-                }
+                {errore && (
+                    <div className="alert alert-danger position-fixed bottom-0 end-0 m-3" role="alert">
+                        {errore}
+                    </div>
+                )}
 
-                <div className=" d-flex 6 w-100 position-relative h-100" data-bs-toggle="modal" data-bs-target={`#modal-${appunto.id}`}>
+                <div className="d-flex w-100 position-relative h-100">
                     <div className="col-4">
-                        <img className=" anteprima object-fit-cover rounded " src={appunto.url_thumbnail} alt="Card image cap" />
+                        <img className="anteprima object-fit-cover rounded" src={appunto.url_thumbnail} alt="" />
                         <span className="anno">{appunto.anno_riferimento}</span>
                         <div className="recensioneCnt">
                             <span>{stelle}</span>
-                            <span>( {recensioni.length} recensioni)</span>
+                            <span>({recensioni.length} recensioni)</span>
                         </div>
                     </div>
 
-                    <div className="sezioneDestra d-flex flex-column  position-relative  ms-2 h-100 w-100 pe-3 overflow-hidden">
-                        {/*Text- break forza il ritorno a capo anche per parole lunghe */}
-                        <div className="titoloAppunto" >
+                    <div className="sezioneDestra d-flex flex-column position-relative ms-2 h-100 w-100 pe-3 overflow-hidden">
+                        <div className="titoloAppunto">
                             <h5 className="text-break">{appunto.titolo}</h5>
                         </div>
-                        <span >{appunto.corso.facolta.nome}</span>
+                        <span>{appunto.corso?.facolta?.nome}</span>
                         <hr className="linea" />
                         <div className="dopoLinea">
-                            <span >{appunto.corso.nome}</span>
+                            <span>{appunto.corso?.nome}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/*Modal */}
-            <div
-                ref={modalRef}
-                className="modal fade"
-                id={`modal-${appunto.id}`}
-                tabIndex="-1"
-                aria-labelledby="exampleModalLabel"
-                aria-hidden="true"
-            >
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="d-flex">
-
-
-                                <div className="col-4 d-flex flex-column align-items-center">
-                                    <img
-                                        className="anteprima object-fit-cover rounded border border-info border-3 w-100"
-                                        src={appunto.url_thumbnail}
-                                        alt="Card image cap"
-                                    />
-                                    <span >Caricato il: {new Date(appunto.data_creazione).toLocaleDateString("it-IT")}</span>
-                                    <a
-                                        className="clickCnt mt-2"
-                                        href={`/utente/${autore.id}`}
-                                        onClick={autoreAppunto}
-                                    >
-                                        <div className="autore-container">
-                                            <img
-                                                src={profile}
-                                                alt="Immagine profilo"
-                                                className="logo-profilo rounded-circle"
-                                            />
-
-                                            <span className="fw-bold"> {autore.nome} {autore.cognome}</span>
-                                        </div>
-                                    </a>
-                                </div>
-
-                                <div className="col-8 d-flex flex-column ms-2  position-relative">
-                                    <div className="text-start d-flex flex-column align-items-start">
-                                        <h5>{appunto.titolo}</h5>
-                                        <span>
-                                            {stelle} ({recensioni.length === 1 ? '1 recensione' : `${recensioni.length} recensioni`})
-                                        </span>
-                                        <span className="text-break"><strong>Descrizione:</strong> {appunto.descrizione}</span>
-                                        <p>{appunto.anno}</p>
-                                    </div>
-
-                                    <div className="position-absolute  bottom-0 start-0 w-100">
-                                        <span><StelleValutazioni stelleAttuali={valutazioneUtente} onChange={changeRecensioni} />(Recensione personale)</span>
-                                        <div className="row justify-content-between">
-                                            <div className="col">
-                                                <button type="button" className="btn btn-primary" data-bs-target={`#modal-${appunto.id}`} onClick={() => window.open(appunto.url_file, '_blank')}>
-                                                    Visualizza
-                                                </button>
-                                            </div>
-                                            <div className="col">
-                                                <a type="button" className="btn btn-primary" href={`${appunto.url_file}?download=`}>
-                                                    Scarica
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {showSegnala && (<Segnala appuntoId={appunto.id} onClose={() => setShowSegnala(false)} />)}
-                        </div>
-                        <div className="modal-footer">
-
-                            {
-                                (!isLibreria || (isLibreria && sectionActivate === 'salvati')) &&
-                                <button className="btn btn-warning me-auto" onClick={() => setShowSegnala(true)}>
-                                    Segnala
-                                </button>
-                            }
-
-                            {
-                                (isLibreria && sectionActivate === 'caricati') &&
-                                <button className="btn  btn-danger " onClick={() => { eliminaAppunto(); }}>
-                                    Elimina
-                                </button>
-                            }
-                            <button
-                                className="btn-quiz"
-                                onClick={() => navigate(`/quiz/${appunto.id}`)}
-                            >
-                                Fai il quiz su questo argomento
-                            </button>
-                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <ConfermaDialog
+                aperto={confermaElimina}
+                titolo="Eliminare l'appunto?"
+                messaggio="Sei sicuro di voler eliminare questo appunto? L'operazione non si può annullare."
+                confermaLabel="Elimina"
+                annullaLabel="Annulla"
+                onAnnulla={() => setConfermaElimina(false)}
+                onConferma={confermaEliminazione}
+            />
         </div>
-    )
+    );
 }

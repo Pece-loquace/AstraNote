@@ -44,17 +44,36 @@
 }
 
 
-.pencilImg {
-    width: 22px;
-    height: 22px;
-    margin-top: 8px;
+.cardActionBtn {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    margin-top: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #620821;
     cursor: pointer;
-
+    transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.pencilImg:hover {
-    cursor: pointer;
-    background-color: #e597a4;
+.cardActionBtn:hover {
+    background-color: #f6e9ed;
+    transform: translateY(-1px) scale(1.08);
+}
+
+.pencilImg,
+.trashImg {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
+
+.cardActionBtn:last-child:hover {
+    background-color: #fbeaea;
+    color: #b3362b;
 }
 
 .anteprima {

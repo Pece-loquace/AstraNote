@@ -11,6 +11,7 @@ export default function Libreria() {
     const [appuntiSalvati, setAppuntiSalvati] = useState([])
     const [filters, setFilters] = useState({ facolta: "", corso: "", anno: "", stelle: "" })
     const [sezioneAttiva, setSezioneAttiva] = useState("caricati")
+    const [erroreLibreria, setErroreLibreria] = useState("")
 
     useEffect(() => {
         caricaLibreria()
@@ -32,8 +33,23 @@ export default function Libreria() {
         }
     }
 
-    const Reload = () => {
-        window.location.reload()
+    const onCardChange = (evento) => {
+        if (!evento) return
+        if (evento.tipo === "unsave") {
+            setAppuntiSalvati(prev => prev.filter(a => a.id !== evento.id))
+        }
+        if (evento.tipo === "save" && evento.appunto) {
+            setAppuntiSalvati(prev => prev.some(a => a.id === evento.appunto.id) ? prev : [evento.appunto, ...prev])
+        }
+        if (evento.tipo === "delete") {
+            setErroreLibreria("")
+            setAppuntiCaricati(prev => prev.filter(a => a.id !== evento.id))
+            setAppuntiSalvati(prev => prev.filter(a => a.id !== evento.id))
+        }
+        if (evento.tipo === "restore" && evento.appunto) {
+            setAppuntiCaricati(prev => prev.some(a => a.id === evento.appunto.id) ? prev : [evento.appunto, ...prev])
+            setErroreLibreria(evento.errore || "Impossibile completare l'operazione.")
+        }
     }
 
     const appuntiCaricatiFiltrati = appuntiCaricati.filter(a => {
@@ -77,12 +93,16 @@ export default function Libreria() {
                 <Filters filters={filters} setFilters={setFilters} />
             </div>
 
+            {erroreLibreria && (
+                <div className="alert alert-danger" role="alert">{erroreLibreria}</div>
+            )}
+
             {
                 (sezioneAttiva === "caricati") && (
                     appuntiCaricatiFiltrati.length === 0 ? <p>Nessun appunto caricato</p> :
                         <div className="row g-4">
                             {
-                                appuntiCaricatiFiltrati.map((a) => (<CardAppunto key={a.id} appunto={a} onSave={Reload} sectionActivate={sezioneAttiva} />))
+                                appuntiCaricatiFiltrati.map((a) => (<CardAppunto key={a.id} appunto={a} onSave={onCardChange} sectionActivate={sezioneAttiva} />))
                             }
                         </div>
                 )
@@ -93,7 +113,7 @@ export default function Libreria() {
                 (appuntiSalvatiFiltrati.length === 0 ? <p>Nessun appunto scaricato</p> :
                     <div className="row g-4">
                         {
-                            appuntiSalvatiFiltrati.map((a) => (<CardAppunto key={a.id} appunto={a} onSave={Reload} sectionActivate={sezioneAttiva} />))
+                            appuntiSalvatiFiltrati.map((a) => (<CardAppunto key={a.id} appunto={a} onSave={onCardChange} sectionActivate={sezioneAttiva} />))
                         }
                     </div>)
             }

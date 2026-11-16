@@ -1,0 +1,67 @@
+.cd-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(42, 26, 31, 0.55);
+}
+
+.cd-box {
+    width: min(420px, 100%);
+    background: #fff;
+    border: 1px solid #e4d0d6;
+    border-top: 5px solid #620821;
+    border-radius: 16px;
+    padding: 24px 22px 20px;
+    box-shadow: 0 16px 40px rgba(98, 8, 33, 0.22);
+    color: #2a1a1f;
+}
+
+.cd-title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #620821;
+    margin: 0 0 10px;
+}
+
+.cd-msg {
+    margin: 0 0 22px;
+    color: #7a6169;
+    line-height: 1.45;
+}
+
+.cd-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cd-btn {
+    font: inherit;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 2px solid #620821;
+    background: #fff;
+    color: #620821;
+    cursor: pointer;
+}
+
+.cd-btn:hover {
+    background: #f6e9ed;
+}
+
+.cd-btn-danger {
+    background: #620821;
+    color: #fff;
+}
+
+.cd-btn-danger:hover {
+    background: #4a0619;
+    border-color: #4a0619;
+}

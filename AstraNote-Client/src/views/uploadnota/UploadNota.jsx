@@ -6,6 +6,7 @@ import "../../style/buttons.css";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import { valutaCopyright } from "../../utils/copyrightCheck";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
@@ -16,7 +17,7 @@ const TITOLO_MIN = 5;
 const TITOLO_MAX = 25;
 const DESCRIZIONE_MAX = 100;
 
-function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) {
+function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione, confermaOriginale }) {
     const errori = [];
     const campiInErrore = new Set();
 
@@ -65,11 +66,27 @@ function validaCaricamento({ file, titolo, facolta, corso, anno, descrizione }) 
         campiInErrore.add("descrizione");
     }
 
+    if (!confermaOriginale) {
+        errori.push("Devi confermare che stai caricando appunti originali e non un libro protetto da copyright.");
+        campiInErrore.add("conferma");
+    }
+
     return { ok: errori.length === 0, errori, campiInErrore };
 }
 
+async function estraiTestoPrimePagine(pdf, maxPagine = 5) {
+    const limite = Math.min(pdf.numPages, maxPagine);
+    let testo = "";
+    for (let i = 1; i <= limite; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        testo += content.items.map((it) => it.str).join(" ") + "\n";
+    }
+    return testo;
+}
+
 const initialFormState = {
-    upload: null, nome: "", facolta: "", corso: "", anno: "", descrizione: "",
+    upload: null, nome: "", facolta: "", corso: "", anno: "", descrizione: "", confermaOriginale: false,
 };
 
 export default function UploadNota() {
@@ -87,8 +104,8 @@ export default function UploadNota() {
 
 
     const handleChange = (e) => {
-        const { name, value, type, files } = e.target;
-        const nextValue = type === "file" ? (files[0] ?? null) : value;
+        const { name, value, type, files, checked } = e.target;
+        const nextValue = type === "file" ? (files[0] ?? null) : type === "checkbox" ? checked : value;
 
         setFormData((prev) => ({ ...prev, [name]: nextValue }));
         setCampiInErrore((prev) => {
@@ -147,6 +164,7 @@ export default function UploadNota() {
             corso: formData.corso,
             anno: formData.anno,
             descrizione: formData.descrizione,
+            confermaOriginale: formData.confermaOriginale,
         });
 
 
@@ -168,6 +186,21 @@ export default function UploadNota() {
             const pdf = await pdfjsLib.getDocument({
                 data: arrayBuffer,
             }).promise;
+
+            const testoAnteprima = await estraiTestoPrimePagine(pdf);
+            const copyright = valutaCopyright({
+                titolo: formData.nome,
+                descrizione: formData.descrizione,
+                nomeFile: file.name,
+                testoPdf: testoAnteprima,
+                numPagine: pdf.numPages
+            });
+            if (copyright.bloccato) {
+                setFeedback({ show: true, type: "error", errori: [copyright.messaggio] });
+                setTuttiValidi(false);
+                setSalvataggio(false);
+                return;
+            }
 
             const page = await pdf.getPage(1);
 
@@ -198,6 +231,9 @@ export default function UploadNota() {
             payload.append("corso", formData.corso);
             payload.append("anno_riferimento", formData.anno)
             payload.append("descrizione", formData.descrizione.trim());
+            payload.append("testo_anteprima", testoAnteprima.slice(0, 20000));
+            payload.append("num_pagine", String(pdf.numPages));
+            payload.append("conferma_originale", "true");
 
             const response = await fetch('/api/appunti', {
                 method: "POST",
@@ -206,15 +242,16 @@ export default function UploadNota() {
             });
 
             
+            const risultato = await response.json().catch(() => ({}));
             if (response.ok) {
                 setFeedback({ show: true, type: "ok", errori: [] });
                 setTimeout(() => navigate("/homepage"), 1000);
             } else {
-                throw new Error("Impossibile caricare la nota");
+                throw new Error(risultato.error || "Impossibile caricare la nota");
             }
         } catch (error) {
             console.error(error);
-            setFeedback({ show: true, type: "error", errori: ["Errore di rete durante il caricamento. Riprova più tardi."] });
+            setFeedback({ show: true, type: "error", errori: [error.message || "Errore di rete durante il caricamento. Riprova più tardi."] });
             setTuttiValidi(false);
         } finally {
             setSalvataggio(false);
@@ -306,6 +343,20 @@ export default function UploadNota() {
                             <label htmlFor="descrizione" className="form-label custom-label">Descrizione</label>
                             <textarea id="descrizione" name="descrizione" rows="6" maxLength={DESCRIZIONE_MAX} value={formData.descrizione} onChange={handleChange} className={`form-control ${classFor("descrizione")}`} />
                             <div className="form-text">Aggiungi una breve descrizione (facoltativa, max {DESCRIZIONE_MAX} caratteri)</div>
+                        </div>
+
+                        <div className="form-check mb-4">
+                            <input
+                                className={`form-check-input ${classFor("conferma")}`}
+                                type="checkbox"
+                                id="confermaOriginale"
+                                name="confermaOriginale"
+                                checked={formData.confermaOriginale}
+                                onChange={handleChange}
+                            />
+                            <label className="form-check-label" htmlFor="confermaOriginale">
+                                Confermo che questo file sono appunti originali e non un libro, manuale o altro materiale protetto da copyright.
+                            </label>
                         </div>
 
                         <div className="d-grid gap-2">

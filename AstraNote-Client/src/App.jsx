@@ -14,11 +14,16 @@ import Mission from "./views/mission/Mission"
 import Valori from "./views/valori/Valori"
 import Contattaci from "./views/contattaci/Contattaci"
 
+import QuizAppunto from "./components/QuizAppunto";
+import PaginaAppunto from "./views/appunto/PaginaAppunto";
+import PaginaQuiz from "./views/Quiz/PaginaQuiz";
+
 import ScrollToTop from "./components/ScrollToTop";
 
 
 
-export default function App() {
+export default function App()
+{
 
   return (
     <BrowserRouter>
@@ -37,6 +42,9 @@ export default function App() {
           <Route path="/La_nostra_Mission" element={<Mission />} />
           <Route path="/I_nostri_Valori" element={<Valori />} />
           <Route path="/Contattaci" element={<Contattaci />} />
+          <Route path="/appunto/:id" element={<PaginaAppunto />} />
+          <Route path="/quiz" element={<PaginaQuiz />} />
+          <Route path="/quiz/:appuntoId/:quizId" element={<QuizAppunto />} />
         </Route>
       </Routes>
     </BrowserRouter>

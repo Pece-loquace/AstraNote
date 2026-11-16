@@ -25,7 +25,17 @@ export default function Profilo() {
             setCaricamento(false)
         }
         init()
-    }, [])
+
+        const onRating = () => fetchUtente()
+        window.addEventListener("astranote:rating-changed", onRating)
+        return () => window.removeEventListener("astranote:rating-changed", onRating)
+    }, [id_utente])
+
+    const stelleMedia = (valore) => {
+        const n = Math.round(Number(valore) || 0)
+        const clamp = Math.min(5, Math.max(0, n))
+        return "⭐".repeat(clamp) + "☆".repeat(5 - clamp)
+    }
 
     const fetchUtente = async () => {
         try {
@@ -46,7 +56,7 @@ export default function Profilo() {
             const [res3, res4, res5] = await Promise.all([
                 fetch(`/api/appunti_caricati/${user.id}`),
                 fetch(`/api/facolta/${user.facolta}`),
-                fetch(`/api/user_ratings/${user.id}`)
+                fetch(`/api/user_ratings/${user.id}`, { cache: "no-store" })
             ])
 
             if (!res3.ok || !res4.ok || !res5.ok) {
@@ -56,10 +66,25 @@ export default function Profilo() {
 
             setAppunti(notes)
             setNomeFacolta(facolta.nome)
-            const media = user_rating.media_valutazioni
-            const valutazioneMedia = "⭐".repeat(user_rating.media_valutazioni) + "☆".repeat(5 - (user_rating.media_valutazioni))
-            setMediaUtente(valutazioneMedia)
+            const daNote = (notes || [])
+                .map(n => Number(n.valutazione))
+                .filter(n => !Number.isNaN(n) && n > 0)
+            const media = daNote.length
+                ? Math.round(daNote.reduce((a, b) => a + b, 0) / daNote.length)
+                : user_rating.media_valutazioni
+            setMediaUtente(stelleMedia(media))
 
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const aggiornaMedia = async () => {
+        try {
+            const res = await fetch(`/api/user_ratings/${id_utente}`, { cache: "no-store" })
+            if (!res.ok) return
+            const user_rating = await res.json()
+            setMediaUtente(stelleMedia(user_rating.media_valutazioni))
         } catch (error) {
             console.error(error)
         }
@@ -148,7 +173,7 @@ export default function Profilo() {
                     ) : (
                         <div className="row g-3">
                             {appunti.map((appunto) => (
-                                <CardAppunto key={appunto.id} appunto={appunto} onSave={fetchUtente} />
+                                <CardAppunto key={appunto.id} appunto={appunto} onSave={aggiornaMedia} />
 
                             ))}
                         </div>

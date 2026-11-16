@@ -1,6 +1,8 @@
 .menuCnt {
     overflow-x: hidden;
     overflow-y: auto;
+    background: #f6f1e7;
+    border-left: 4px solid #620821;
 }
 
 .menuChild_1 {
@@ -20,15 +22,17 @@
     height: auto;
     min-width: 100%;
     min-height: 100vh;
-    margin: 0px;
-    background-color: #f7f3f4;
+    margin: 0;
+    background-color: #f6f1e7;
 }
 
 .menuHeaderCnt {
     display: flex;
-    top: 0px;
-    background-color: transparent;
+    top: 0;
+    background-color: #620821;
     position: relative;
+    min-height: 52px;
+    color: #fff;
 }
 
 .menuAccount {
@@ -36,27 +40,30 @@
     justify-content: center;
     width: 100%;
     gap: 5px;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
+    padding: 18px 12px 8px;
     margin-left: auto;
     margin-right: auto;
 }
-
 
 .menuNameCnt {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 8px;
+    color: #620821;
+    font-weight: 700;
 }
 
 .menuIcon {
     width: 40px;
     border-radius: 4px;
+    color: #620821;
 }
 
 .menuName {
     text-decoration: none;
-    color: inherit;
+    color: #620821;
+    font-size: 1.05rem;
 }
 
 .menuCloseSvg {
@@ -64,4 +71,11 @@
     cursor: pointer;
     width: 36px;
     height: 36px;
+    color: #fff;
+}
+
+.menuSection hr {
+    border: 0;
+    border-top: 1px solid #e4d0d6;
+    margin: 0.4rem 0.75rem;
 }

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const supabase = require("../config/supabase");
 const upload = require("../middlewares/upload");
+const { valutaCopyright } = require("../utils/copyrightCheck");
 
 
 router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
@@ -10,12 +11,30 @@ router.post("/api/appunti", upload.fields([{ name: "file", maxCount: 1 },
 
   const file = req.files.file?.[0];
   const thumbnail = req.files.thumbnail?.[0];
-  const { titolo, descrizione, corso, anno_riferimento } = req.body;
+  const { titolo, descrizione, corso, anno_riferimento, testo_anteprima, num_pagine, conferma_originale } = req.body;
 
 
   if (!titolo || !corso || !file || !anno_riferimento)
   {
     return res.status(400).json({ error: "Tutti i campi sono obbligatori" });
+  }
+
+  if (conferma_originale !== "true" && conferma_originale !== true)
+  {
+    return res.status(400).json({ error: "Devi confermare che il file sono appunti originali e non un libro protetto da copyright." });
+  }
+
+  const verifica = valutaCopyright({
+    titolo,
+    descrizione,
+    nomeFile: file.originalname,
+    testoPdf: testo_anteprima,
+    numPagine: num_pagine
+  });
+
+  if (verifica.bloccato)
+  {
+    return res.status(400).json({ error: verifica.messaggio });
   }
 
   //Upload del file

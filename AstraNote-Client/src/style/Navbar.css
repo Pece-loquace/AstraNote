@@ -112,6 +112,7 @@
 .optionSvg {
     width: 36px;
     height: 36px;
+    color: #620821;
 }
 
 .optionContent {
@@ -124,22 +125,32 @@
 
 .optionTitle {
     margin: 0px;
-    color: rgb(0, 0, 0);
+    color: #620821;
     font-size: 1rem;
     line-height: 1.5rem;
-    font-weight: 500;
+    font-weight: 600;
     text-transform: none;
     letter-spacing: 0px;
 }
 
 .optionSubtitle {
     margin: 0px;
-    color: inherit;
+    color: #7a6169;
     font-size: 0.688rem;
     line-height: 1rem;
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0.02em;
+}
+
+.menuOptionsCnt .clickCnt {
+    display: block;
+    border-radius: 10px;
+    margin: 0 8px;
+}
+
+.menuOptionsCnt .clickCnt:hover {
+    background: #f6e9ed;
 }
 
 .menuDesktop {

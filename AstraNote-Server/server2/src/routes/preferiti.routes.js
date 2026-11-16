@@ -4,7 +4,8 @@ const supabase = require("../config/supabase");
 
 /*-----CRUD preferiti-----*/
 /*Crea una riga nella tabella preferiti */
-router.post("/api/preferiti", async (req, res) => {
+router.post("/api/preferiti", async (req, res) =>
+{
   const { appunto_id: appuntoId } = req.body;
 
   const { data, error } = await supabase
@@ -18,7 +19,8 @@ router.post("/api/preferiti", async (req, res) => {
     ])
     .select();
 
-  if (error) {
+  if (error)
+  {
     return res.status(500).json({ error: "Errore nel salvare il" });
   }
 
@@ -26,7 +28,8 @@ router.post("/api/preferiti", async (req, res) => {
 });
 
 /*Vede se l'utente con la sessione in corso ha quella card salvata */
-router.get("/api/appunti/:appuntoId/preferiti", async (req, res) => {
+router.get("/api/appunti/:appuntoId/preferiti", async (req, res) =>
+{
   const { appuntoId } = req.params;
 
   const { data, error } = await supabase
@@ -34,7 +37,8 @@ router.get("/api/appunti/:appuntoId/preferiti", async (req, res) => {
     .select("*")
     .eq("appunto_id", appuntoId);
 
-  if (error) {
+  if (error)
+  {
     return res
       .status(500)
       .json({ error: "Errore nel recupero dei file scaricati" });
@@ -44,13 +48,15 @@ router.get("/api/appunti/:appuntoId/preferiti", async (req, res) => {
 
 /*Usato in libreria >Appunti salvati :
 restituisce tutti gli appunti salvati */
-router.get("/api/preferiti_utente", async (req, res) => {
+router.get("/api/preferiti_utente", async (req, res) =>
+{
   const { data, error } = await supabase
     .from("preferiti")
     .select(`appunti(*,corso(*,facolta(*)))`)
     .eq("user_id", req.session.user.id);
 
-  if (error) {
+  if (error)
+  {
     return res
       .status(500)
       .json({ error: "Errore nel recupero dei file scaricati" });
@@ -60,7 +66,8 @@ router.get("/api/preferiti_utente", async (req, res) => {
   res.json(appuntiScaricati);
 });
 
-router.delete("/api/preferiti", async (req, res) => {
+router.delete("/api/preferiti", async (req, res) =>
+{
   const { appunto_id } = req.body;
 
   const { data, error } = await supabase
@@ -69,7 +76,8 @@ router.delete("/api/preferiti", async (req, res) => {
     .eq("appunto_id", appunto_id)
     .eq("user_id", req.session.user.id);
 
-  if (error) {
+  if (error)
+  {
     return res
       .status(500)
       .json({ error: "Impossibile eliminare il preferito" });
