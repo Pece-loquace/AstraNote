@@ -108,7 +108,20 @@ router.post('/api/appunti/:appuntoId/quiz', async (req, res) =>
 
         console.log(`Generazione quiz con Gemini per appunto ID: ${appuntoId}...`);
 
-        // 2. Scarica il PDF e convertilo in Base64
+        // 2. Scarica il PDF e convertilo in Base64:
+        //Base 94 è un modo per rappresentare dati binari come testo
+        /*
+            Base 94 è un modo per rappresentare dati binari come testo.
+            Problema: il pdf è un file binario, cioè una sequenza di byte arbitrari. 
+            La richiesta all’API di Gemini viaggia come JSON, e il JSON può contenere
+            solo testo. Se provassi a infilarci i byte grezzi del PDF, molti caratteri
+             sarebbero invalidi o verrebbero corrotti durante il trasporto.
+
+            La soluzione: Base64 converte ogni gruppo di 3 byte in 4 caratteri scelti da 
+            un alfabeto sicuro di 64 simboli (A-Z, a-z, 0-9, +, /). Il risultato è una 
+            stringa di testo che si può mettere in un JSON senza problemi. Dall’altra parte,
+            Gemini la decodifica e ricostruisce il PDF originale identico.
+        */
         const pdfBase64 = await fetchPdfAsBase64(appunto.url_file);
 
         // 3. Richiesta a Gemini, con retry e fallback se un modello è saturo (503)

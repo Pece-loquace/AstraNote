@@ -1,4 +1,6 @@
-* { box-sizing: border-box;}
+* {
+    box-sizing: border-box;
+}
 
 .navbarCnt {
     z-index: 10;
@@ -28,7 +30,9 @@
     filter: invert(15%);
 }
 
-.uploadCnt, .libraryCnt, .accountCnt {
+.uploadCnt,
+.libraryCnt,
+.accountCnt {
     display: flex;
     padding: 15px;
     gap: 10px;
@@ -38,36 +42,85 @@
     &:hover {
         border-color: white;
     }
+
     &:focus-visible {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
     }
 }
 
-.uploadIcon, .libraryIcon, .accountIcon, .searchIcon {
+.uploadIcon,
+.libraryIcon,
+.accountIcon,
+.searchIcon {
     width: 40px;
     color: white;
     border-radius: 4px;
 }
 
-.upload, .library, .account {
+.upload,
+.library,
+.account {
     padding: 10px;
     text-decoration: none;
 }
 
 .searchCnt {
     display: flex;
+    align-items: center;
     padding: 25px;
     gap: 10px;
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 45px;
+    top: 50%;
+    margin-top: -13px;
+    /* metà di height: allinea la lente al centro dell'input */
+    width: 26px;
+    height: 26px;
+    padding: 4px;
+    color: #620821;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    /* niente pointer-events: none, altrimenti l'hover non scatta */
+}
+
+.searchIcon:hover {
+    background-color: rgba(98, 8, 33, 0.12);
+    transform: scale(1.1);
 }
 
 .search {
-    padding: 3px;
+    padding: 3px 10px 3px 44px;
+    /* 35px a sinistra: spazio per la lente */
     width: 100%;
     height: 30px;
-    background-color: rgba(128, 124, 124, 0.363);
-    color: rgb(255, 255, 255);
+    background-color: #fff;
+    color: #620821;
     font-size: larger;
+    border-radius: 10px;
+    border: none;
+
+    &::placeholder {
+        color: #620821;
+        font-style: italic;
+        opacity: 1;
+        transition: color 0.2s;
+    }
+
+    &:hover::placeholder,
+    &:focus::placeholder {
+        color: rgba(98, 8, 33, 0.4);
+    }
+
+    &:focus {
+        outline: 2px solid #620821;
+        outline-offset: 2px;
+    }
 }
 
 .clickCnt {
@@ -198,7 +251,7 @@
 
     .settingsCntMobile {
         display: flex;
-        
+
         padding: 10px;
         color: #620821;
         border: 2px solid transparent;
@@ -206,6 +259,7 @@
         &:hover {
             border-color: white;
         }
+
         &:focus-visible {
             outline: 2px solid var(--accent);
             outline-offset: 2px;
@@ -225,7 +279,7 @@
     }
 
     @media (max-width: 300px) {
-        
+
         .logoCnt {
             display: none;
         }
